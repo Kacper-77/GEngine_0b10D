@@ -6,6 +6,7 @@
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"
 #include "scene/Sprite.h"
+#include "input/InputManager.h"
 
 int main(int argc, char* argv[]) {
     // Init SDL_image
@@ -32,12 +33,33 @@ int main(int argc, char* argv[]) {
     // Sprite
     Sprite player;
     player.SetTexture(&playerTexture);
-    player.SetPosition(368, 268);
     player.SetSize(64, 64);
+
+    int playerX = 368;
+    int playerY = 268;
+    player.SetPosition(playerX, playerY);
+
+    // Input
+    InputManager input;
+    input.Bind("MoveLeft", SDL_SCANCODE_LEFT);
+    input.Bind("MoveRight", SDL_SCANCODE_RIGHT);
+    input.Bind("MoveUp", SDL_SCANCODE_UP);
+    input.Bind("MoveDown", SDL_SCANCODE_DOWN);
+
+    const int speed = 4;
 
     // Main loop
     while (window.IsRunning()) {
         window.PollEvents();
+        input.Update();
+
+        // Movement
+        if (input.IsActionHeld("MoveLeft"))  playerX -= speed;
+        if (input.IsActionHeld("MoveRight")) playerX += speed;
+        if (input.IsActionHeld("MoveUp"))    playerY -= speed;
+        if (input.IsActionHeld("MoveDown"))  playerY += speed;
+
+        player.SetPosition(playerX, playerY);
 
         renderer.Clear();
         player.Draw(renderer);
