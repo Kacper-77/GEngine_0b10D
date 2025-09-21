@@ -1,4 +1,4 @@
-#include "InputManager.h"
+#include "../include/input/InputManager.h"
 
 void InputManager::Bind(const std::string& action, SDL_Scancode key) {
     m_bindings[action] = key;

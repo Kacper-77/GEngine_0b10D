@@ -2,11 +2,11 @@
 #include <SDL_image.h>
 #include <iostream>
 
-#include "window/Window.h"
-#include "graphics/Renderer.h"
-#include "graphics/Texture.h"
-#include "scene/Sprite.h"
-#include "input/InputManager.h"
+#include "../include/window/Window.h"
+#include "../include/graphics/Renderer.h"
+#include "../include/graphics/Texture.h"
+#include "../include/scene/Sprite.h"
+#include "../include/input/InputManager.h"
 
 int main(int argc, char* argv[]) {
     // Init SDL_image

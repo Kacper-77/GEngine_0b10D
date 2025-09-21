@@ -1,4 +1,4 @@
-#include "Sprite.h"
+#include "../include/scene/Sprite.h"
 
 Sprite::Sprite()
     : m_texture(nullptr), m_x(0), m_y(0), m_width(0), m_height(0) {}

@@ -1,4 +1,4 @@
-#include "Window.h"
+#include "../include/window/Window.h"
 #include <iostream>
 
 Window::Window()
