@@ -2,14 +2,20 @@
 #include <SDL_image.h>
 #include <iostream>
 
-#include "../include/window/Window.h"
-#include "../include/graphics/Renderer.h"
-#include "../include/graphics/Texture.h"
-#include "../include/scene/Sprite.h"
-#include "../include/input/InputManager.h"
+#include "core/Entity.h"
+#include "core/SystemManager.h"
+#include "core/ComponentStorage.h"
+#include "core/components/TransformComponent.h"
+#include "core/components/VelocityComponent.h"
+#include "core/systems/MovementSystem.h"
+
+#include "window/Window.h"
+#include "graphics/Renderer.h"
+#include "graphics/Texture.h"
+#include "scene/Sprite.h"
+#include "input/InputManager.h"
 
 int main(int argc, char* argv[]) {
-    // Init SDL_image
     if (IMG_Init(IMG_INIT_PNG) == 0) {
         std::cerr << "SDL_image could not initialize! Error: " << IMG_GetError() << std::endl;
         return -1;
@@ -18,26 +24,29 @@ int main(int argc, char* argv[]) {
     Window window;
     Renderer renderer;
 
-    if (!window.Init("GEngine_0b10D", 800, 600, false)) return -1;
+    if (!window.Init("GEngine_ECS_Test", 800, 600, false)) return -1;
     if (!renderer.Init(window.GetSDLWindow())) return -1;
 
     renderer.SetDrawColor(30, 30, 60, 255);
 
-    // Texture 
+    // Texture
     Texture playerTexture;
     if (!playerTexture.LoadFromFile("../assets/fish_brown.png", renderer.GetSDLRenderer())) {
         std::cerr << "Failed to load player texture." << std::endl;
         return -1;
     }
 
-    // Sprite
-    Sprite player;
-    player.SetTexture(&playerTexture);
-    player.SetSize(64, 64);
+    // ECS setup
+    Entity player(1);
 
-    int playerX = 368;
-    int playerY = 268;
-    player.SetPosition(playerX, playerY);
+    ComponentStorage<TransformComponent> transforms;
+    ComponentStorage<VelocityComponent> velocities;
+
+    transforms.Add(player.GetID(), {368, 268, 64, 64});
+    velocities.Add(player.GetID(), {0.0f, 0.0f});
+
+    SystemManager systemManager;
+    systemManager.RegisterSystem<MovementSystem>(transforms, velocities);
 
     // Input
     InputManager input;
@@ -46,23 +55,46 @@ int main(int argc, char* argv[]) {
     input.Bind("MoveUp", SDL_SCANCODE_UP);
     input.Bind("MoveDown", SDL_SCANCODE_DOWN);
 
-    const int speed = 4;
+    // Sprite
+    Sprite playerSprite;
+    playerSprite.SetTexture(&playerTexture);
+    playerSprite.SetSize(64, 64);
+
+    const float speed = 150.0f; // pixels per second
+    Uint32 lastTick = SDL_GetTicks();
 
     // Main loop
     while (window.IsRunning()) {
+        Uint32 currentTick = SDL_GetTicks();
+        float deltaTime = (currentTick - lastTick) / 1000.0f;
+        lastTick = currentTick;
+
         window.PollEvents();
         input.Update();
 
-        // Movement
-        if (input.IsActionHeld("MoveLeft"))  playerX -= speed;
-        if (input.IsActionHeld("MoveRight")) playerX += speed;
-        if (input.IsActionHeld("MoveUp"))    playerY -= speed;
-        if (input.IsActionHeld("MoveDown"))  playerY += speed;
+        // Update velocity input
+        auto* velocity = velocities.Get(player.GetID());
+        if (velocity) {
+            velocity->dx = 0.0f;
+            velocity->dy = 0.0f;
+            if (input.IsActionHeld("MoveLeft"))  velocity->dx -= speed;
+            if (input.IsActionHeld("MoveRight")) velocity->dx += speed;
+            if (input.IsActionHeld("MoveUp"))    velocity->dy -= speed;
+            if (input.IsActionHeld("MoveDown"))  velocity->dy += speed;
+        }
 
-        player.SetPosition(playerX, playerY);
+        // Update systems
+        systemManager.UpdateAll(deltaTime);
 
+        // Update sprite position ECS
+        auto* transform = transforms.Get(player.GetID());
+        if (transform) {
+            playerSprite.SetPosition(transform->x, transform->y);
+        }
+
+        // Render
         renderer.Clear();
-        player.Draw(renderer);
+        playerSprite.Draw(renderer);
         renderer.Present();
     }
 

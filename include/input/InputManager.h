@@ -17,5 +17,5 @@ public:
 private:
     std::unordered_map<std::string, SDL_Scancode> m_bindings;
     const Uint8* m_currentKeys = nullptr;
-    Uint8 m_previousKeys[SDL_NUM_SCANCODES] = {0};
+    Uint8 m_previousKeys[SDL_NUM_SCANCODES] = { 0 };
 };
