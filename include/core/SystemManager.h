@@ -11,7 +11,21 @@ public:
         m_systems.push_back(std::move(system));
     }
 
-    void UpdateAll(float deltaTime);
+    void UpdateAll(float deltaTime) {
+        for (auto& system : m_systems) {
+            system->Update(deltaTime);
+        }
+    }
+
+    template<typename T>
+    T* GetSystem() {
+        for (auto& system : m_systems) {
+            if (auto ptr = dynamic_cast<T*>(system.get())) {
+                return ptr;
+            }
+        }
+        return nullptr;
+    }
 
 private:
     std::vector<std::unique_ptr<ISystem>> m_systems;

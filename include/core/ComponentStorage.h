@@ -14,6 +14,13 @@ public:
         return it != m_components.end() ? &it->second : nullptr;
     }
 
+    void Remove(EntityID id) {
+        auto it = m_components.find(id);
+        if (it != m_components.end()) {
+            m_components.erase(it);
+        }
+    }
+
     std::unordered_map<EntityID, T>& GetAll() {
         return m_components;
     }
