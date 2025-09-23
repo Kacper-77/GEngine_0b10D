@@ -30,7 +30,7 @@ target_link_libraries(GameEngineLib ${SDL2_LIBS} -lSDL2_image)
 add_executable(GameEngine2D src/main.cpp)
 target_include_directories(GameEngine2D PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/core)
 target_compile_options(GameEngine2D PRIVATE ${SDL2_CFLAGS_LIST})
-target_link_libraries(GameEngine2D GameEngineLib ${SDL2_LIBS} -lSDL2_image)
+target_link_libraries(GameEngine2D GameEngineLib ${SDL2_LIBS})
 
 # Compiler flags
 if (CMAKE_CXX_COMPILER_ID MATCHES "Clang|GNU")
@@ -59,7 +59,7 @@ target_include_directories(ComponentStorageTest PRIVATE ${CMAKE_SOURCE_DIR}/incl
 target_link_libraries(ComponentStorageTest GameEngineLib gtest_main)
 add_test(NAME ComponentStorageTest COMMAND ComponentStorageTest)
 
-#SYSTEM MANAGER
+# SYSTEM MANAGER
 add_executable(SystemManagerTest tests/test_SystemManager.cpp)
 target_include_directories(SystemManagerTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(SystemManagerTest GameEngineLib gtest_main)
