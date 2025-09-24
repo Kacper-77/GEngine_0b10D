@@ -41,12 +41,14 @@ int main(int argc, char* argv[]) {
 
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<VelocityComponent> velocities;
+    ComponentStorage<AccelerationComponent> accelerations;
 
     transforms.Add(player.GetID(), {368, 268, 64, 64});
     velocities.Add(player.GetID(), {0.0f, 0.0f});
+    accelerations.Add(player.GetID(), {10.0f, 2.5f});
 
     SystemManager systemManager;
-    systemManager.RegisterSystem<MovementSystem>(transforms, velocities);
+    systemManager.RegisterSystem<MovementSystem>(transforms, velocities, accelerations);
 
     // Input
     InputManager input;
@@ -82,6 +84,8 @@ int main(int argc, char* argv[]) {
             if (input.IsActionHeld("MoveUp"))    velocity->dy -= speed;
             if (input.IsActionHeld("MoveDown"))  velocity->dy += speed;
         }
+        // auto* acceleration = accelerations.Get(player.GetID());
+        // velocity->dx += acceleration->ax * deltaTime;
 
         // Update systems
         systemManager.UpdateAll(deltaTime);

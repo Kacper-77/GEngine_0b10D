@@ -1,12 +1,20 @@
 #include "core/systems/MovementSystem.h"
 
 MovementSystem::MovementSystem(ComponentStorage<TransformComponent>& transforms,
-                               ComponentStorage<VelocityComponent>& velocities)
-    : m_transforms(transforms), m_velocities(velocities) {}
+                               ComponentStorage<VelocityComponent>& velocities,
+                               ComponentStorage<AccelerationComponent>& accelerations)
+    : m_transforms(transforms), m_velocities(velocities), m_accelerations(accelerations) {}
 
 void MovementSystem::Update(float deltaTime) {
     for (auto& [id, velocity] : m_velocities.GetAll()) {
         auto* transform = m_transforms.Get(id);
+        auto* acceleration = m_accelerations.Get(id);
+
+        if (acceleration) {
+            velocity.dx += acceleration->ax * deltaTime;
+            velocity.dy += acceleration->ay * deltaTime;
+        }
+
         if (transform) {
             transform->x += static_cast<int>(velocity.dx * deltaTime);
             transform->y += static_cast<int>(velocity.dy * deltaTime);
