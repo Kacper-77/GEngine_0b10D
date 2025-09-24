@@ -45,7 +45,7 @@ int main(int argc, char* argv[]) {
 
     transforms.Add(player.GetID(), {368, 268, 64, 64});
     velocities.Add(player.GetID(), {0.0f, 0.0f});
-    accelerations.Add(player.GetID(), {10.0f, 2.5f});
+    accelerations.Add(player.GetID(), {0.1f, 2.5f});
 
     SystemManager systemManager;
     systemManager.RegisterSystem<MovementSystem>(transforms, velocities, accelerations);
@@ -76,9 +76,8 @@ int main(int argc, char* argv[]) {
 
         // Update velocity input
         auto* velocity = velocities.Get(player.GetID());
+        auto* acceleration = accelerations.Get(player.GetID());
         if (velocity) {
-            velocity->dx = 0.0f;
-            velocity->dy = 0.0f;
             if (input.IsActionHeld("MoveLeft"))  velocity->dx -= speed;
             if (input.IsActionHeld("MoveRight")) velocity->dx += speed;
             if (input.IsActionHeld("MoveUp"))    velocity->dy -= speed;
