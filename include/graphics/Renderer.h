@@ -14,7 +14,7 @@ public:
     void Present();
     void SetDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-    void DrawTexture(SDL_Texture* texture, const SDL_Rect* srcRect, const SDL_Rect* dstRect);
+    virtual void DrawTexture(SDL_Texture* texture, const SDL_Rect* srcRect, const SDL_Rect* dstRect);
 
     SDL_Renderer* GetSDLRenderer() const;
 

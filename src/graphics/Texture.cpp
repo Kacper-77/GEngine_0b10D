@@ -39,3 +39,7 @@ void Texture::Unload() {
 SDL_Texture* Texture::GetSDLTexture() const {
     return m_texture;
 }
+
+void Texture::SetSDLTexture(SDL_Texture* tex) {
+    m_texture = tex;
+}

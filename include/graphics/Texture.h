@@ -11,7 +11,8 @@ public:
     bool LoadFromFile(const std::string& path, SDL_Renderer* renderer);
     void Unload();
 
-    SDL_Texture* GetSDLTexture() const;
+    virtual SDL_Texture* GetSDLTexture() const;
+    void SetSDLTexture(SDL_Texture* tex);
 
 private:
     SDL_Texture* m_texture;

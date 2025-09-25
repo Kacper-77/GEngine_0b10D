@@ -1,6 +1,5 @@
 #include <gtest/gtest.h>
 #include "systems/MovementSystem.h"
-#include "ComponentStorage.h"
 
 TEST(MovementSystemTest, AppliesAccelerationToVelocityAndMovesEntity) {
     ComponentStorage<TransformComponent> transforms;

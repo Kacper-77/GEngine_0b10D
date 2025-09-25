@@ -65,6 +65,12 @@ target_include_directories(SystemManagerTest PRIVATE ${CMAKE_SOURCE_DIR}/include
 target_link_libraries(SystemManagerTest GameEngineLib gtest_main)
 add_test(NAME SystemManagerTest COMMAND SystemManagerTest)
 
+# RENDER SYSTEM
+add_executable(RenderSystemTest tests/test_RenderSystem.cpp)
+target_include_directories(RenderSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/core)
+target_link_libraries(RenderSystemTest GameEngineLib gtest_main)
+add_test(NAME RenderSystemTest COMMAND RenderSystemTest)
+
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")

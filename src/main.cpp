@@ -8,11 +8,12 @@
 #include "core/components/TransformComponent.h"
 #include "core/components/VelocityComponent.h"
 #include "core/systems/MovementSystem.h"
+#include "core/systems/RenderSystem.h"
 
 #include "window/Window.h"
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"
-#include "scene/Sprite.h"
+#include "scene/SpriteComponent.h"
 #include "input/InputManager.h"
 
 int main(int argc, char* argv[]) {
@@ -42,13 +43,16 @@ int main(int argc, char* argv[]) {
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<VelocityComponent> velocities;
     ComponentStorage<AccelerationComponent> accelerations;
+    ComponentStorage<SpriteComponent> sprites;
 
     transforms.Add(player.GetID(), {368, 268, 64, 64});
     velocities.Add(player.GetID(), {0.0f, 0.0f});
-    accelerations.Add(player.GetID(), {0.1f, 2.5f});
+    accelerations.Add(player.GetID(), {0.0f, 0.0f});
+    sprites.Add(player.GetID(), {&playerTexture, 64, 64});
 
     SystemManager systemManager;
     systemManager.RegisterSystem<MovementSystem>(transforms, velocities, accelerations);
+    systemManager.RegisterSystem<RenderSystem>(transforms, sprites, &renderer);
 
     // Input
     InputManager input;
@@ -56,11 +60,6 @@ int main(int argc, char* argv[]) {
     input.Bind("MoveRight", SDL_SCANCODE_RIGHT);
     input.Bind("MoveUp", SDL_SCANCODE_UP);
     input.Bind("MoveDown", SDL_SCANCODE_DOWN);
-
-    // Sprite
-    Sprite playerSprite;
-    playerSprite.SetTexture(&playerTexture);
-    playerSprite.SetSize(64, 64);
 
     const float speed = 150.0f; // pixels per second
     Uint32 lastTick = SDL_GetTicks();
@@ -86,18 +85,9 @@ int main(int argc, char* argv[]) {
         // auto* acceleration = accelerations.Get(player.GetID());
         // velocity->dx += acceleration->ax * deltaTime;
 
-        // Update systems
-        systemManager.UpdateAll(deltaTime);
-
-        // Update sprite position ECS
-        auto* transform = transforms.Get(player.GetID());
-        if (transform) {
-            playerSprite.SetPosition(transform->x, transform->y);
-        }
-
         // Render
         renderer.Clear();
-        playerSprite.Draw(renderer);
+        systemManager.UpdateAll(deltaTime);
         renderer.Present();
     }
 
