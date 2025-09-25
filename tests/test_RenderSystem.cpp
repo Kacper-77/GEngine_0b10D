@@ -19,13 +19,13 @@ private:
 };
 
 // Mock Renderer that counts draw calls and captures draw parameters
-class TestRenderer : public Renderer {
+class TestRenderer : public IRenderer {
 public:
     int drawCalls = 0;
     SDL_Texture* lastTexture = nullptr;
     SDL_Rect lastDstRect = {};
 
-    void DrawTexture(SDL_Texture* texture, const SDL_Rect* srcRect, const SDL_Rect* dstRect) {
+    void DrawTexture(SDL_Texture* texture, const SDL_Rect* srcRect, const SDL_Rect* dstRect) override {
         drawCalls++;
         lastTexture = texture;
         if (dstRect) {

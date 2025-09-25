@@ -1,8 +1,8 @@
 #pragma once
 
-#include <SDL2/SDL.h>
+#include "core/IRenderer.h"
 
-class Renderer {
+class Renderer : public IRenderer {
 public:
     Renderer();
     ~Renderer();
@@ -14,7 +14,7 @@ public:
     void Present();
     void SetDrawColor(Uint8 r, Uint8 g, Uint8 b, Uint8 a);
 
-    virtual void DrawTexture(SDL_Texture* texture, const SDL_Rect* srcRect, const SDL_Rect* dstRect);
+    virtual void DrawTexture(SDL_Texture* texture, const SDL_Rect* srcRect, const SDL_Rect* dstRect) override;
 
     SDL_Renderer* GetSDLRenderer() const;
 

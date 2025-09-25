@@ -2,7 +2,7 @@
 
 RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<SpriteComponent>& sprites,
-                           Renderer* renderer) 
+                           IRenderer* renderer) 
     :   m_transforms(transforms), m_sprites(sprites), m_renderer(renderer) {}
 
 void RenderSystem::Update(float deltaTime) {
