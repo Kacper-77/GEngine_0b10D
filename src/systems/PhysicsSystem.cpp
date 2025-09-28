@@ -1,4 +1,4 @@
-#include "core/systems/PhysicsSystem.h"
+#include "systems/PhysicsSystem.h"
 
 PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
                              ComponentStorage<AccelerationComponent>& accelerations,

@@ -2,9 +2,9 @@
 
 #include "core/ISystem.h"
 #include "core/ComponentStorage.h"
-#include "core/components/TransformComponent.h"
-#include "core/components/PhysicsComponent.h"
-#include "core/components/AccelerationComponent.h"
+#include "components/TransformComponent.h"
+#include "components/PhysicsComponent.h"
+#include "components/AccelerationComponent.h"
 
 class PhysicsSystem : public ISystem {
 public:

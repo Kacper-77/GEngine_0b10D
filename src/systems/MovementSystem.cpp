@@ -1,4 +1,4 @@
-#include "core/systems/MovementSystem.h"
+#include "systems/MovementSystem.h"
 
 MovementSystem::MovementSystem(ComponentStorage<TransformComponent>& transforms,
                                ComponentStorage<VelocityComponent>& velocities,

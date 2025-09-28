@@ -2,9 +2,9 @@
 
 #include "core/ISystem.h"
 #include "core/ComponentStorage.h"
-#include "core/components/TransformComponent.h"
-#include "core/components/VelocityComponent.h"
-#include "core/components/AccelerationComponent.h"
+#include "components/TransformComponent.h"
+#include "components/VelocityComponent.h"
+#include "components/AccelerationComponent.h"
 
 class MovementSystem : public ISystem {
 public:

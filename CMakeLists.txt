@@ -49,13 +49,13 @@ enable_testing()
 
 # MOVEMENT
 add_executable(MovementTest tests/test_MovementSystem.cpp)
-target_include_directories(MovementTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/core)
+target_include_directories(MovementTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(MovementTest GameEngineLib gtest_main)
 add_test(NAME MovementTest COMMAND MovementTest)
 
 # COMPONENT STORAGE
 add_executable(ComponentStorageTest tests/test_ComponentStorage.cpp)
-target_include_directories(ComponentStorageTest PRIVATE ${CMAKE_SOURCE_DIR}/include/core)
+target_include_directories(ComponentStorageTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(ComponentStorageTest GameEngineLib gtest_main)
 add_test(NAME ComponentStorageTest COMMAND ComponentStorageTest)
 
@@ -67,13 +67,13 @@ add_test(NAME SystemManagerTest COMMAND SystemManagerTest)
 
 # RENDER SYSTEM
 add_executable(RenderSystemTest tests/test_RenderSystem.cpp)
-target_include_directories(RenderSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/core)
+target_include_directories(RenderSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(RenderSystemTest GameEngineLib gtest_main)
 add_test(NAME RenderSystemTest COMMAND RenderSystemTest)
 
 # PHYSICS SYSTEM
 add_executable(PhysicsSystemTest tests/test_PhysicsSystem.cpp)
-target_include_directories(PhysicsSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/core)
+target_include_directories(PhysicsSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(PhysicsSystemTest GameEngineLib gtest_main)
 add_test(NAME PhysicsSystemTest COMMAND PhysicsSystemTest)
 

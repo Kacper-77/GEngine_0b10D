@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "core/systems/PhysicsSystem.h"
+#include "systems/PhysicsSystem.h"
 
 TEST(PhysicsSystemTest, DoesPhysicsAffectTransform) {
     ComponentStorage<TransformComponent> transforms;

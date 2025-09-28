@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 #include <SDL2/SDL.h>
-#include "core/systems/RenderSystem.h"
-#include "core/components/TransformComponent.h"
+#include "systems/RenderSystem.h"
+#include "components/TransformComponent.h"
 #include "scene/SpriteComponent.h"
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"

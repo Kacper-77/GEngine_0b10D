@@ -1,5 +1,5 @@
 #include <gtest/gtest.h>
-#include "ComponentStorage.h"
+#include "core/ComponentStorage.h"
 
 TEST(ComponentStorageTest, AddAndGetComponent) {
     ComponentStorage<int> storage;
