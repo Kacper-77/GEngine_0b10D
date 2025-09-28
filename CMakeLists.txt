@@ -77,6 +77,12 @@ target_include_directories(PhysicsSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include
 target_link_libraries(PhysicsSystemTest GameEngineLib gtest_main)
 add_test(NAME PhysicsSystemTest COMMAND PhysicsSystemTest)
 
+# ENTITY MANAGER
+add_executable(EntityManagerTest tests/test_EntityManager.cpp)
+target_include_directories(EntityManagerTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(EntityManagerTest GameEngineLib gtest_main)
+add_test(NAME EntityManagerTest COMMAND EntityManagerTest)
+
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")
