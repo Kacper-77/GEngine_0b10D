@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Entity.h"
+#include "ComponentStorage.h"
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
@@ -13,9 +14,16 @@ public:
         return id;
     }
 
+    void RegisterComponentStorage(IComponentStorage *storage) { 
+        componentStorage.push_back(storage); 
+    }
+
     void DestroyEntity(EntityID id) {
         alive.erase(id);
         RemoveTag(id);
+        for (auto* storage : componentStorage) {
+            storage->Remove(id);
+        }
     }
 
     bool IsAlive(EntityID id) {
@@ -54,4 +62,5 @@ private:
     std::unordered_set<EntityID> alive;
     std::unordered_map<EntityID, std::string> tags;
     std::unordered_map<std::string, std::unordered_set<EntityID>> groups;
+    std::vector<IComponentStorage*> componentStorage;
 };

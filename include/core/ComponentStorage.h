@@ -1,9 +1,12 @@
 #pragma once
-#include <unordered_map>
+
 #include "Entity.h"
+#include "IComponentStorage.h"
+#include <unordered_map>
+#include <vector>
 
 template<typename T>
-class ComponentStorage {
+class ComponentStorage : public IComponentStorage {
 public:
     void Add(EntityID id, const T& component) {
         m_components[id] = component;
@@ -14,7 +17,11 @@ public:
         return it != m_components.end() ? &it->second : nullptr;
     }
 
-    void Remove(EntityID id) {
+    bool Has(EntityID id) const {
+        return m_components.find(id) != m_components.end();
+    }
+
+    void Remove(EntityID id) override {
         auto it = m_components.find(id);
         if (it != m_components.end()) {
             m_components.erase(it);

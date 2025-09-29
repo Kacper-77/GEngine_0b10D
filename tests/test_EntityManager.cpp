@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 #include "core/EntityManager.h"
+#include "components/TransformComponent.h"
 
 TEST(EntityManagerTest, CreateAndDestroyEntity) {
     EntityManager manager;
@@ -26,4 +27,17 @@ TEST(EntityManagerTest, TaggingAndGrouping) {
     group = manager.GetGroup("Enemy");
     ASSERT_EQ(group.size(), 1);
     ASSERT_FALSE(group.count(e1));
+}
+
+TEST(EntityManagerTest, DestroyAlsoRemovesComponents) {
+    EntityManager manager;
+    ComponentStorage<TransformComponent> transforms;
+    manager.RegisterComponentStorage(&transforms);
+
+    EntityID e = manager.CreateEntity();
+    transforms.Add(e, TransformComponent{});
+
+    ASSERT_TRUE(transforms.Has(e));
+    manager.DestroyEntity(e);
+    ASSERT_FALSE(transforms.Has(e));
 }
