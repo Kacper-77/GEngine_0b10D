@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include "utils/EntityTypes.h"
 #include "ComponentStorage.h"
 #include <string>
 #include <unordered_set>

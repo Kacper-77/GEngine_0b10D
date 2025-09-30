@@ -47,7 +47,7 @@ FetchContent_Declare(
 FetchContent_MakeAvailable(googletest)
 enable_testing()
 
-# MOVEMENT
+# MOVEMENT SYSTEM
 add_executable(MovementTest tests/test_MovementSystem.cpp)
 target_include_directories(MovementTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(MovementTest GameEngineLib gtest_main)
@@ -82,6 +82,13 @@ add_executable(EntityManagerTest tests/test_EntityManager.cpp)
 target_include_directories(EntityManagerTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(EntityManagerTest GameEngineLib gtest_main)
 add_test(NAME EntityManagerTest COMMAND EntityManagerTest)
+
+# COLLISION SYSTEM
+add_executable(CollisionSystemTest tests/test_CollisionSystem.cpp)
+target_include_directories(CollisionSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/core)
+target_link_libraries(CollisionSystemTest GameEngineLib gtest_main)
+add_test(NAME CollisionSystemTest COMMAND CollisionSystemTest)
+
 
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")

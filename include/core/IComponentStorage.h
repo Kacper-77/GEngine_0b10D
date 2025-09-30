@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Entity.h"
+#include "utils/EntityTypes.h"
 
 class IComponentStorage {
 public:

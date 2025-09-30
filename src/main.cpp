@@ -2,8 +2,8 @@
 #include <SDL_image.h>
 #include <iostream>
 
-#include "core/Entity.h"
 #include "core/SystemManager.h"
+#include "core/EntityManager.h"
 #include "core/ComponentStorage.h"
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
@@ -38,17 +38,19 @@ int main(int argc, char* argv[]) {
     }
 
     // ECS setup
-    Entity player(1);
+    EntityManager entityManager;
+
+    EntityID player = entityManager.CreateEntity();
 
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<VelocityComponent> velocities;
     ComponentStorage<AccelerationComponent> accelerations;
     ComponentStorage<SpriteComponent> sprites;
 
-    transforms.Add(player.GetID(), {368, 268, 64, 64});
-    velocities.Add(player.GetID(), {0.0f, 0.0f});
-    accelerations.Add(player.GetID(), {0.0f, 0.0f});
-    sprites.Add(player.GetID(), {&playerTexture, 64, 64});
+    transforms.Add(player, {368, 268, 64, 64});
+    velocities.Add(player, {0.0f, 0.0f});
+    accelerations.Add(player, {0.0f, 0.0f});
+    sprites.Add(player, {&playerTexture, 64, 64});
 
     SystemManager systemManager;
     systemManager.RegisterSystem<MovementSystem>(transforms, velocities, accelerations);
@@ -74,8 +76,8 @@ int main(int argc, char* argv[]) {
         input.Update();
 
         // Update velocity input
-        auto* velocity = velocities.Get(player.GetID());
-        auto* acceleration = accelerations.Get(player.GetID());
+        auto* velocity = velocities.Get(player);
+        auto* acceleration = accelerations.Get(player);
         if (velocity) {
             if (input.IsActionHeld("MoveLeft"))  velocity->dx -= speed;
             if (input.IsActionHeld("MoveRight")) velocity->dx += speed;

@@ -1,22 +1,24 @@
 #include <gtest/gtest.h>
 #include "systems/PhysicsSystem.h"
+#include "core/EntityManager.h"
 
 TEST(PhysicsSystemTest, DoesPhysicsAffectTransform) {
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<PhysicsComponent> physics;
     ComponentStorage<AccelerationComponent> accelerations;
 
-    Entity player(7);
+    EntityManager entityManager;
+    EntityID player = entityManager.CreateEntity();
 
-    transforms.Add(player.GetID(), {0, 0, 64, 64});
-    accelerations.Add(player.GetID(), {10.0f, 0.0f});
-    physics.Add(player.GetID(), {0.0f, 0.0f, 0.0f, 9.8f});
+    transforms.Add(player, {0, 0, 64, 64});
+    accelerations.Add(player, {10.0f, 0.0f});
+    physics.Add(player, {0.0f, 0.0f, 0.0f, 9.8f});
 
     PhysicsSystem system(transforms, accelerations, physics);
     system.Update(1.0f);
 
-    auto* transform = transforms.Get(player.GetID());
-    auto* phys = physics.Get(player.GetID());
+    auto* transform = transforms.Get(player);
+    auto* phys = physics.Get(player);
 
     ASSERT_NE(transform, nullptr);
     ASSERT_NE(phys, nullptr);

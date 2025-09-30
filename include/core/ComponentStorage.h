@@ -1,6 +1,5 @@
 #pragma once
 
-#include "Entity.h"
 #include "IComponentStorage.h"
 #include <unordered_map>
 #include <vector>
