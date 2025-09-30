@@ -25,6 +25,10 @@ void CollisionSystem::Update(float deltaTime) {
     }
 }
 
+void CollisionSystem::SetCollisionCallback(CollisionCallback callback) {
+    m_callback = std::move(callback);
+}
+
 bool CollisionSystem::IsColliding(const ColliderComponent& a, const ColliderComponent& b) {
     return !(a.x + a.width < b.x  ||
              a.x > b.x + b.width  ||
@@ -33,5 +37,7 @@ bool CollisionSystem::IsColliding(const ColliderComponent& a, const ColliderComp
 }
 
 void CollisionSystem::HandleCollision(EntityID a, EntityID b) {
-    std::cout << "Collision detected between Entity " << a << " and Entity " << b << '\n';
+    if (m_callback) {
+        m_callback(a, b);
+    }
 }

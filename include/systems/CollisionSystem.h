@@ -5,12 +5,17 @@
 #include "core/ComponentStorage.h"
 #include "components/ColliderComponent.h"
 
+#include <functional>
+
+using CollisionCallback = std::function<void(EntityID, EntityID)>;
+
 class CollisionSystem : public ISystem {
 public:
     CollisionSystem(EntityManager& entityManager,
                     ComponentStorage<ColliderComponent>& colliders);
     
     void Update(float deltaTime) override;
+    void SetCollisionCallback(CollisionCallback callback);
 
 private:
     bool IsColliding(const ColliderComponent& a, const ColliderComponent& b);
@@ -18,4 +23,5 @@ private:
 
     EntityManager& m_entityManager;
     ComponentStorage<ColliderComponent>& m_colliders;
+    CollisionCallback m_callback;
 };

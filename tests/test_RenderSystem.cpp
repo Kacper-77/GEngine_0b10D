@@ -5,7 +5,6 @@
 #include "scene/SpriteComponent.h"
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"
-#include "core/Entity.h"
 #include "core/ComponentStorage.h"
 #include "core/EntityManager.h"
 

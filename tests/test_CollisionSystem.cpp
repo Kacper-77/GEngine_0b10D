@@ -18,11 +18,15 @@ TEST_F(CollisionSystemTest, DetectsCollisionBetweenTwoEntities) {
     colliders.Add(a, ColliderComponent{0.0f, 0.0f, 10.0f, 10.0f});
     colliders.Add(b, ColliderComponent{5.0f, 5.0f, 10.0f, 10.0f}); //collision
 
+    system.SetCollisionCallback([](EntityID a, EntityID b) {
+        std::cout << "Boom! Entity " << a << " hit Entity " << b << "\n";
+    });
+
     testing::internal::CaptureStdout();
     system.Update(0.0f);
     std::string output = testing::internal::GetCapturedStdout();
 
-    ASSERT_NE(output.find("Collision detected between Entity"), std::string::npos);
+    ASSERT_NE(output.find("Boom!"), std::string::npos);
 }
 
 TEST_F(CollisionSystemTest, DoesNotDetectCollisionWhenEntitiesAreFarApart) {
@@ -32,9 +36,13 @@ TEST_F(CollisionSystemTest, DoesNotDetectCollisionWhenEntitiesAreFarApart) {
     colliders.Add(a, ColliderComponent{0.0f, 0.0f, 10.0f, 10.0f});
     colliders.Add(b, ColliderComponent{100.0f, 100.0f, 10.0f, 10.0f}); // no collision
 
+    system.SetCollisionCallback([](EntityID a, EntityID b) {
+        std::cout << "Nothing\n";
+    });
+
     testing::internal::CaptureStdout();
     system.Update(0.0f);
     std::string output = testing::internal::GetCapturedStdout();
 
-    ASSERT_EQ(output.find("Collision detected between Entity"), std::string::npos);
+    ASSERT_EQ(output.find("Nothing"), std::string::npos);
 }
