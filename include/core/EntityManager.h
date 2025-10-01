@@ -6,6 +6,8 @@
 #include <unordered_set>
 #include <unordered_map>
 
+using EntityInfo = std::unordered_map<std::string, std::string>;
+
 class EntityManager {
 public:
     EntityID CreateEntity() {
@@ -24,6 +26,7 @@ public:
         for (auto* storage : componentStorage) {
             storage->Remove(id);
         }
+        RemoveInfo(id);
     }
 
     bool IsAlive(EntityID id) {
@@ -57,10 +60,28 @@ public:
         return it != groups.end() ? it->second : std::unordered_set<EntityID>{};
     }
 
+    void AddInfo(EntityID id, const std::string& key, const std::string& value) {
+        m_entityInfo[id][key] = value;
+    }
+
+    std::string GetInfo(EntityID id, const std::string& key) const {
+        auto it = m_entityInfo.find(id);
+        if (it != m_entityInfo.end()) {
+            auto fit = it->second.find(key);
+            return fit != it->second.end() ? fit->second : "";
+        }
+        return "";
+    }
+
+    void RemoveInfo(EntityID id) {
+        m_entityInfo.erase(id);
+    }
+
 private:
     EntityID NextID = 0;
     std::unordered_set<EntityID> alive;
     std::unordered_map<EntityID, std::string> tags;
     std::unordered_map<std::string, std::unordered_set<EntityID>> groups;
     std::vector<IComponentStorage*> componentStorage;
+    std::unordered_map<EntityID, EntityInfo> m_entityInfo;
 };

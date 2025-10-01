@@ -4,24 +4,29 @@
 #include "core/EntityManager.h"
 #include "core/ComponentStorage.h"
 #include "components/ColliderComponent.h"
+#include "event/core/EventManager.h"
+#include "event/core/EventFactory.h"
+#include "../utils/EventResolver.h"
 
 #include <functional>
-
-using CollisionCallback = std::function<void(EntityID, EntityID)>;
 
 class CollisionSystem : public ISystem {
 public:
     CollisionSystem(EntityManager& entityManager,
-                    ComponentStorage<ColliderComponent>& colliders);
+                    ComponentStorage<ColliderComponent>& colliders,
+                    EventManager& eventManager,
+                    EventFactory& eventFactory,
+                    EventResolver& eventResolver);
     
     void Update(float deltaTime) override;
-    void SetCollisionCallback(CollisionCallback callback);
 
 private:
     bool IsColliding(const ColliderComponent& a, const ColliderComponent& b);
-    void HandleCollision(EntityID a, EntityID b);
+    void HandleCollision(EntityID a, EntityID b, const std::string& eventType);
 
     EntityManager& m_entityManager;
     ComponentStorage<ColliderComponent>& m_colliders;
-    CollisionCallback m_callback;
+    EventManager& m_eventManager;
+    EventFactory& m_eventFactory;
+    EventResolver& m_eventResolver;
 };
