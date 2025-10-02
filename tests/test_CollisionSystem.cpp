@@ -1,106 +1,67 @@
-#include "systems/CollisionSystem.h"
 #include "components/ColliderComponent.h"
 #include "core/EntityManager.h"
 #include "core/ComponentStorage.h"
-#include "event/core/EventManager.h"
-#include "event/core/EventFactory.h"
-#include "utils/EventResolver.h"
+#include "systems/CollisionSystem.h"
+#include "event/core/EventBus.h"
+#include "event/custom_events/CollisionEvent.h"
 
 #include <gtest/gtest.h>
 #include <vector>
-#include <string>
-
-class TestEventResolver : public EventResolver {
-public:
-    std::string ResolveEventType(const std::string& behaviorA,
-                                 const std::string& behaviorB) const override {
-        if (behaviorA == "slime" || behaviorB == "slime") return "Damage";
-        if (behaviorA == "sticky" || behaviorB == "sticky") return "Stick";
-        return "Nothing";
-    }
-};
 
 class CollisionSystemTest : public ::testing::Test {
 protected:
     EntityManager entityManager;
     ComponentStorage<ColliderComponent> colliders;
-    EventManager eventManager;
-    EventFactory eventFactory;
-    TestEventResolver resolver;
+    EventBus eventBus;
 
-    std::vector<std::string> emittedEvents;
+    std::vector<CollisionEvent> receivedCollisions;
 
-    CollisionSystem system{entityManager, colliders, eventManager, eventFactory, resolver};
+    CollisionSystem system{entityManager, colliders, eventBus};
 
     void SetUp() override {
-        eventManager.RegisterHandler("Damage", [&](const Event& e) {
-            emittedEvents.push_back("Damage between " + std::to_string(e.source) + " and " + std::to_string(e.target));
-        });
-
-        eventManager.RegisterHandler("Stick", [&](const Event& e) {
-            emittedEvents.push_back("Stick between " + std::to_string(e.source) + " and " + std::to_string(e.target));
+        eventBus.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
+            receivedCollisions.push_back(e);
         });
     }
 };
 
-TEST_F(CollisionSystemTest, EmitsDamageEventForSlimeCollision) {
+TEST_F(CollisionSystemTest, EmitsCollisionEventWhenEntitiesOverlap) {
     EntityID a = entityManager.CreateEntity();
     EntityID b = entityManager.CreateEntity();
-
-    entityManager.AddInfo(a, "behavior", "slime");
-    entityManager.AddInfo(b, "behavior", "neutral");
 
     colliders.Add(a, ColliderComponent{0, 0, 10, 10});
     colliders.Add(b, ColliderComponent{5, 5, 10, 10}); // collision
 
     system.Update(0.0f);
+    eventBus.Dispatch();
 
-    ASSERT_EQ(emittedEvents.size(), 1);
-    ASSERT_EQ(emittedEvents[0], "Damage between " + std::to_string(a) + " and " + std::to_string(b));
+    ASSERT_EQ(receivedCollisions.size(), 1);
+    EXPECT_EQ(receivedCollisions[0].entityA, a);
+    EXPECT_EQ(receivedCollisions[0].entityB, b);
 }
 
-TEST_F(CollisionSystemTest, EmitsStickEventForStickyCollision) {
+TEST_F(CollisionSystemTest, DoesNotEmitCollisionEventWhenEntitiesDoNotOverlap) {
     EntityID a = entityManager.CreateEntity();
     EntityID b = entityManager.CreateEntity();
-
-    entityManager.AddInfo(a, "behavior", "sticky");
-    entityManager.AddInfo(b, "behavior", "neutral");
-
-    colliders.Add(a, ColliderComponent{0, 0, 10, 10});
-    colliders.Add(b, ColliderComponent{5, 5, 10, 10}); // collision
-
-    system.Update(0.0f);
-
-    ASSERT_EQ(emittedEvents.size(), 1);
-    ASSERT_EQ(emittedEvents[0], "Stick between " + std::to_string(a) + " and " + std::to_string(b));
-}
-
-TEST_F(CollisionSystemTest, DoesNotEmitEventWhenNoCollisionOccurs) {
-    EntityID a = entityManager.CreateEntity();
-    EntityID b = entityManager.CreateEntity();
-
-    entityManager.AddInfo(a, "behavior", "slime");
-    entityManager.AddInfo(b, "behavior", "sticky");
 
     colliders.Add(a, ColliderComponent{0, 0, 10, 10});
     colliders.Add(b, ColliderComponent{100, 100, 10, 10}); // no collision
 
     system.Update(0.0f);
+    eventBus.Dispatch();
 
-    ASSERT_TRUE(emittedEvents.empty());
+    ASSERT_TRUE(receivedCollisions.empty());
 }
 
-TEST_F(CollisionSystemTest, DoesNotEmitEventForUnknownBehavior) {
+TEST_F(CollisionSystemTest, IgnoresEntitiesWithoutColliderComponent) {
     EntityID a = entityManager.CreateEntity();
     EntityID b = entityManager.CreateEntity();
 
-    entityManager.AddInfo(a, "behavior", "unknown");
-    entityManager.AddInfo(b, "behavior", "neutral");
-
     colliders.Add(a, ColliderComponent{0, 0, 10, 10});
-    colliders.Add(b, ColliderComponent{5, 5, 10, 10}); // collision
+    // b has no collider
 
     system.Update(0.0f);
+    eventBus.Dispatch();
 
-    ASSERT_TRUE(emittedEvents.empty());
+    ASSERT_TRUE(receivedCollisions.empty());
 }

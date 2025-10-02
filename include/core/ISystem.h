@@ -1,7 +1,6 @@
 #pragma once
 
-class ISystem {
-public:
+struct ISystem {
     virtual ~ISystem() = default;
     virtual void Update(float deltaTime) = 0;
 };

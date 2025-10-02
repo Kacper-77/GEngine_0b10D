@@ -3,13 +3,10 @@
 
 CollisionSystem::CollisionSystem(EntityManager& entityManager,
                                  ComponentStorage<ColliderComponent>& colliders,
-                                 EventManager& eventManager,
-                                 EventFactory& eventFactory,
-                                 EventResolver& eventResolver)
+                                 EventBus& eventBus)
         : m_entityManager(entityManager), 
           m_colliders(colliders), 
-          m_eventManager(eventManager), 
-          m_eventFactory(eventFactory), m_eventResolver(eventResolver) {}
+          m_eventBus(eventBus) {}
 
 void CollisionSystem::Update(float deltaTime) {
     auto entities = m_entityManager.GetAllEntities();
@@ -25,11 +22,7 @@ void CollisionSystem::Update(float deltaTime) {
             const auto& cb = *m_colliders.Get(b);
 
             if (IsColliding(ca, cb)) {
-                std::string eventType = m_eventResolver.ResolveEventType(
-                    m_entityManager.GetInfo(a, "behavior"),
-                    m_entityManager.GetInfo(b, "behavior"));
-                    
-                HandleCollision(a, b, eventType);
+                HandleCollision(a, b);
             }
         }
     }
@@ -42,7 +35,6 @@ bool CollisionSystem::IsColliding(const ColliderComponent& a, const ColliderComp
              a.y > b.y + b.height);
 }
 
-void CollisionSystem::HandleCollision(EntityID a, EntityID b, const std::string& eventType) {
-    Event event = m_eventFactory.Create(eventType, a, b);
-    m_eventManager.Emit(event);
+void CollisionSystem::HandleCollision(EntityID a, EntityID b) {
+    m_eventBus.Queue(CollisionEvent{a, b});
 }
