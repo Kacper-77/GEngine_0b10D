@@ -89,6 +89,11 @@ target_include_directories(CollisionSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/inclu
 target_link_libraries(CollisionSystemTest GameEngineLib gtest_main)
 add_test(NAME CollisionSystemTest COMMAND CollisionSystemTest)
 
+# EVENTS
+add_executable(EventTest tests/test_EventTest.cpp)
+target_include_directories(EventTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/event)
+target_link_libraries(EventTest GameEngineLib gtest_main)
+add_test(NAME EventTest COMMAND EventTest)
 
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
