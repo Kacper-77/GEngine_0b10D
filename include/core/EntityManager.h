@@ -11,7 +11,7 @@ using EntityInfo = std::unordered_map<std::string, std::string>;
 class EntityManager {
 public:
     EntityID CreateEntity() {
-        EntityID id = NextID++;
+        EntityID id = NextID_++;
         alive.insert(id);
         return id;
     }
@@ -78,7 +78,7 @@ public:
     }
 
 private:
-    EntityID NextID = 0;
+    EntityID NextID_ = 1;
     std::unordered_set<EntityID> alive;
     std::unordered_map<EntityID, std::string> tags;
     std::unordered_map<std::string, std::unordered_set<EntityID>> groups;

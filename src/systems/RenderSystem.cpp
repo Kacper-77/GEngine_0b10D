@@ -17,10 +17,5 @@ void RenderSystem::Update(float deltaTime) {
             sprite.height
         };
         m_renderer->DrawTexture(sprite.texture->GetSDLTexture(), nullptr, &dstRect);
-        // SDL_Log("RenderSystem::Update called");
-        // SDL_Log("Transform: %p", transform);
-        // SDL_Log("Sprite: %p", sprite.texture);
-        // SDL_Log("SDL_Texture: %p", sprite.texture ? sprite.texture->GetSDLTexture() : nullptr);
-        // SDL_Log("Sprite size: %d x %d", sprite.width, sprite.height);
     }
 }

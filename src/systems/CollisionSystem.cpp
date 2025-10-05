@@ -36,5 +36,5 @@ bool CollisionSystem::IsColliding(const ColliderComponent& a, const ColliderComp
 }
 
 void CollisionSystem::HandleCollision(EntityID a, EntityID b) {
-    m_eventBus.Queue(CollisionEvent{a, b});
+    m_eventBus.Publish(CollisionEvent{a, b});
 }
