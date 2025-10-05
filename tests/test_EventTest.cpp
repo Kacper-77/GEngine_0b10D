@@ -90,3 +90,23 @@ TEST_F(EventBusTest, PhysicsEventIsHandledCorrectly) {
 
     EXPECT_TRUE(handled);
 }
+
+// Test that PhysicsEvent is correctly received and handled but global :)
+TEST_F(EventBusTest, PhysicsEventIsHandledCorrectlyGlobal) {
+    bool handled = false;
+
+    bus.Subscribe<PhysicsEvent>([&](const PhysicsEvent& e) {
+        EXPECT_EQ(e.entity, 5);
+        EXPECT_FLOAT_EQ(e.gravity, 6.66f);
+        EXPECT_TRUE(e.global);  // Ensure it's global event
+        handled = true;
+    });
+
+    PhysicsEvent e{5};
+    e.gravity = 6.66f;
+    e.global = true;
+    bus.Publish(e);
+    bus.Dispatch();
+
+    EXPECT_TRUE(handled);
+}
