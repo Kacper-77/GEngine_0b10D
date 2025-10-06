@@ -4,6 +4,8 @@
 #include "event/custom_events/MovementEvent.h"
 #include "event/custom_events/TeleportEvent.h"
 #include "event/custom_events/PhysicsEvent.h"
+#include "event/custom_events/HealEvent.h"
+#include "components/HealthComponent.h"
 
 // Test fixture for EventBus
 class EventBusTest : public ::testing::Test {
@@ -108,5 +110,31 @@ TEST_F(EventBusTest, PhysicsEventIsHandledCorrectlyGlobal) {
     bus.Publish(e);
     bus.Dispatch();
 
+    EXPECT_TRUE(handled);
+}
+
+// Test that HealEvent is correctly received and handled
+TEST_F(EventBusTest, HealEventIsHandled) {
+    bool handled = false;
+
+    // Subscribe to HealEvent and validate its content
+    bus.Subscribe<HealEvent>([&](const HealEvent& e) {
+        EXPECT_EQ(e.target, 182764);
+        EXPECT_EQ(e.type, "magic");
+        EXPECT_FALSE(e.overheal);
+        EXPECT_FLOAT_EQ(e.amount, 50.0f);
+        handled = true;
+    });
+
+    // Create and publish the HealEvent
+    HealEvent e(182764);
+    e.amount = 50.0f;
+    e.type = "magic";
+    e.overheal = false;
+
+    bus.Publish(e);
+    bus.Dispatch();
+
+    // Verify that the handler was triggered
     EXPECT_TRUE(handled);
 }
