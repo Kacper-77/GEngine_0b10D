@@ -7,6 +7,7 @@
 #include "graphics/Texture.h"
 #include "core/ComponentStorage.h"
 #include "core/EntityManager.h"
+#include "systems/EntityCreationSystem.h"
 
 // Dummy Texture that returns a valid SDL_Texture* for testing
 class MockTexture : public Texture {
@@ -34,22 +35,35 @@ public:
     }
 };
 
-TEST(RenderSystemTest, RendersEntityWithValidComponents) {
+class RenderSystemTest : public ::testing::Test {
+protected:
+    EntityManager entityManager;
+    EntityCreationSystem creationSystem{&entityManager};
+
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<SpriteComponent> sprites;
     TestRenderer renderer;
 
-    SDL_Texture* dummySDLTexture = reinterpret_cast<SDL_Texture*>(0x1); // dummy texture object
-    MockTexture texture(dummySDLTexture);
+    SDL_Texture* dummySDLTexture = reinterpret_cast<SDL_Texture*>(0x1);
+    MockTexture texture{dummySDLTexture};
 
-    EntityManager entityManager;
-    EntityID entity = entityManager.CreateEntity();
+    void SetUp() override {
+        creationSystem.RegisterStorage(&transforms);
+        creationSystem.RegisterStorage(&sprites);
 
-    transforms.Add(entity, {100, 200, 64, 64});
-    sprites.Add(entity, {&texture, 64, 64});
+        entityManager.RegisterComponentStorage(&transforms);
+        entityManager.RegisterComponentStorage(&sprites);
+    }
+};
+
+TEST_F(RenderSystemTest, RendersEntityWithValidComponents) {
+    EntityID entity = creationSystem.CreateEntityWith(
+        TransformComponent{100, 200, 64, 64},
+        SpriteComponent{&texture, 64, 64}
+    );
 
     RenderSystem system(transforms, sprites, &renderer);
-    system.Update(0.016f); // simulate frame update
+    system.Update(0.016f);
 
     EXPECT_EQ(renderer.drawCalls, 1);
     EXPECT_EQ(renderer.lastDstRect.x, 100);
@@ -58,19 +72,10 @@ TEST(RenderSystemTest, RendersEntityWithValidComponents) {
     EXPECT_EQ(renderer.lastDstRect.h, 64);
 }
 
-TEST(RenderSystemTest, SkipsEntityWithoutTransform) {
-    ComponentStorage<TransformComponent> transforms;
-    ComponentStorage<SpriteComponent> sprites;
-    TestRenderer renderer;
-
-    SDL_Texture* dummySDLTexture = reinterpret_cast<SDL_Texture*>(0x1);
-    MockTexture texture(dummySDLTexture);
-
-    EntityManager entityManager;
-    EntityID entity = entityManager.CreateEntity();
-
-    // No transform added
-    sprites.Add(entity, {&texture, 64, 64});
+TEST_F(RenderSystemTest, SkipsEntityWithoutTransform) {
+    EntityID entity = creationSystem.CreateEntityWith(
+        SpriteComponent{&texture, 64, 64}
+    );
 
     RenderSystem system(transforms, sprites, &renderer);
     system.Update(0.016f);
@@ -78,16 +83,11 @@ TEST(RenderSystemTest, SkipsEntityWithoutTransform) {
     EXPECT_EQ(renderer.drawCalls, 0);
 }
 
-TEST(RenderSystemTest, SkipsEntityWithoutTexture) {
-    ComponentStorage<TransformComponent> transforms;
-    ComponentStorage<SpriteComponent> sprites;
-    TestRenderer renderer;
-
-    EntityManager entityManager;
-    EntityID entity = entityManager.CreateEntity();
-
-    transforms.Add(entity, {50, 50, 32, 32});
-    sprites.Add(entity, {nullptr, 32, 32}); // no texture
+TEST_F(RenderSystemTest, SkipsEntityWithoutTexture) {
+    EntityID entity = creationSystem.CreateEntityWith(
+        TransformComponent{50, 50, 32, 32},
+        SpriteComponent{nullptr, 32, 32}
+    );
 
     RenderSystem system(transforms, sprites, &renderer);
     system.Update(0.016f);

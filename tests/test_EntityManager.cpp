@@ -1,22 +1,32 @@
 #include <gtest/gtest.h>
 #include "core/EntityManager.h"
+#include "systems/EntityCreationSystem.h"
 #include "components/TransformComponent.h"
+#include "core/ComponentStorage.h"
 
-TEST(EntityManagerTest, CreateAndDestroyEntity) {
+class EntityManagerTest : public ::testing::Test {
+protected:
     EntityManager manager;
-    EntityID id = manager.CreateEntity();
+    EntityCreationSystem creationSystem{&manager};
+    ComponentStorage<TransformComponent> transforms;
+
+    void SetUp() override {
+        creationSystem.RegisterStorage(&transforms);
+        manager.RegisterComponentStorage(&transforms);
+    }
+};
+
+TEST_F(EntityManagerTest, CreateAndDestroyEntity) {
+    EntityID id = creationSystem.CreateEntityWith();
     ASSERT_TRUE(manager.IsAlive(id));
-    ASSERT_EQ(id, 0);
-    manager.DestroyEntity(id);
+    ASSERT_EQ(id, 1);
+    manager.DestroyEntityFromList(id);
     ASSERT_FALSE(manager.IsAlive(id));
 }
 
-TEST(EntityManagerTest, TaggingAndGrouping) {
-    EntityManager manager;
-    EntityID e1 = manager.CreateEntity();
-    EntityID e2 = manager.CreateEntity();
-    manager.AddTag(e1, "Enemy");
-    manager.AddTag(e2, "Enemy");
+TEST_F(EntityManagerTest, TaggingAndGrouping) {
+    EntityID e1 = creationSystem.CreateEntityWith(std::string{"Enemy"});
+    EntityID e2 = creationSystem.CreateEntityWith(std::string{"Enemy"});
 
     auto group = manager.GetGroup("Enemy");
     ASSERT_EQ(group.size(), 2);
@@ -29,15 +39,9 @@ TEST(EntityManagerTest, TaggingAndGrouping) {
     ASSERT_FALSE(group.count(e1));
 }
 
-TEST(EntityManagerTest, DestroyAlsoRemovesComponents) {
-    EntityManager manager;
-    ComponentStorage<TransformComponent> transforms;
-    manager.RegisterComponentStorage(&transforms);
-
-    EntityID e = manager.CreateEntity();
-    transforms.Add(e, TransformComponent{});
-
+TEST_F(EntityManagerTest, DestroyAlsoRemovesComponents) {
+    EntityID e = creationSystem.CreateEntityWith(TransformComponent{});
     ASSERT_TRUE(transforms.Has(e));
-    manager.DestroyEntity(e);
+    manager.DestroyEntityFromList(e);
     ASSERT_FALSE(transforms.Has(e));
 }

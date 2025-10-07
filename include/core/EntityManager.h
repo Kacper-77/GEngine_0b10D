@@ -10,17 +10,15 @@ using EntityInfo = std::unordered_map<std::string, std::string>;
 
 class EntityManager {
 public:
-    EntityID CreateEntity() {
-        EntityID id = NextID_++;
+    void InsertToEntityList(EntityID id) {
         alive.insert(id);
-        return id;
     }
 
     void RegisterComponentStorage(IComponentStorage *storage) { 
         componentStorage.push_back(storage); 
     }
 
-    void DestroyEntity(EntityID id) {
+    void DestroyEntityFromList(EntityID id) {
         alive.erase(id);
         RemoveTag(id);
         for (auto* storage : componentStorage) {
@@ -78,7 +76,6 @@ public:
     }
 
 private:
-    EntityID NextID_ = 1;
     std::unordered_set<EntityID> alive;
     std::unordered_map<EntityID, std::string> tags;
     std::unordered_map<std::string, std::unordered_set<EntityID>> groups;
