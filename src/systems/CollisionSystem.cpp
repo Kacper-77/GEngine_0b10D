@@ -2,11 +2,13 @@
 #include <iostream>
 
 CollisionSystem::CollisionSystem(EntityManager& entityManager,
+                                 ComponentStorage<TransformComponent>& transforms,
                                  ComponentStorage<ColliderComponent>& colliders,
                                  EventBus& eventBus)
-        : m_entityManager(entityManager), 
-          m_colliders(colliders), 
-          m_eventBus(eventBus) {}
+        : m_entityManager{entityManager}, 
+          m_transforms{transforms}, 
+          m_colliders{colliders}, 
+          m_eventBus{eventBus} {}
 
 void CollisionSystem::Update(float deltaTime) {
     auto entities = m_entityManager.GetAllEntities();
@@ -17,22 +19,28 @@ void CollisionSystem::Update(float deltaTime) {
             EntityID b = *it2;
 
             if (!m_colliders.Has(a) || !m_colliders.Has(b)) continue;
+            if (!m_transforms.Has(a) || !m_transforms.Has(b)) continue;
+
+            const auto& ta = *m_transforms.Get(a);
+            const auto& tb = *m_transforms.Get(b);
 
             const auto& ca = *m_colliders.Get(a);
             const auto& cb = *m_colliders.Get(b);
 
-            if (IsColliding(ca, cb)) {
+            if (IsColliding(ta.x, ta.y, ca.width, ca.height,
+                            tb.x, tb.y, cb.width, cb.height)) {
                 HandleCollision(a, b);
             }
         }
     }
 }
 
-bool CollisionSystem::IsColliding(const ColliderComponent& a, const ColliderComponent& b) {
-    return !(a.x + a.width < b.x  ||
-             a.x > b.x + b.width  ||
-             a.y + a.height < b.y ||
-             a.y > b.y + b.height);
+bool CollisionSystem::IsColliding(int ax, int ay, int aw, int ah,
+                                  int bx, int by, int bw, int bh) {
+    return !(ax + aw <= bx ||
+             ax >= bx + bw ||
+             ay + ah <= by ||
+             ay >= by + bh);
 }
 
 void CollisionSystem::HandleCollision(EntityID a, EntityID b) {

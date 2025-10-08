@@ -3,7 +3,7 @@
 RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<SpriteComponent>& sprites,
                            IRenderer* renderer) 
-    :   m_transforms(transforms), m_sprites(sprites), m_renderer(renderer) {}
+    :   m_transforms{transforms}, m_sprites{sprites}, m_renderer{renderer} {}
 
 void RenderSystem::Update(float deltaTime) {
     for (auto& [id, sprite] : m_sprites.GetAll()) {

@@ -1,3 +1,4 @@
+#include "components/TransformComponent.h"
 #include "components/ColliderComponent.h"
 #include "core/EntityManager.h"
 #include "core/ComponentStorage.h"
@@ -12,15 +13,17 @@
 class CollisionSystemTest : public ::testing::Test {
 protected:
     EntityManager entityManager;
+    ComponentStorage<TransformComponent> transforms;
     ComponentStorage<ColliderComponent> colliders;
     EventBus eventBus;
     EntityCreationSystem creationSystem{&entityManager};
 
     std::vector<CollisionEvent> receivedCollisions;
 
-    CollisionSystem system{entityManager, colliders, eventBus};
+    CollisionSystem system{entityManager, transforms, colliders, eventBus};
 
     void SetUp() override {
+        creationSystem.RegisterStorage(&transforms);
         creationSystem.RegisterStorage(&colliders);
 
         eventBus.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
@@ -40,8 +43,14 @@ protected:
 };
 
 TEST_F(CollisionSystemTest, EmitsCollisionEventWhenEntitiesOverlap) {
-    EntityID a = creationSystem.CreateEntityWith(ColliderComponent{0, 0, 10, 10});
-    EntityID b = creationSystem.CreateEntityWith(ColliderComponent{5, 5, 10, 10}); // overlap with a
+    EntityID a = creationSystem.CreateEntityWith(
+        TransformComponent{0, 0, 0, 0},
+        ColliderComponent{10, 10}
+    );
+    EntityID b = creationSystem.CreateEntityWith(
+        TransformComponent{5, 5, 0, 0},
+        ColliderComponent{10, 10}
+    );
 
     system.Update(0.0f);
     eventBus.Dispatch();
@@ -51,8 +60,14 @@ TEST_F(CollisionSystemTest, EmitsCollisionEventWhenEntitiesOverlap) {
 }
 
 TEST_F(CollisionSystemTest, DoesNotEmitCollisionEventWhenEntitiesDoNotOverlap) {
-    EntityID a = creationSystem.CreateEntityWith(ColliderComponent{0, 0, 10, 10});
-    EntityID b = creationSystem.CreateEntityWith(ColliderComponent{100, 100, 10, 10}); // far apart
+    EntityID a = creationSystem.CreateEntityWith(
+        TransformComponent{0, 0, 0, 0},
+        ColliderComponent{10, 10}
+    );
+    EntityID b = creationSystem.CreateEntityWith(
+        TransformComponent{100, 100, 0, 0},
+        ColliderComponent{10, 10}
+    );
 
     system.Update(0.0f);
     eventBus.Dispatch();
@@ -61,8 +76,13 @@ TEST_F(CollisionSystemTest, DoesNotEmitCollisionEventWhenEntitiesDoNotOverlap) {
 }
 
 TEST_F(CollisionSystemTest, IgnoresEntitiesWithoutColliderComponent) {
-    EntityID a = creationSystem.CreateEntityWith(ColliderComponent{0, 0, 10, 10});
-    EntityID b = creationSystem.CreateEntityWith(); // no collider
+    EntityID a = creationSystem.CreateEntityWith(
+        TransformComponent{0, 0, 0, 0},
+        ColliderComponent{10, 10}
+    );
+    EntityID b = creationSystem.CreateEntityWith(
+        TransformComponent{5, 5, 0, 0}
+    );
 
     system.Update(0.0f);
     eventBus.Dispatch();
@@ -71,9 +91,18 @@ TEST_F(CollisionSystemTest, IgnoresEntitiesWithoutColliderComponent) {
 }
 
 TEST_F(CollisionSystemTest, EmitsMultipleCollisionEventsForMultiplePairs) {
-    EntityID a = creationSystem.CreateEntityWith(ColliderComponent{0, 0, 10, 10});
-    EntityID b = creationSystem.CreateEntityWith(ColliderComponent{5, 5, 10, 10});
-    EntityID c = creationSystem.CreateEntityWith(ColliderComponent{8, 8, 10, 10});
+    EntityID a = creationSystem.CreateEntityWith(
+        TransformComponent{0, 0, 0, 0},
+        ColliderComponent{10, 10}
+    );
+    EntityID b = creationSystem.CreateEntityWith(
+        TransformComponent{5, 5, 0, 0},
+        ColliderComponent{10, 10}
+    );
+    EntityID c = creationSystem.CreateEntityWith(
+        TransformComponent{8, 8, 0, 0},
+        ColliderComponent{10, 10}
+    );
 
     system.Update(0.0f);
     eventBus.Dispatch();

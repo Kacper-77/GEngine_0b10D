@@ -3,7 +3,7 @@
 MovementSystem::MovementSystem(ComponentStorage<TransformComponent>& transforms,
                                ComponentStorage<VelocityComponent>& velocities,
                                ComponentStorage<AccelerationComponent>& accelerations)
-    : m_transforms(transforms), m_velocities(velocities), m_accelerations(accelerations) {}
+    : m_transforms{transforms}, m_velocities(velocities), m_accelerations(accelerations) {}
 
 void MovementSystem::Update(float deltaTime) {
     for (auto& [id, velocity] : m_velocities.GetAll()) {

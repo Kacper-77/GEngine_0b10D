@@ -3,7 +3,7 @@
 PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
                              ComponentStorage<AccelerationComponent>& accelerations,
                              ComponentStorage<PhysicsComponent>& physics)
-    : m_transforms(transforms), m_accelerations(accelerations), m_physics(physics) {}
+    : m_transforms{transforms}, m_accelerations{accelerations}, m_physics{physics} {}
 
 void PhysicsSystem::Update(float deltaTime) {
     for (auto& [id, physics] : m_physics.GetAll()) {

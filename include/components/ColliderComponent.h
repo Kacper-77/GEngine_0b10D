@@ -1,6 +1,6 @@
 #pragma once
 
 struct ColliderComponent {
-    float x, y;
-    float width, height;
+    int width, height;
+    bool isTrigger = false;
 };

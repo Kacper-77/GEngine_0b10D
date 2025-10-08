@@ -2,7 +2,7 @@
 #include <SDL2/SDL.h>
 #include "systems/RenderSystem.h"
 #include "components/TransformComponent.h"
-#include "scene/SpriteComponent.h"
+#include "components/SpriteComponent.h"
 #include "graphics/Renderer.h"
 #include "graphics/Texture.h"
 #include "core/ComponentStorage.h"

@@ -3,7 +3,7 @@
 #include "core/ISystem.h"
 #include "core/ComponentStorage.h"
 #include "components/TransformComponent.h"
-#include "scene/SpriteComponent.h"
+#include "components/SpriteComponent.h"
 #include "graphics/Renderer.h"
 #include "core/IRenderer.h"
 
