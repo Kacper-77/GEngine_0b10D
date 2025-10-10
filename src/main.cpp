@@ -1,5 +1,6 @@
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
+#include <SDL_mixer.h>
 #include <iostream>
 
 #include "core/SystemManager.h"
@@ -18,6 +19,7 @@
 #include "systems/EntityCreationSystem.h"
 #include "systems/BoundrySystem.h"
 #include "systems/CollisionSystem.h"
+#include "systems/AudioSystem.h"
 
 #include "window/Window.h"
 #include "graphics/Renderer.h"
@@ -32,16 +34,14 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
-    Window window;
-    Renderer renderer;
-
-    if (!window.Init("GEngine_ECS_Test", 800, 600, false)) return -1;
-    if (!renderer.Init(window.GetSDLWindow())) return -1;
-
-    renderer.SetDrawColor(30, 30, 60, 255);
+    if (SDL_Init(SDL_INIT_AUDIO) < 0 || Mix_OpenAudio(44100, MIX_DEFAULT_FORMAT, 2, 2048) < 0) {
+        std::cerr << "SDL_mixer could not initialize! Error: " << Mix_GetError() << std::endl;
+        return -1;
+    }
 
     // ECS setup
     EntityManager entityManager;
+    AudioSystem audioSystem{&entityManager};
     EntityCreationSystem creationSystem{&entityManager};
     EventBus eventBus;
 
@@ -67,11 +67,34 @@ int main(int argc, char* argv[]) {
     entityManager.RegisterComponentStorage(&colliders);
 
     // Load texture
+    Window window;
+    Renderer renderer;
+
+    if (!window.Init("GEngine_ECS_Test", 800, 600, false)) return -1;
+    if (!renderer.Init(window.GetSDLWindow())) return -1;
+
+    renderer.SetDrawColor(30, 30, 60, 255);
+
     Texture playerTexture;
     if (!playerTexture.LoadFromFile("../assets/fish_brown.png", renderer.GetSDLRenderer())) {
         std::cerr << "Failed to load player texture." << std::endl;
         return -1;
     }
+
+    // Load collision sound and register in AudioSystem
+    Mix_Chunk* chunk = Mix_LoadWAV("../assets/sample.wav");
+    if (!chunk) {
+        std::cerr << "Failed to load collision sound: " << Mix_GetError() << std::endl;
+        return -1;
+    }
+
+    AudioType collisionAudio;
+    collisionAudio.type = AudioType::Type::Chunk;
+    collisionAudio.chunk = chunk;
+    collisionAudio.priority = 5;
+
+    SoundTag collisionTag = "collision";
+    audioSystem.RegisterGlobalSound(collisionTag, collisionAudio);
 
     // Create player entity
     EntityID player = creationSystem.CreateEntityWith(
@@ -100,6 +123,7 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<MovementSystem>(movementSystem);
     systemManager.RegisterSystem<BoundrySystem>(boundrySystem);
     systemManager.RegisterSystem<CollisionSystem>(collisionSystem);
+    systemManager.RegisterSystem<AudioSystem>(audioSystem); // optional if you want Update()
 
     // Input
     InputManager inputManager;
@@ -108,8 +132,7 @@ int main(int argc, char* argv[]) {
     inputManager.Bind("Up", SDL_SCANCODE_UP);
     inputManager.Bind("Down", SDL_SCANCODE_DOWN);
 
-
-    // Collision response (simple stop)
+    // Collision response (simple stop + sound)
     eventBus.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
         if (e.entityA == player || e.entityB == player) {
             auto* velocity = velocities.Get(player);
@@ -117,6 +140,7 @@ int main(int argc, char* argv[]) {
                 velocity->dx = 0;
                 velocity->dy = 0;
             }
+            audioSystem.PlayGlobal(collisionTag);
         }
     });
 
@@ -140,6 +164,7 @@ int main(int argc, char* argv[]) {
     }
 
     playerTexture.Unload();
+    Mix_CloseAudio();
     window.Shutdown();
     renderer.Shutdown();
     IMG_Quit();

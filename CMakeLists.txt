@@ -8,6 +8,7 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 # SDL2 via find_package
 find_package(SDL2 REQUIRED)
 find_package(SDL2_image REQUIRED)
+find_package(SDL2_mixer REQUIRED)
 
 # SDL2 via sdl2-config
 execute_process(COMMAND sdl2-config --cflags OUTPUT_VARIABLE SDL2_CFLAGS OUTPUT_STRIP_TRAILING_WHITESPACE)
@@ -24,7 +25,7 @@ file(GLOB_RECURSE ENGINE_SOURCES "src/*/*.cpp")
 add_library(GameEngineLib STATIC ${ENGINE_SOURCES})
 target_include_directories(GameEngineLib PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_compile_options(GameEngineLib PRIVATE ${SDL2_CFLAGS_LIST})
-target_link_libraries(GameEngineLib ${SDL2_LIBS} -lSDL2_image)
+target_link_libraries(GameEngineLib ${SDL2_LIBS} -lSDL2_image SDL2_mixer::SDL2_mixer)
 
 # Executable
 add_executable(GameEngine2D src/main.cpp)
