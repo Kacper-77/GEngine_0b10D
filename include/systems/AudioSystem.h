@@ -51,7 +51,7 @@ public:
 
     void CleanupUnused();
 
-private:
+// private:
     EntityManager* m_entityManager;
     std::unordered_map<EntityID, std::unordered_map<SoundTag, AudioType>> m_audioAndSounds;
     std::unordered_map<SoundTag, AudioType> m_globalAudio;

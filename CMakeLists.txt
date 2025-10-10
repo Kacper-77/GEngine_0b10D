@@ -95,6 +95,14 @@ target_include_directories(EventTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE
 target_link_libraries(EventTest GameEngineLib gtest_main)
 add_test(NAME EventTest COMMAND EventTest)
 
+# AUDIO SYSTEM
+add_executable(AudioSystemTest tests/test_AudioSystem.cpp)
+target_include_directories(AudioSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include 
+                                                ${CMAKE_SOURCE_DIR}/include/systems
+                                                ${CMAKE_SOURCE_DIR}/include/core)
+target_link_libraries(AudioSystemTest GameEngineLib gtest_main SDL2_mixer)
+add_test(NAME AudioSystemTest COMMAND AudioSystemTest)
+
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")

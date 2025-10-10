@@ -9,4 +9,10 @@ struct AudioType {
         Mix_Chunk* chunk;
         Mix_Music* music;
     };
+
+    int priority = 0;
+
+    bool operator<(const AudioType& other) const {
+        return priority < other.priority;
+    }
 };
