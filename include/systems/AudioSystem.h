@@ -8,6 +8,7 @@
 #include "utils/AudioTypes.h"
 #include "utils/EntityTypes.h"
 #include "utils/Vector.h"
+#include "core/EntityManager.h"
 
 using SoundTag = std::string;
 
@@ -22,6 +23,8 @@ enum class AudioLayer {
 
 class AudioSystem : public ISystem {
 public:
+    AudioSystem(EntityManager* m_entityManager);
+
     // Play Entity sound
     void Play(EntityID id, SoundTag tag);
     void Stop(EntityID id, SoundTag tag);
@@ -40,7 +43,7 @@ public:
 
     // Queue
     void EnqueueSound(EntityID id, AudioType audio);
-    void UpdateQueues(); // I need to implement this in global Update()
+    void Update(float deltaTime) override;
 
     void SetLayerVolume(AudioLayer layer, int volume);
     void MuteLayer(AudioLayer layer);
@@ -49,6 +52,7 @@ public:
     void CleanupUnused();
 
 private:
+    EntityManager* m_entityManager;
     std::unordered_map<EntityID, std::unordered_map<SoundTag, AudioType>> m_audioAndSounds;
     std::unordered_map<SoundTag, AudioType> m_globalAudio;
 
@@ -57,7 +61,7 @@ private:
     std::unordered_map<EntityID, Vector> m_entityPositions;
 
     struct SoundQueue {
-        std::queue<AudioType> sounds;
+        std::priority_queue<AudioType> sounds;
         bool isPlaying = false;
     };
     std::unordered_map<EntityID, SoundQueue> m_soundQueues;
