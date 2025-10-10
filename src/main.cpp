@@ -1,6 +1,5 @@
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
-#include <SDL_mixer.h>
 #include <iostream>
 
 #include "core/SystemManager.h"
@@ -123,7 +122,7 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<MovementSystem>(movementSystem);
     systemManager.RegisterSystem<BoundrySystem>(boundrySystem);
     systemManager.RegisterSystem<CollisionSystem>(collisionSystem);
-    systemManager.RegisterSystem<AudioSystem>(audioSystem); // optional if you want Update()
+    systemManager.RegisterSystem<AudioSystem>(audioSystem);
 
     // Input
     InputManager inputManager;
@@ -164,7 +163,6 @@ int main(int argc, char* argv[]) {
     }
 
     playerTexture.Unload();
-    Mix_CloseAudio();
     window.Shutdown();
     renderer.Shutdown();
     IMG_Quit();
