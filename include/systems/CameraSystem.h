@@ -10,15 +10,14 @@
 class CameraSystem : public ISystem {
 public:
     CameraSystem(ComponentStorage<TransformComponent>& transforms,
-                 ComponentStorage<CameraComponent>& camera,
-                 EventBus* eventBus);
+                 ComponentStorage<CameraComponent>& camera);
 
     void Update(float deltaTime) override; // ISystem method
 
     void FocusOn(EntityID target);
     void MoveTo(SDL_Point target);
     void SetZoom(std::optional<EntityID> cameraEntity, float zoom);
-    void Shake(int intensity, float duration);
+    void SetShake(int intensity, float duration);
     void SetActiveCamera(EntityID cameraEntity);
     std::optional<EntityID> GetActiveCamera() const;
     
@@ -28,6 +27,12 @@ private:
     EventBus* m_eventBus;
 
     std::optional<EntityID> m_activeCamera; // current camera
+    CameraComponent* CheckActiveCamera();  // helper to avoid boilerplate
 
-    void ApplyToRenderSystem(RenderSystem& renderSystem); // Need to think about it
+    void ApplyToRenderSystem(RenderSystem& renderSystem);
+
+    // helpers
+    void UpdateCameraPosition(CameraComponent& cam, float deltaTime);
+    void ApplyShake(CameraComponent& cam);
+    void ClampToBounds(CameraComponent& cam);
 };

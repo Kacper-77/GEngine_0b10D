@@ -9,7 +9,8 @@ enum CameraMode {
     Follow,
     SmoothFollow,
     Scripted,
-    RoomBased
+    RoomBased,
+    Shake
 };
 
 struct CameraComponent {
