@@ -12,6 +12,7 @@
 #include "components/BoundryComponent.h"
 #include "components/ColliderComponent.h"
 #include "components/SpriteComponent.h"
+#include "components/CameraComponent.h"
 
 #include "systems/MovementSystem.h"
 #include "systems/RenderSystem.h"
@@ -19,6 +20,7 @@
 #include "systems/BoundrySystem.h"
 #include "systems/CollisionSystem.h"
 #include "systems/AudioSystem.h"
+#include "systems/CameraSystem.h"
 
 #include "window/Window.h"
 #include "graphics/Renderer.h"
@@ -50,13 +52,16 @@ int main(int argc, char* argv[]) {
     ComponentStorage<SpriteComponent> sprites;
     ComponentStorage<BoundryComponent> boundries;
     ComponentStorage<ColliderComponent> colliders;
+    ComponentStorage<CameraComponent> cameras;
 
+    // Register component storages
     creationSystem.RegisterStorage(&transforms);
     creationSystem.RegisterStorage(&velocities);
     creationSystem.RegisterStorage(&accelerations);
     creationSystem.RegisterStorage(&sprites);
     creationSystem.RegisterStorage(&boundries);
     creationSystem.RegisterStorage(&colliders);
+    creationSystem.RegisterStorage(&cameras);
 
     entityManager.RegisterComponentStorage(&transforms);
     entityManager.RegisterComponentStorage(&velocities);
@@ -64,8 +69,9 @@ int main(int argc, char* argv[]) {
     entityManager.RegisterComponentStorage(&sprites);
     entityManager.RegisterComponentStorage(&boundries);
     entityManager.RegisterComponentStorage(&colliders);
+    entityManager.RegisterComponentStorage(&cameras);
 
-    // Load texture
+    // Window and renderer
     Window window;
     Renderer renderer;
 
@@ -74,38 +80,46 @@ int main(int argc, char* argv[]) {
 
     renderer.SetDrawColor(30, 30, 60, 255);
 
+    // Load texture
     Texture playerTexture;
     if (!playerTexture.LoadFromFile("../assets/fish_brown.png", renderer.GetSDLRenderer())) {
         std::cerr << "Failed to load player texture." << std::endl;
         return -1;
     }
 
-    // Load collision sound and register in AudioSystem
+    // Load sound
     Mix_Chunk* chunk = Mix_LoadWAV("../assets/sample.wav");
     if (!chunk) {
         std::cerr << "Failed to load collision sound: " << Mix_GetError() << std::endl;
         return -1;
     }
 
-    AudioType collisionAudio;
-    collisionAudio.type = AudioType::Type::Chunk;
-    collisionAudio.chunk = chunk;
-    collisionAudio.priority = 5;
-
+    AudioType collisionAudio{AudioType::Type::Chunk, chunk, 5};
     SoundTag collisionTag = "collision";
     audioSystem.RegisterGlobalSound(collisionTag, collisionAudio);
 
-    // Create player entity
+    // Create player
     EntityID player = creationSystem.CreateEntityWith(
         TransformComponent{364, 100, 64, 64},
         VelocityComponent{2.0f, 1.0f},
         AccelerationComponent{0.0f, 0.0f},
         SpriteComponent{&playerTexture, 64, 64},
-        BoundryComponent{true, true, true, true},
+        BoundryComponent{false, false, false, false},
         ColliderComponent{64, 64, false}
     );
 
-    // Create static obstacle
+    // Add camera to player
+    CameraComponent playerCamera;
+    playerCamera.isActive = true;
+    playerCamera.viewportSize = {800, 600};
+    playerCamera.offset = {0, 0};
+    playerCamera.zoom = 1.0f;
+    playerCamera.smoothing = 2;
+    playerCamera.mode = CameraMode::SmoothFollow;
+    playerCamera.target = player;
+    cameras.Add(player, playerCamera);
+
+    // Create obstacle
     EntityID blocker = creationSystem.CreateEntityWith(
         TransformComponent{300, 100, 64, 64},
         SpriteComponent{&playerTexture, 64, 64},
@@ -114,15 +128,19 @@ int main(int argc, char* argv[]) {
 
     // Systems
     MovementSystem movementSystem(transforms, velocities, accelerations);
-    RenderSystem renderSystem(transforms, sprites, &renderer);
+    // RenderSystem renderSystem(transforms, sprites, &renderer);
     BoundrySystem boundrySystem(transforms, boundries, &window);
     CollisionSystem collisionSystem(entityManager, transforms, colliders, eventBus);
+    CameraSystem cameraSystem(transforms, cameras);
+    cameraSystem.SetActiveCamera(player);
 
     SystemManager systemManager;
     systemManager.RegisterSystem<MovementSystem>(movementSystem);
     systemManager.RegisterSystem<BoundrySystem>(boundrySystem);
     systemManager.RegisterSystem<CollisionSystem>(collisionSystem);
     systemManager.RegisterSystem<AudioSystem>(audioSystem);
+    systemManager.RegisterSystem<CameraSystem>(cameraSystem);
+    systemManager.RegisterSystem<RenderSystem>(transforms, sprites, &renderer);
 
     // Input
     InputManager inputManager;
@@ -131,41 +149,46 @@ int main(int argc, char* argv[]) {
     inputManager.Bind("Up", SDL_SCANCODE_UP);
     inputManager.Bind("Down", SDL_SCANCODE_DOWN);
 
-    // Collision response (simple stop + sound)
+    // Collision response
     eventBus.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
         if (e.entityA == player || e.entityB == player) {
-            auto* velocity = velocities.Get(player);
-            if (velocity) {
+            if (auto* velocity = velocities.Get(player)) {
                 velocity->dx = 0;
                 velocity->dy = 0;
             }
             audioSystem.PlayGlobal(collisionTag);
         }
     });
-
+    auto* renderSystem = systemManager.GetSystem<RenderSystem>();
+    // Main loop
     while (window.IsRunning()) {
         window.PollEvents();
         inputManager.Update();
 
-        auto velocity = velocities.Get(player);
-        if (inputManager.IsActionHeld("Left")) velocity->dx -= 1;
-        if (inputManager.IsActionHeld("Right")) velocity->dx += 1;
-        if (inputManager.IsActionHeld("Up")) velocity->dy -= 1;
-        if (inputManager.IsActionHeld("Down")) velocity->dy += 1;
-
+        if (auto* velocity = velocities.Get(player)) {
+            velocity->dx = 0;
+            velocity->dy = 0;
+            if (inputManager.IsActionHeld("Left")) velocity->dx -= 1;
+            if (inputManager.IsActionHeld("Right")) velocity->dx += 1;
+            if (inputManager.IsActionHeld("Up")) velocity->dy += 5;
+            if (inputManager.IsActionHeld("Down")) velocity->dy -= 1;
+        }
+        
         systemManager.UpdateAll(1.0f);
+        cameraSystem.ApplyToRenderSystem(*renderSystem);
+
         eventBus.Dispatch();
+
         renderer.Clear();
-        renderSystem.Update(1.0f);
+        renderSystem->Update(1.0f);
         renderer.Present();
 
-        SDL_Delay(1000 / 60); // ~60 FPS
+        SDL_Delay(1000 / 60);
     }
 
     playerTexture.Unload();
     window.Shutdown();
     renderer.Shutdown();
     IMG_Quit();
-
     return 0;
 }

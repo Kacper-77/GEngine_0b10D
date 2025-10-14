@@ -20,19 +20,17 @@ public:
     void SetShake(int intensity, float duration);
     void SetActiveCamera(EntityID cameraEntity);
     std::optional<EntityID> GetActiveCamera() const;
+    void ApplyToRenderSystem(RenderSystem& renderSystem);
     
 private:
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<CameraComponent>& m_camera;
-    EventBus* m_eventBus;
 
     std::optional<EntityID> m_activeCamera; // current camera
     CameraComponent* CheckActiveCamera();  // helper to avoid boilerplate
 
-    void ApplyToRenderSystem(RenderSystem& renderSystem);
-
     // helpers
-    void UpdateCameraPosition(CameraComponent& cam, float deltaTime);
+    void UpdateCameraPosition(CameraComponent& cam);
     void ApplyShake(CameraComponent& cam);
     void ClampToBounds(CameraComponent& cam);
 };

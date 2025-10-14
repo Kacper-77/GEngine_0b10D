@@ -30,7 +30,7 @@ struct CameraComponent {
     bool manualControl = false;
     bool isActive = true;
 
-    //Effects
+    // Effects
     int shakeIntensity = 0;
     float shakeDuration = 0.0f;
     Uint8 fadeAlpha = 0;

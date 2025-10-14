@@ -99,10 +99,18 @@ add_test(NAME EventTest COMMAND EventTest)
 # AUDIO SYSTEM
 add_executable(AudioSystemTest tests/test_AudioSystem.cpp)
 target_include_directories(AudioSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include 
-                                                ${CMAKE_SOURCE_DIR}/include/systems
-                                                ${CMAKE_SOURCE_DIR}/include/core)
+                                                   ${CMAKE_SOURCE_DIR}/include/systems
+                                                   ${CMAKE_SOURCE_DIR}/include/core)
 target_link_libraries(AudioSystemTest GameEngineLib gtest_main SDL2_mixer)
 add_test(NAME AudioSystemTest COMMAND AudioSystemTest)
+
+# CAMERA SYSTEM
+add_executable(CameraSystemTest tests/test_CameraSystem.cpp)
+target_include_directories(CameraSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include 
+                                                    ${CMAKE_SOURCE_DIR}/include/systems
+                                                    ${CMAKE_SOURCE_DIR}/include/core)
+target_link_libraries(CameraSystemTest GameEngineLib gtest_main)
+add_test(NAME CameraSystemTest COMMAND CameraSystemTest)
 
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
