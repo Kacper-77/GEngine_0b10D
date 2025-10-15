@@ -127,10 +127,11 @@ int main(int argc, char* argv[]) {
                 velocity->dx += 1;
             }
         }
-
-        systemManager.UpdateAll(1.0f);
+        
+        cameraSystem.Update(1.0f);
         cameraSystem.ApplyToRenderSystem(renderSystem);
-
+        systemManager.UpdateAll(1.0f);
+        
         renderer.Clear();
         renderSystem.Update(1.0f);
         renderer.Present();

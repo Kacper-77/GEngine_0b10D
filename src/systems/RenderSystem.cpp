@@ -4,8 +4,7 @@
 RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<SpriteComponent>& sprites,
                            IRenderer* renderer) 
-    :   m_transforms{transforms}, m_sprites{sprites}, m_renderer{renderer},
-    m_cameraZoom{1.0f}, m_rotationDegrees{0.0f}, m_fadeAlpha{255}, m_cameraPosition{0, 0}, m_viewport{800, 600} {}
+    :   m_transforms{transforms}, m_sprites{sprites}, m_renderer{renderer} {}
 
 void RenderSystem::Update(float deltaTime) {
     for (auto& [id, sprite] : m_sprites.GetAll()) {

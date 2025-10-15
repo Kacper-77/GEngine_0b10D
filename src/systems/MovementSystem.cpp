@@ -1,4 +1,5 @@
 #include "systems/MovementSystem.h"
+#include <iostream>
 
 MovementSystem::MovementSystem(ComponentStorage<TransformComponent>& transforms,
                                ComponentStorage<VelocityComponent>& velocities,

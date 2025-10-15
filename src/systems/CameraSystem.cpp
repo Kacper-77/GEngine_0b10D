@@ -66,8 +66,13 @@ void CameraSystem::SetShake(int intensity, float duration) {
 }
 
 void CameraSystem::SetActiveCamera(EntityID cameraEntity) {
-    m_activeCamera = cameraEntity;
+    if (m_camera.Has(cameraEntity)) {
+        m_activeCamera = cameraEntity;
+    } else {
+        std::cerr << "SetActiveCamera failed: entity " << cameraEntity << " has no CameraComponent\n";
+    }
 }
+
 
 std::optional<EntityID> CameraSystem::GetActiveCamera() const {
     return m_activeCamera;
@@ -99,7 +104,7 @@ void CameraSystem::UpdateCameraPosition(CameraComponent& cam) {
     if (!transform) return;
 
     SDL_Point desired = {
-        transform->x + cam.offset.x - cam.viewportSize.x / 2,
+        (cam.viewportSize.x / 2 - transform->x) + cam.offset.x,
         transform->y + cam.offset.y - cam.viewportSize.y / 2
     };
 
