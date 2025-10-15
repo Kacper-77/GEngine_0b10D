@@ -1,5 +1,6 @@
 #include "systems/CameraSystem.h"
 #include <random>
+#include <iostream>
 
 CameraSystem::CameraSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<CameraComponent>& camera)

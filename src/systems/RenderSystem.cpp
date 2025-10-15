@@ -1,4 +1,5 @@
 #include "systems/RenderSystem.h"
+#include <iostream>
 
 RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<SpriteComponent>& sprites,
