@@ -16,6 +16,7 @@ public:
     void Update(float deltaTime) override;
 
     void SetCameraPosition(const SDL_Point& position);
+    const SDL_Point& GetCameraPosition() const;
     void SetCameraZoom(float zoom);
     void SetCameraRotation(float degrees);
     void SetFadeAlpha(Uint8 alpha);
@@ -24,6 +25,7 @@ private:
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<SpriteComponent>& m_sprites;
     SDL_Point m_cameraPosition = {0, 0};
+
     float m_cameraZoom;
     float m_rotationDegrees;
     Uint8 m_fadeAlpha;

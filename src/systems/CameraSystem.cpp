@@ -104,7 +104,7 @@ void CameraSystem::UpdateCameraPosition(CameraComponent& cam) {
     if (!transform) return;
 
     SDL_Point desired = {
-        (cam.viewportSize.x / 2 - transform->x) + cam.offset.x,
+        transform->x + cam.offset.x - cam.viewportSize.x / 2,
         transform->y + cam.offset.y - cam.viewportSize.y / 2
     };
 

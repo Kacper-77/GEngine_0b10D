@@ -40,3 +40,7 @@ void RenderSystem::SetFadeAlpha(Uint8 fadeAlpha) {
 void RenderSystem::SetViewportSize(SDL_Point size) {
     m_viewport = size;
 }
+
+const SDL_Point& RenderSystem::GetCameraPosition() const {
+    return m_cameraPosition;
+}

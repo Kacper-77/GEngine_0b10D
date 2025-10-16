@@ -9,13 +9,13 @@
 class BoundrySystem : public ISystem {
 public:
     BoundrySystem(ComponentStorage<TransformComponent>& transforms,
-                  ComponentStorage<BoundryComponent>& boundries,
+                  ComponentStorage<BoundryComponent>& boundaries,
                   Window* window);
 
     void Update(float deltaTime) override;
 
 private:
     ComponentStorage<TransformComponent>& m_transforms;
-    ComponentStorage<BoundryComponent>& m_boundries;
+    ComponentStorage<BoundryComponent>& m_boundaries;
     Window* m_window;
 };

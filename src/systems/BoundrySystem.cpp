@@ -1,15 +1,15 @@
 #include "systems/BoundrySystem.h"
 
 BoundrySystem::BoundrySystem(ComponentStorage<TransformComponent>& transforms,
-              ComponentStorage<BoundryComponent>& boundries,
+              ComponentStorage<BoundryComponent>& boundaries,
               Window* window)
-    : m_transforms{transforms}, m_boundries{boundries}, m_window{window} {}
+    : m_transforms{transforms}, m_boundaries{boundaries}, m_window{window} {}
 
 void BoundrySystem::Update(float deltaTime) {
     const int screenWidth = m_window->GetWidth();
     const int screenHeight = m_window->GetHeight();
 
-    for (auto& [id, boundry] : m_boundries.GetAll()) {
+    for (auto& [id, boundry] : m_boundaries.GetAll()) {
         auto* transform = m_transforms.Get(id);
         if (!transform) continue;
 
