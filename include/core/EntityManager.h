@@ -10,14 +10,17 @@ using EntityInfo = std::unordered_map<std::string, std::string>;
 
 class EntityManager {
 public:
+    // Add to list of "alive"  entities
     void InsertToEntityList(EntityID id) {
         alive.insert(id);
     }
 
+    // Register ComponentStorage
     void RegisterComponentStorage(IComponentStorage *storage) { 
         componentStorage.push_back(storage); 
     }
 
+    // Destroy and remove entity from all fields
     void DestroyEntityFromList(EntityID id) {
         alive.erase(id);
         RemoveTag(id);
@@ -27,14 +30,17 @@ public:
         RemoveInfo(id);
     }
 
+    // Check entity
     bool IsAlive(EntityID id) {
         return alive.find(id) != alive.end();
     }
 
+    // Getting all entities
     std::unordered_set<EntityID> GetAllEntities() {
         return alive;
     }
 
+    // Add, remove and get entity tag 
     void AddTag(EntityID id, const std::string& tag) {
         tags[id] = tag;
         groups[tag].insert(id);
@@ -53,11 +59,13 @@ public:
         return it != tags.end() ? it->second : "";
     }
 
+    // Get group with same tags (example - "Enemy" etc.)
     std::unordered_set<EntityID> GetGroup(const std::string& tag) const {
         auto it = groups.find(tag);
         return it != groups.end() ? it->second : std::unordered_set<EntityID>{};
     }
 
+    // Add, get and remove info about entity
     void AddInfo(EntityID id, const std::string& key, const std::string& value) {
         m_entityInfo[id][key] = value;
     }

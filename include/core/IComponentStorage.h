@@ -2,6 +2,7 @@
 
 #include "utils/EntityTypes.h"
 
+// Virtual
 class IComponentStorage {
 public:
     virtual ~IComponentStorage() = default;

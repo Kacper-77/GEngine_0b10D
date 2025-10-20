@@ -12,6 +12,7 @@ public:
     EntityCreationSystem(EntityManager* manager)
         : m_manager{manager} {}
 
+    // Create entities with registred components
     template<typename... Args>
     EntityID CreateEntityWith(Args&&... args) {
         EntityID id = GetIdentification();
@@ -20,6 +21,7 @@ public:
         return id;
     }
 
+    // Component registration
     template<typename T>
     void RegisterStorage(ComponentStorage<T>* storage) {
         m_storages[typeid(T)] = storage;
@@ -30,6 +32,7 @@ private:
         return NextID_++;
     }
 
+    // Processing arguments depending by type
     template<typename T>
     void ProcessArgument(EntityID id, T&& arg) {
         if constexpr (std::is_same_v<std::decay_t<T>, std::string>) {
@@ -48,6 +51,7 @@ private:
         }
     }
 
+    // Extract pointer to registered storage
     template<typename T>
     ComponentStorage<T>* GetStorage() {
         auto it = m_storages.find(typeid(T));

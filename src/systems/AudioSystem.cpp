@@ -27,7 +27,7 @@ static VectorFloat ToFloat(const Vector& v) {
     return VectorFloat{static_cast<float>(vi.x), static_cast<float>(vi.y)};
 }
 
-// PLAY
+// Play music or chunk
 void AudioSystem::Play(EntityID id, SoundTag tag) {
     auto it = m_audioAndSounds.find(id);
     if (it != m_audioAndSounds.end()) {
@@ -35,19 +35,33 @@ void AudioSystem::Play(EntityID id, SoundTag tag) {
         auto soundIt = sounds.find(tag);
         if (soundIt != sounds.end()) {
             const AudioType& audio = soundIt->second;
-            if (audio.type == AudioType::Type::Chunk)
-                Mix_PlayChannel(-1, audio.chunk, 0);
-            else
+            if (audio.type == AudioType::Type::Chunk) {
+                int channel = Mix_PlayChannel(-1, audio.chunk, 0);
+                if (channel != -1) {
+                    m_entityChannels[id][tag] = channel;
+                }
+            } else {
                 Mix_PlayMusic(audio.music, -1);
+            }
         }
     }
 }
 
+// Stop 
 void AudioSystem::Stop(EntityID id, SoundTag tag) {
-    Mix_HaltChannel(-1);
+    auto entIt = m_entityChannels.find(id);
+
+    if (entIt != m_entityChannels.end()) {
+        auto tagIt = entIt->second.find(tag);
+
+        if (tagIt != entIt->second.end()) {
+            Mix_HaltChannel(tagIt->second);
+            entIt->second.erase(tagIt);
+        }
+    }
 }
 
-// GLOBAL
+// Play global
 void AudioSystem::PlayGlobal(SoundTag tag) {
     auto it = m_globalAudio.find(tag);
     if (it != m_globalAudio.end()) {
@@ -59,12 +73,13 @@ void AudioSystem::PlayGlobal(SoundTag tag) {
     }
 }
 
+// Stop global
 void AudioSystem::StopGlobal(SoundTag tag) {
     Mix_HaltChannel(-1);
     Mix_HaltMusic();
 }
 
-// REGISTRATION
+// Registration
 void AudioSystem::RegisterSound(EntityID id, SoundTag tag, AudioType audio) {
     m_audioAndSounds[id][tag] = audio;
 }
@@ -77,11 +92,13 @@ void AudioSystem::RegisterLayeredSound(SoundTag tag, AudioType audio, AudioLayer
     m_layeredAudio[tag] = std::make_pair(audio, layer);
 }
 
-// SPATIAL AUDIOt
+// Spatial audio
 void AudioSystem::PlaySpatial(EntityID id, SoundTag tag, const Vector& listenerPos, int maxDistance) {
+    // Get positions of entities
     auto posIt = m_entityPositions.find(id);
     if (posIt == m_entityPositions.end()) return;
 
+    // NEED TO BE DELETED CUZ SDL2 USING ONLY INT
     VectorFloat source = ToFloat(posIt->second);
     VectorFloat listener = ToFloat(listenerPos);
     float dx = source.x - listener.x;
@@ -98,11 +115,12 @@ void AudioSystem::PlaySpatial(EntityID id, SoundTag tag, const Vector& listenerP
     }
 }
 
-// === QUEUE ===
+// Queue
 void AudioSystem::EnqueueSound(EntityID id, AudioType audio) {
     m_soundQueues[id].sounds.push(audio);
 }
 
+// Update state
 void AudioSystem::Update(float deltaTime) {
     for (auto& [id, queue] : m_soundQueues) {
         if (queue.isPlaying) {
@@ -135,7 +153,7 @@ void AudioSystem::Update(float deltaTime) {
 }
 
 
-// LAYER CONTROL
+// Layer control
 void AudioSystem::SetLayerVolume(AudioLayer layer, int volume) {
     m_layerVolumes[layer] = std::clamp(volume, 0, MIX_MAX_VOLUME);
 }
@@ -148,7 +166,7 @@ void AudioSystem::UnmuteLayer(AudioLayer layer) {
     m_layerMuted[layer] = false;
 }
 
-// CLEANUP
+// Cleanup
 void AudioSystem::CleanupUnused() {
     for (auto it = m_audioAndSounds.begin(); it != m_audioAndSounds.end();) {
         EntityID id = it->first;
@@ -156,6 +174,7 @@ void AudioSystem::CleanupUnused() {
             it = m_audioAndSounds.erase(it);
             m_entityPositions.erase(id);
             m_soundQueues.erase(id);
+            m_entityChannels.erase(id);
         } else {
             ++it;
         }

@@ -1,10 +1,13 @@
 #include "systems/PhysicsSystem.h"
 
+// UPGRADE AND OPTIMALISATION IS COMING
+
 PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
                              ComponentStorage<AccelerationComponent>& accelerations,
                              ComponentStorage<PhysicsComponent>& physics)
     : m_transforms{transforms}, m_accelerations{accelerations}, m_physics{physics} {}
 
+// Update state
 void PhysicsSystem::Update(float deltaTime) {
     for (auto& [id, physics] : m_physics.GetAll()) {
         auto* acceleration = m_accelerations.Get(id);

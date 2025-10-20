@@ -7,6 +7,7 @@
 template<typename T>
 class ComponentStorage : public IComponentStorage {
 public:
+    // Add, get, check and remove (m_components)
     void Add(EntityID id, const T& component) {
         m_components[id] = component;
     }

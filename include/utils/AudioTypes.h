@@ -2,6 +2,7 @@
 
 #include <SDL2/SDL_mixer.h>
 
+// Clear types of audio
 struct AudioType {
     enum class Type { Chunk, Music };
     Type type;

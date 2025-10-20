@@ -9,6 +9,7 @@ Texture::~Texture() {
     Unload();
 }
 
+// Loading texture from file
 bool Texture::LoadFromFile(const std::string& path, SDL_Renderer* renderer) {
     Unload();
 
@@ -18,9 +19,11 @@ bool Texture::LoadFromFile(const std::string& path, SDL_Renderer* renderer) {
         return false;
     }
 
+    // Create texture
     m_texture = SDL_CreateTextureFromSurface(renderer, surface);
     SDL_FreeSurface(surface);
 
+    // Throw error if something went wrong
     if (!m_texture) {
         std::cerr << "Failed to create texture from surface! SDL Error: " << SDL_GetError() << std::endl;
         return false;
@@ -29,6 +32,7 @@ bool Texture::LoadFromFile(const std::string& path, SDL_Renderer* renderer) {
     return true;
 }
 
+// Unload texture
 void Texture::Unload() {
     if (m_texture) {
         SDL_DestroyTexture(m_texture);
@@ -36,6 +40,7 @@ void Texture::Unload() {
     }
 }
 
+// Getter and setter
 SDL_Texture* Texture::GetSDLTexture() const {
     return m_texture;
 }

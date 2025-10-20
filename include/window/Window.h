@@ -13,12 +13,19 @@ public:
 
     SDL_Window* GetSDLWindow() const;
 
+    // Getters
     int GetWidth() const;
     int GetHeight() const;
     bool GetIsFullscreen() const;
-    bool IsRunning() const;
+
+    // Setting resolution and full screen
     void SetResolution(int width, int height);
     void ToggleFullscreen();
+
+    // Key info
+    bool IsRunning() const;
+
+    // Init poll events
     void PollEvents();
 
 private:

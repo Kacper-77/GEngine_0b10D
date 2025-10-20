@@ -1,6 +1,8 @@
 #include "window/Window.h"
 #include <iostream>
 
+// UPGRADE AND OPTIMALISATION IS COMING POLL EVENTS !!!
+
 Window::Window()
     : m_window(nullptr), m_width(0), m_height(0), m_isRunning(false) {}
 
@@ -8,21 +10,26 @@ Window::~Window() {
     Shutdown();
 }
 
+// Init
 bool Window::Init(const std::string& title, int width, int height, bool fullscreen) {
     if (SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL could not initialize! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
+    // Get flag
     Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN;
 
+    // Create window
     m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,
                                 width, height, flags);
 
+    // Throw error if something went wrong
     if (!m_window) {
         std::cerr << "Window could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
 
+    // Set fields
     m_width = width;
     m_height = height;
     m_isRunning = true;
@@ -31,6 +38,7 @@ bool Window::Init(const std::string& title, int width, int height, bool fullscre
     return true;
 }
 
+// Shutdown window
 void Window::Shutdown() {
     if (m_window) {
         SDL_DestroyWindow(m_window);
@@ -41,6 +49,7 @@ void Window::Shutdown() {
     m_isRunning = false;
 }
 
+// Getters and setters
 SDL_Window* Window::GetSDLWindow() const {
     return m_window;
 }
@@ -67,6 +76,7 @@ void Window::SetResolution(int width, int height) {
     SDL_SetWindowSize(m_window, width, height);
 }
 
+// Toggle full screen
 void Window::ToggleFullscreen() {
     Uint32 flags = SDL_GetWindowFlags(m_window);
     bool isFullscreen = flags & SDL_WINDOW_FULLSCREEN;
@@ -80,6 +90,7 @@ void Window::ToggleFullscreen() {
     }
 }
 
+// Init poll events
 void Window::PollEvents() {
     SDL_Event event;
     while (SDL_PollEvent(&event)) {

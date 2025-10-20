@@ -6,6 +6,7 @@ CameraSystem::CameraSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<CameraComponent>& camera)
     : m_transforms{transforms}, m_camera{camera} {}
 
+    // Update state
 void CameraSystem::Update(float deltaTime) {
     if (auto* cam = CheckActiveCamera()) {
         UpdateCameraPosition(*cam);
@@ -25,11 +26,13 @@ void CameraSystem::Update(float deltaTime) {
     }
 }
 
+// Focus on target
 void CameraSystem::FocusOn(EntityID target) {
     if (auto* cam = CheckActiveCamera())
     cam->target = target;
 }
 
+// Move to target
 void CameraSystem::MoveTo(SDL_Point target) {
     if (auto* cam = CheckActiveCamera()) {
         cam->position = target;
@@ -39,12 +42,13 @@ void CameraSystem::MoveTo(SDL_Point target) {
     }
 }
 
+// Setters
 void CameraSystem::SetZoom(std::optional<EntityID> cameraEntity, float zoom) {
     if (auto* cam = CheckActiveCamera()) {
-        zoom = std::clamp(zoom, 0.1f, 5.0f);
+        zoom = std::clamp(zoom, 0.1f, 5.0f);  // Set reasonable zoom
         cam->zoom = zoom;
 
-        if (cam->target != INVALID_ENTITY) {
+        if (cam->target != INVALID_ENTITY) {  // INVALID_ENTITY is default type declared at include/utils/EntityTypes.h
             cam->mode = CameraMode::Follow;
             cam->manualControl = false;
         } else {
@@ -54,8 +58,10 @@ void CameraSystem::SetZoom(std::optional<EntityID> cameraEntity, float zoom) {
     }
 }
 
+// Set screen shake
 void CameraSystem::SetShake(int intensity, float duration) {
     if (auto* cam = CheckActiveCamera()) {
+        // Set reasonable intensuty and duration
         intensity = std::clamp(intensity, 0, 15);
         duration = std::clamp(duration, 0.0f, 900.0f);
 
@@ -65,6 +71,7 @@ void CameraSystem::SetShake(int intensity, float duration) {
     }
 }
 
+// Set active camera
 void CameraSystem::SetActiveCamera(EntityID cameraEntity) {
     if (m_camera.Has(cameraEntity)) {
         m_activeCamera = cameraEntity;
@@ -73,11 +80,12 @@ void CameraSystem::SetActiveCamera(EntityID cameraEntity) {
     }
 }
 
-
+// Get active camera
 std::optional<EntityID> CameraSystem::GetActiveCamera() const {
     return m_activeCamera;
 }
 
+// Send info to RenderSystem
 void CameraSystem::ApplyToRenderSystem(RenderSystem& renderSystem) {
     if (auto* cam = CheckActiveCamera()) {
         renderSystem.SetCameraPosition(cam->position);
@@ -88,6 +96,7 @@ void CameraSystem::ApplyToRenderSystem(RenderSystem& renderSystem) {
     }
 }
 
+// Helper to avoid boilerplate
 CameraComponent* CameraSystem::CheckActiveCamera() {
     if (!m_activeCamera) return nullptr;
     auto* cam = m_camera.Get(m_activeCamera.value());
@@ -96,18 +105,23 @@ CameraComponent* CameraSystem::CheckActiveCamera() {
     return cam;
 }
 
+// Updating camera position
 void CameraSystem::UpdateCameraPosition(CameraComponent& cam) {
+    // Check target and mode
     if (cam.manualControl || cam.mode == CameraMode::Static) return;
     if (cam.target == INVALID_ENTITY) return;
 
+    // Get position from transformComponent
     auto* transform = m_transforms.Get(cam.target);
     if (!transform) return;
 
+    // Calculate position
     SDL_Point desired = {
         transform->x + cam.offset.x - cam.viewportSize.x / 2,
         transform->y + cam.offset.y - cam.viewportSize.y / 2
     };
 
+    // Set position
     if (cam.mode == CameraMode::Follow) {
         cam.position = desired;
     } else if (cam.mode == CameraMode::SmoothFollow) {
@@ -116,6 +130,7 @@ void CameraSystem::UpdateCameraPosition(CameraComponent& cam) {
     }
 }
 
+// Apply shake
 void CameraSystem::ApplyShake(CameraComponent& cam) {
     static std::random_device rd;  // source
     static std::mt19937 generate(rd());  // generation
@@ -129,6 +144,7 @@ void CameraSystem::ApplyShake(CameraComponent& cam) {
     cam.position.y += offsetY;
 }
 
+// NEED TO THINK ABOUT IT'S FUTURE
 void CameraSystem::ClampToBounds(CameraComponent& cam) {
     cam.position.x = std::clamp(cam.position.x, cam.bounds.x, cam.bounds.x + cam.bounds.w - cam.viewportSize.x);
     cam.position.y = std::clamp(cam.position.y, cam.bounds.y, cam.bounds.y + cam.bounds.h - cam.viewportSize.y);

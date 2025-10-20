@@ -1,6 +1,7 @@
 #include "systems/CollisionSystem.h"
 #include <iostream>
 
+// UPGRADE AND OPTIMALISATION IS COMING
 CollisionSystem::CollisionSystem(EntityManager& entityManager,
                                  ComponentStorage<TransformComponent>& transforms,
                                  ComponentStorage<ColliderComponent>& colliders,

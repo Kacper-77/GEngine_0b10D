@@ -17,11 +17,14 @@ public:
                     ComponentStorage<ColliderComponent>& colliders,
                     EventBus& eventBus);
     
-    void Update(float deltaTime) override;
+    void Update(float deltaTime) override; // ISystem method
 
 private:
+    // Check that entities are colliding
     bool IsColliding(int ax, int ay, int aw, int ah,
                      int bx, int by, int bw, int bh);
+    
+    // Collision handling between entities
     void HandleCollision(EntityID a, EntityID b);
 
     EntityManager& m_entityManager;

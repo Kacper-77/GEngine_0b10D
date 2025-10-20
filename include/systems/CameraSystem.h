@@ -13,13 +13,22 @@ public:
                  ComponentStorage<CameraComponent>& camera);
 
     void Update(float deltaTime) override; // ISystem method
-
+    
+    // Focus camera on target
     void FocusOn(EntityID target);
+
+    // Move to target
     void MoveTo(SDL_Point target);
+    
+    // Set zoom and shake
     void SetZoom(std::optional<EntityID> cameraEntity, float zoom);
     void SetShake(int intensity, float duration);
+
+    // Set and get active camera
     void SetActiveCamera(EntityID cameraEntity);
     std::optional<EntityID> GetActiveCamera() const;
+
+    // Send info to render system
     void ApplyToRenderSystem(RenderSystem& renderSystem);
     
 private:

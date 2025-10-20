@@ -12,7 +12,7 @@ public:
                    ComponentStorage<VelocityComponent>& velocities,
                    ComponentStorage<AccelerationComponent>& accelerations);
 
-    void Update(float deltaTime) override;
+    void Update(float deltaTime) override;  // ISystem method
 
 private:
     ComponentStorage<TransformComponent>& m_transforms;

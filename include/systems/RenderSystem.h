@@ -13,14 +13,18 @@ public:
                  ComponentStorage<SpriteComponent>& sprites,
                  IRenderer* renderer);
     
-    void Update(float deltaTime) override;
+    void Update(float deltaTime) override;  // ISystem method
 
+    // Set and get camera position
     void SetCameraPosition(const SDL_Point& position);
     const SDL_Point& GetCameraPosition() const;
+
+    // Other setters
     void SetCameraZoom(float zoom);
     void SetCameraRotation(float degrees);
     void SetFadeAlpha(Uint8 alpha);
     void SetViewportSize(SDL_Point size);
+
 private:
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<SpriteComponent>& m_sprites;

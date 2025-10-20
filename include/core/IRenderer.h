@@ -2,6 +2,7 @@
 
 #include "SDL.h"
 
+// Virtual
 class IRenderer {
 public:
     virtual ~IRenderer() = default;

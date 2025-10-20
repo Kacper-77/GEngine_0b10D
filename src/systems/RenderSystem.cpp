@@ -6,6 +6,7 @@ RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
                            IRenderer* renderer) 
     :   m_transforms{transforms}, m_sprites{sprites}, m_renderer{renderer} {}
 
+// Update state
 void RenderSystem::Update(float deltaTime) {
     for (auto& [id, sprite] : m_sprites.GetAll()) {
         auto* transform = m_transforms.Get(id);
@@ -17,10 +18,12 @@ void RenderSystem::Update(float deltaTime) {
             static_cast<int>(sprite.width * m_cameraZoom),
             static_cast<int>(sprite.height * m_cameraZoom)
         };
+        // DrawTexture from Renderer.cpp
         m_renderer->DrawTexture(sprite.texture->GetSDLTexture(), nullptr, &dstRect);
     }
 }
 
+// Setters
 void RenderSystem::SetCameraPosition(const SDL_Point& position) {
     m_cameraPosition = position;
 }
@@ -41,6 +44,7 @@ void RenderSystem::SetViewportSize(SDL_Point size) {
     m_viewport = size;
 }
 
+// Getter
 const SDL_Point& RenderSystem::GetCameraPosition() const {
     return m_cameraPosition;
 }

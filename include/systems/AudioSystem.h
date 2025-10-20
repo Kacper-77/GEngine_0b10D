@@ -25,11 +25,11 @@ class AudioSystem : public ISystem {
 public:
     AudioSystem(EntityManager* m_entityManager);
 
-    // Play Entity sound
+    // Play and stop entity sound
     void Play(EntityID id, SoundTag tag);
     void Stop(EntityID id, SoundTag tag);
 
-    // Play global sound
+    // Play and stop global sound
     void PlayGlobal(SoundTag tag);
     void StopGlobal(SoundTag tag);
 
@@ -43,7 +43,7 @@ public:
 
     // Queue
     void EnqueueSound(EntityID id, AudioType audio);
-    void Update(float deltaTime) override;
+    void Update(float deltaTime) override;  // ISystem method
 
     void SetLayerVolume(AudioLayer layer, int volume);
     void MuteLayer(AudioLayer layer);
@@ -51,8 +51,9 @@ public:
 
     void CleanupUnused();
 
-// private:
+private:
     EntityManager* m_entityManager;
+    std::unordered_map<EntityID, std::unordered_map<SoundTag, int>> m_entityChannels;
     std::unordered_map<EntityID, std::unordered_map<SoundTag, AudioType>> m_audioAndSounds;
     std::unordered_map<SoundTag, AudioType> m_globalAudio;
 

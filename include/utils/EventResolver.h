@@ -3,6 +3,7 @@
 #include <string>
 #include <unordered_map>
 
+// Unused now but can be implemented in future
 class EventResolver {
 public:
     virtual ~EventResolver() = default;
