@@ -1,6 +1,6 @@
 #include "systems/PhysicsSystem.h"
 
-// UPGRADE AND OPTIMALISATION IS COMING
+// UPGRADE AND OPTIMALIZATION IS COMING
 
 PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
                              ComponentStorage<AccelerationComponent>& accelerations,

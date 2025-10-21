@@ -6,7 +6,7 @@ MovementSystem::MovementSystem(ComponentStorage<TransformComponent>& transforms,
                                ComponentStorage<AccelerationComponent>& accelerations)
     : m_transforms{transforms}, m_velocities(velocities), m_accelerations(accelerations) {}
 
-    // Update state
+// Update state
 void MovementSystem::Update(float deltaTime) {
     for (auto& [id, velocity] : m_velocities.GetAll()) {
         // Get key info from components
