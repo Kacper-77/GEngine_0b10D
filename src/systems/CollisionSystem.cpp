@@ -4,12 +4,10 @@
 CollisionSystem::CollisionSystem(EntityManager& entityManager,
                                  ComponentStorage<TransformComponent>& transforms,
                                  ComponentStorage<ColliderComponent>& colliders,
-                                 ComponentStorage<PhysicsComponent>& physics,
                                  EventBus& eventBus)
         : m_entityManager{entityManager}, 
           m_transforms{transforms}, 
-          m_colliders{colliders},
-          m_physics{physics}, 
+          m_colliders{colliders}, 
           m_eventBus{eventBus} {}
 
 // Update state

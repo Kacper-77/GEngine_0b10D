@@ -1,6 +1,5 @@
 #include "components/TransformComponent.h"
 #include "components/ColliderComponent.h"
-#include "components/PhysicsComponent.h"
 #include "core/EntityManager.h"
 #include "core/ComponentStorage.h"
 #include "systems/CollisionSystem.h"
@@ -16,13 +15,12 @@ protected:
     EntityManager entityManager;
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<ColliderComponent> colliders;
-    ComponentStorage<PhysicsComponent> physics;
     EventBus eventBus;
     EntityCreationSystem creationSystem{&entityManager};
 
     std::vector<CollisionEvent> receivedCollisions;
 
-    CollisionSystem system{entityManager, transforms, colliders, physics, eventBus};
+    CollisionSystem system{entityManager, transforms, colliders, eventBus};
 
     void SetUp() override {
         creationSystem.RegisterStorage(&transforms);
