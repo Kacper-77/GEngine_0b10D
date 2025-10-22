@@ -6,6 +6,7 @@
 #include "components/TransformComponent.h"
 #include "components/PhysicsComponent.h"
 #include "components/AccelerationComponent.h"
+#include "components/ForceComponent.h"
 
 class PhysicsSystemTest : public ::testing::Test {
 protected:
@@ -15,15 +16,18 @@ protected:
     ComponentStorage<TransformComponent> transforms;
     ComponentStorage<PhysicsComponent> physics;
     ComponentStorage<AccelerationComponent> accelerations;
+    ComponentStorage<ForceComponent> forces;
 
     void SetUp() override {
         creationSystem.RegisterStorage(&transforms);
         creationSystem.RegisterStorage(&physics);
         creationSystem.RegisterStorage(&accelerations);
+        creationSystem.RegisterStorage(&forces);
 
         entityManager.RegisterComponentStorage(&transforms);
         entityManager.RegisterComponentStorage(&physics);
         entityManager.RegisterComponentStorage(&accelerations);
+        entityManager.RegisterComponentStorage(&forces);
     }
 };
 
@@ -34,7 +38,7 @@ TEST_F(PhysicsSystemTest, DoesPhysicsAffectTransform) {
         PhysicsComponent{0.0f, 0.0f, 0.0f, 9.8f}
     );
 
-    PhysicsSystem system(transforms, accelerations, physics);
+    PhysicsSystem system(transforms, accelerations, forces, physics);
     system.Update(1.0f); // deltaTime = 1.0f
 
     auto* transform = transforms.Get(player);

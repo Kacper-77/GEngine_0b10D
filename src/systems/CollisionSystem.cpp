@@ -4,10 +4,12 @@
 CollisionSystem::CollisionSystem(EntityManager& entityManager,
                                  ComponentStorage<TransformComponent>& transforms,
                                  ComponentStorage<ColliderComponent>& colliders,
+                                 ComponentStorage<PhysicsComponent>& physics,
                                  EventBus& eventBus)
         : m_entityManager{entityManager}, 
           m_transforms{transforms}, 
-          m_colliders{colliders}, 
+          m_colliders{colliders},
+          m_physics{physics}, 
           m_eventBus{eventBus} {}
 
 // Update state
@@ -81,6 +83,7 @@ void CollisionSystem::CheckAndHandleCollision(EntityID a, EntityID b) {
 
     if (IsColliding(ta.x, ta.y, ca.width, ca.height,
                     tb.x, tb.y, cb.width, cb.height)) {
+        // Get info about entities
         std::string typeA = m_entityManager.GetInfo(a, "type");
         std::string typeB = m_entityManager.GetInfo(b, "type");
 

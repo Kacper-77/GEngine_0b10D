@@ -5,6 +5,7 @@
 #include "core/ComponentStorage.h"
 #include "components/ColliderComponent.h"
 #include "components/TransformComponent.h"
+#include "components/PhysicsComponent.h"
 #include "event/core/EventBus.h"
 #include "event/custom_events/CollisionEvent.h"
 
@@ -41,6 +42,7 @@ public:
     CollisionSystem(EntityManager& entityManager,
                     ComponentStorage<TransformComponent> & transforms,
                     ComponentStorage<ColliderComponent>& colliders,
+                    ComponentStorage<PhysicsComponent>& physics,
                     EventBus& eventBus);
     
     void Update(float deltaTime) override; // ISystem method
@@ -56,6 +58,7 @@ private:
     EntityManager& m_entityManager;
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<ColliderComponent>& m_colliders;
+    ComponentStorage<PhysicsComponent>& m_physics;
     EventBus& m_eventBus;
     std::unordered_map<Int2, std::vector<EntityID>> m_spatialGrid;
 };
