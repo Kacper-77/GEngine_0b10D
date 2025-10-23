@@ -52,7 +52,6 @@ void PhysicsSystem::Update(float deltaTime) {
         physics.posX = transform->x;
         physics.posY = transform->y;
 
-        // Reset flag SOON
-        // physics.isGrounded = false;
+        physics.isGrounded = false;
     }
 }

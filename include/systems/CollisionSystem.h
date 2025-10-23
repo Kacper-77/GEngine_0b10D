@@ -7,27 +7,10 @@
 #include "components/TransformComponent.h"
 #include "event/core/EventBus.h"
 #include "event/custom_events/CollisionEvent.h"
-
-#include <functional>
+#include "utils/Int2.h"
 
 // Uniform Spatial Grid
 static constexpr int cellSize = 64;
-
-// Coords of cell
-struct Int2 {
-    int x, y;
-    bool operator==(const Int2& other) const { return x == other.x && y == other.y; }
-};
-
-// Hash Int2
-namespace std {
-    template <>
-    struct hash<Int2> {
-        std::size_t operator()(const Int2& k) const {
-            return std::hash<int>()(k.x) ^ (std::hash<int>()(k.y) << 1);
-        }
-    };
-}
 
 // Hash std::pair<EntityID, EntityID>
 struct PairHash {

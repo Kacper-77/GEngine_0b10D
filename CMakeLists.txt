@@ -112,6 +112,12 @@ target_include_directories(CameraSystemTest PRIVATE ${CMAKE_SOURCE_DIR}/include
 target_link_libraries(CameraSystemTest GameEngineLib gtest_main)
 add_test(NAME CameraSystemTest COMMAND CameraSystemTest)
 
+# LEVEL MANAGER
+add_executable(LevelManagerTest tests/test_LevelManager.cpp)
+target_include_directories(LevelManagerTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(LevelManagerTest GameEngineLib gtest_main)
+add_test(NAME LevelManagerTest COMMAND LevelManagerTest)
+
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")
