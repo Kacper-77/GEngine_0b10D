@@ -4,10 +4,12 @@
 #include <memory>
 #include <unordered_map>
 #include <typeindex>
+
+#include "core/ISystem.h"
 #include "core/EntityManager.h"
 #include "utils/EntityTypes.h"
 
-class EntityCreationSystem {
+class EntityCreationSystem : public ISystem {
 public:
     EntityCreationSystem(EntityManager* manager)
         : m_manager{manager} {}
@@ -61,4 +63,5 @@ private:
     EntityID NextID_ = 1;
     EntityManager* m_manager;
     std::unordered_map<std::type_index, IComponentStorage*> m_storages;
+    void Update(float deltaTime) override {};  // Only for World class
 };

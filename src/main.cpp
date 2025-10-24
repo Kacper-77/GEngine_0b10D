@@ -158,7 +158,6 @@ int main(int argc, char* argv[]) {
         input.Update();
 
         if (auto* velocity = velocities.Get(player)) {
-            velocity->dx = 0;
             if (input.IsActionHeld("Left")) {
                 velocity->dx -= 5;
             }
