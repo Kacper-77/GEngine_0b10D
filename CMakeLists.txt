@@ -118,6 +118,12 @@ target_include_directories(LevelManagerTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(LevelManagerTest GameEngineLib gtest_main)
 add_test(NAME LevelManagerTest COMMAND LevelManagerTest)
 
+# WORLD
+add_executable(WorldTest tests/test_World.cpp)
+target_include_directories(WorldTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
+target_link_libraries(WorldTest GameEngineLib gtest_main)
+add_test(NAME WorldTest COMMAND WorldTest)
+
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")

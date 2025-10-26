@@ -46,7 +46,7 @@ public:
         if (it == m_components.end()) {
             throw std::runtime_error("ComponentStorage for this type not found.");
         }
-        return *std::static_cast<ComponentStorage<T>*>(it->second.get());
+        return *static_cast<ComponentStorage<T>*>(it->second.get());
     }
 
     template<typename T>
