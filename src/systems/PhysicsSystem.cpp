@@ -9,7 +9,7 @@ PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
 
 // Update state
 void PhysicsSystem::Update(float deltaTime) {
-    const float globalGravity = 9.8f;
+    const float globalGravity = 9.8f;  // WORLD WILL REPLACE IT
 
     for (auto& [id, physics] : m_physics.GetAll()) {
         auto* acceleration = m_accelerations.Get(id);
