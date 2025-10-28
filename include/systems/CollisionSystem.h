@@ -8,9 +8,7 @@
 #include "event/core/EventBus.h"
 #include "event/custom_events/CollisionEvent.h"
 #include "utils/Int2.h"
-
-// Uniform Spatial Grid
-static constexpr int cellSize = 64;
+#include "utils/SpatialGrid.h"
 
 // Hash std::pair<EntityID, EntityID>
 struct PairHash {
@@ -40,5 +38,5 @@ private:
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<ColliderComponent>& m_colliders;
     EventBus& m_eventBus;
-    std::unordered_map<Int2, std::vector<EntityID>> m_spatialGrid;
+    SpatialGrid<EntityID> m_spatialGrid;
 };

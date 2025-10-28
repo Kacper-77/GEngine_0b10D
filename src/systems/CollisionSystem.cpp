@@ -12,7 +12,8 @@ CollisionSystem::CollisionSystem(EntityManager& entityManager,
 
 // Update state
 void CollisionSystem::Update(float deltaTime) {
-    m_spatialGrid.clear();
+    int cellSize = m_spatialGrid.GetCellSize();
+    m_spatialGrid.Clear();
 
     // Insert to grid
     for (EntityID id : m_entityManager.GetAllEntities()) {
@@ -21,6 +22,7 @@ void CollisionSystem::Update(float deltaTime) {
         const auto* t = m_transforms.Get(id);
         const auto* c = m_colliders.Get(id);
 
+        // Nessesary to divide here! We want to add cells not pixels to grid
         int startX = t->x / cellSize;
         int endX = (t->x + c->width) / cellSize;
         int startY = t->y / cellSize;
@@ -28,36 +30,31 @@ void CollisionSystem::Update(float deltaTime) {
 
         for (int x = startX; x <= endX; ++x) {
             for (int y = startY; y <= endY; ++y) {
-                m_spatialGrid[{x, y}].push_back(id);
+                Int2 cell = {x, y};
+                m_spatialGrid.Insert(cell, id);
             }
         }
     }
 
-    // Check collisions
+    // Checked collisions
     std::unordered_set<std::pair<EntityID, EntityID>, PairHash> checked;
 
-    for (const auto& [cell, entities] : m_spatialGrid) {
+    // Getting all cells with entities inside
+    for (const auto& [cell, entities] : m_spatialGrid.GetAllCells()) {
         for (EntityID a : entities) {
             for (EntityID b : entities) {
                 if (a >= b || checked.count({a, b})) continue;
                 checked.insert({a, b});
                 CheckAndHandleCollision(a, b);
             }
+            // Get neighbors
+            auto neighbors = m_spatialGrid.QueryNeighbors(cell.x, cell.y);
 
-            // Check neighbors
-            for (int dx = -1; dx <= 1; ++dx) {
-                for (int dy = -1; dy <= 1; ++dy) {
-                    if (dx == 0 && dy == 0) continue;
-                    Int2 neighbor = {cell.x + dx, cell.y + dy};
-                    auto it = m_spatialGrid.find(neighbor);
-                    if (it == m_spatialGrid.end()) continue;
-
-                    for (EntityID b : it->second) {
-                        if (a >= b || checked.count({a, b})) continue;
-                        checked.insert({a, b});
-                        CheckAndHandleCollision(a, b);
-                    }
-                }
+            // Check and handle neighbors
+            for (EntityID b : neighbors) {
+                if (a >= b || checked.count({a, b})) continue;
+                checked.insert({a, b});
+                CheckAndHandleCollision(a, b);
             }
         }
     }

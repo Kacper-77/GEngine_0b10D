@@ -91,6 +91,7 @@ int main(int argc, char* argv[]) {
     // Create player
     EntityID player = creationSystem.CreateEntityWith(
         TransformComponent{364, 200, 128, 128},
+        ColliderComponent{128, 128},
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{0.0f, 0.0f},
         SpriteComponent{&texture, 128, 128},
@@ -119,8 +120,9 @@ int main(int argc, char* argv[]) {
 
     // Create blocker
     EntityID blocker = creationSystem.CreateEntityWith(
-        TransformComponent{800, 100, 64, 64},
-        SpriteComponent{&texture, 64, 64}
+        TransformComponent{600, 100, 64, 64},
+        SpriteComponent{&texture, 64, 64},
+        ColliderComponent{64, 64}
     );
 
     CameraComponent blockerCamera;
@@ -140,6 +142,8 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<MovementSystem>(movementSystem);
     systemManager.RegisterSystem<CameraSystem>(cameraSystem);
     systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, &window);
+    EventBus eventBus;
+    systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders, eventBus);
 
     RenderSystem renderSystem(transforms, sprites, &renderer);
 
@@ -152,6 +156,10 @@ int main(int argc, char* argv[]) {
     input.Bind("Down", SDL_SCANCODE_DOWN);
     input.Bind("Up", SDL_SCANCODE_UP);
 
+    eventBus.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
+        std::cout << "HIT!!!";
+    });
+
     // Main loop
     while (window.IsRunning()) {
         window.PollEvents();
@@ -159,10 +167,10 @@ int main(int argc, char* argv[]) {
 
         if (auto* velocity = velocities.Get(player)) {
             if (input.IsActionHeld("Left")) {
-                velocity->dx -= 5;
+                velocity->dx -= 1;
             }
             if (input.IsActionHeld("Right")) {
-                velocity->dx += 5;
+                velocity->dx += 1;
             }
             if (input.IsActionHeld("Down")) {
                 velocity->dy += 1;
