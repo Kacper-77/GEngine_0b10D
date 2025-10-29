@@ -120,7 +120,7 @@ int main(int argc, char* argv[]) {
 
     // Create blocker
     EntityID blocker = creationSystem.CreateEntityWith(
-        TransformComponent{600, 100, 64, 64},
+        TransformComponent{600, 300, 64, 64},
         SpriteComponent{&texture, 64, 64},
         ColliderComponent{64, 64}
     );
@@ -157,7 +157,7 @@ int main(int argc, char* argv[]) {
     input.Bind("Up", SDL_SCANCODE_UP);
 
     eventBus.Subscribe<CollisionEvent>([&](const CollisionEvent& e) {
-        std::cout << "HIT!!!";
+        std::cout << "HIT!!!\n";
     });
 
     // Main loop

@@ -27,7 +27,7 @@ void CollisionSystem::Update(float deltaTime) {
         const int endX = (t->x + c->width) / cellSize;
         const int startY = t->y / cellSize;
         const int endY = (t->y + c->height) / cellSize;
-
+        // std::cout << "Entity " << id << " inserted from (" << startX << "," << startY << ") to (" << endX << "," << endY << ")\n";
         for (int x = startX; x <= endX; ++x) {
             for (int y = startY; y <= endY; ++y) {
                 m_spatialGrid.Insert({x, y}, id);
@@ -42,6 +42,7 @@ void CollisionSystem::Update(float deltaTime) {
     for (const auto& [cell, entities] : m_spatialGrid.GetAllCells()) {
         for (EntityID a : entities) {
             for (EntityID b : entities) {
+                if (a == b) continue; 
                 auto pair = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
                 if (checked.count(pair)) continue;
                 checked.insert(pair);
@@ -52,6 +53,7 @@ void CollisionSystem::Update(float deltaTime) {
 
             // Check and handle neighbors
             for (EntityID b : neighbors) {
+                if (a == b) continue; 
                 auto pair = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
                 if (checked.count(pair)) continue;
                 checked.insert(pair);
@@ -82,7 +84,12 @@ void CollisionSystem::CheckAndHandleCollision(EntityID a, EntityID b) {
         // Get info about entities
         std::string typeA = m_entityManager.GetInfo(a, "type");
         std::string typeB = m_entityManager.GetInfo(b, "type");
-                        //  std::cout << "COLLISION DETECTED!\n";  // TO ERASE LATER
+        
+        // std::cout << "COLLISION DETECTED!\n";  // TO ERASE LATER
+        // std::cout << "Checking collision between " << a << " and " << b << "\n";
+        // std::cout << "A: " << ta.x << ' ' << ta.y << ' ' << ca.width << ' ' << ca.height << '\n' <<
+        //             "B: " << tb.x << ' ' << tb.y << ' ' << cb. width << ' ' << cb.height << '\n';
+
         m_eventBus.PublishImmediate(CollisionEvent{a, b, typeA, typeB});
     }
 }
