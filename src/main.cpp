@@ -91,7 +91,7 @@ int main(int argc, char* argv[]) {
     // Create player
     EntityID player = creationSystem.CreateEntityWith(
         TransformComponent{364, 200, 128, 128},
-        ColliderComponent{128, 128},
+        ColliderComponent{1280, 1280},
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{0.0f, 0.0f},
         SpriteComponent{&texture, 128, 128},

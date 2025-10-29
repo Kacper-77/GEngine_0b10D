@@ -31,12 +31,12 @@ public:
     }
 
     // Check entity
-    bool IsAlive(EntityID id) {
+    bool IsAlive(EntityID id) const {
         return alive.find(id) != alive.end();
     }
 
     // Getting all entities
-    std::unordered_set<EntityID> GetAllEntities() {
+    const std::unordered_set<EntityID>& GetAllEntities() {
         return alive;
     }
 
@@ -60,9 +60,10 @@ public:
     }
 
     // Get group with same tags (example - "Enemy" etc.)
-    std::unordered_set<EntityID> GetGroup(const std::string& tag) const {
+    const std::unordered_set<EntityID>& GetGroup(const std::string& tag) const {
+        static const std::unordered_set<EntityID> empty;
         auto it = groups.find(tag);
-        return it != groups.end() ? it->second : std::unordered_set<EntityID>{};
+        return it != groups.end() ? it->second : empty;
     }
 
     // Add, get and remove info about entity
