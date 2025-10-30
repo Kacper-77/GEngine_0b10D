@@ -13,6 +13,7 @@
 #include "components/ColliderComponent.h"
 #include "components/SpriteComponent.h"
 #include "components/CameraComponent.h"
+#include "components/SurfaceComponent.h"
 
 #include "systems/MovementSystem.h"
 #include "systems/RenderSystem.h"
@@ -21,6 +22,7 @@
 #include "systems/CollisionSystem.h"
 #include "systems/AudioSystem.h"
 #include "systems/CameraSystem.h"
+#include "systems/SurfaceBehaviorSystem.h"
 
 #include "window/Window.h"
 #include "graphics/Renderer.h"
@@ -28,6 +30,7 @@
 #include "input/InputManager.h"
 #include "event/core/EventBus.h"
 #include "event/custom_events/CollisionEvent.h"
+#include "utils/SpatialGrid.h"
 
 void DrawGrid(SDL_Renderer* sdlRenderer, const SDL_Point& camPos, int width, int height, int cellSize = 64) {
     SDL_SetRenderDrawColor(sdlRenderer, 80, 80, 80, 255);
@@ -58,6 +61,7 @@ int main(int argc, char* argv[]) {
     ComponentStorage<CameraComponent> cameras;
     ComponentStorage<BoundryComponent> boundaries;
     ComponentStorage<ColliderComponent> colliders;
+    ComponentStorage<SurfaceComponent> surfaces;
 
     creationSystem.RegisterStorage(&transforms);
     creationSystem.RegisterStorage(&velocities);
@@ -66,6 +70,7 @@ int main(int argc, char* argv[]) {
     creationSystem.RegisterStorage(&cameras);
     creationSystem.RegisterStorage(&boundaries);
     creationSystem.RegisterStorage(&colliders);
+    creationSystem.RegisterStorage(&surfaces);
 
     entityManager.RegisterComponentStorage(&transforms);
     entityManager.RegisterComponentStorage(&velocities);
@@ -74,6 +79,7 @@ int main(int argc, char* argv[]) {
     entityManager.RegisterComponentStorage(&cameras);
     entityManager.RegisterComponentStorage(&boundaries);
     entityManager.RegisterComponentStorage(&colliders);
+    entityManager.RegisterComponentStorage(&surfaces);
 
     // Window and renderer
     Window window;
@@ -88,15 +94,29 @@ int main(int argc, char* argv[]) {
         return -1;
     }
 
+    Texture platform;
+    if (!platform.LoadFromFile("../assets/platforms.png", renderer.GetSDLRenderer())) {
+        std::cerr << "Failed to load texture." << std::endl;
+        return -1;
+    }
+
     // Create player
     EntityID player = creationSystem.CreateEntityWith(
         TransformComponent{364, 200, 128, 128},
-        ColliderComponent{1280, 1280},
+        ColliderComponent{64, 64},
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{0.0f, 0.0f},
-        SpriteComponent{&texture, 128, 128},
+        SpriteComponent{&texture, 64, 64},
         BoundryComponent{true, true, true, true}
     );
+
+    EntityID grass = creationSystem.CreateEntityWith(
+        TransformComponent{364, 280, 128, 128},
+        SpriteComponent{&platform, 200, 40},
+        SurfaceComponent{364, 280, 200, 40, SurfaceType::GRASS}
+    );
+
+    entityManager.AddTag(grass, "grass");
 
     // Add camera to player
     CameraComponent camera;
@@ -144,6 +164,8 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, &window);
     EventBus eventBus;
     systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders, eventBus);
+    SpatialGrid<EntityID> spatialGrid;
+    systemManager.RegisterSystem<SurfaceBehaviorSystem>(transforms, velocities, surfaces, spatialGrid);
 
     RenderSystem renderSystem(transforms, sprites, &renderer);
 
