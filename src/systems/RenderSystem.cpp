@@ -8,6 +8,10 @@ RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
 
 // Update state
 void RenderSystem::Update(float deltaTime) {
+    // Set backround
+    DrawBackgroundLayers();
+
+    // Main rendering loop
     for (auto& [id, sprite] : m_sprites.GetAll()) {
         auto* transform = m_transforms.Get(id);
         if (!transform || !sprite.texture) continue;
@@ -20,6 +24,35 @@ void RenderSystem::Update(float deltaTime) {
         };
         // DrawTexture from Renderer.cpp
         m_renderer->DrawTexture(sprite.texture->GetSDLTexture(), nullptr, &dstRect);
+    }
+}
+
+// Background methods
+void RenderSystem::AddBackgroundLayer(Texture* texture, float parallaxFactor) {
+    m_backgroundLayers.push_back({texture, parallaxFactor});
+}
+void RenderSystem::ClearBackgroundLayers() {
+    m_backgroundLayers.clear();
+}
+
+void RenderSystem::DrawBackgroundLayers() {
+    for (auto& layer : m_backgroundLayers) {
+        if (!layer.texture) continue;
+
+        int texW, texH;
+        SDL_QueryTexture(layer.texture->GetSDLTexture(), nullptr, nullptr, &texW, &texH);
+
+        // Repeat enough times to fill screen
+        for (int y = -texH; y < m_viewport.y + texH; y += texH) {
+            for (int x = -texW; x < m_viewport.x + texW; x += texW) {
+                // No static cast to avoid signed values (%)
+                int offsetX = ((int)(x - m_cameraPosition.x * layer.parallaxFactor) % texW + texW) % texW;
+                int offsetY = ((int)(y - m_cameraPosition.y * layer.parallaxFactor) % texH + texH) % texH;
+
+                SDL_Rect dstRect = { offsetX, offsetY, texW, texH };
+                m_renderer->DrawTexture(layer.texture->GetSDLTexture(), nullptr, &dstRect);
+            }
+        }
     }
 }
 

@@ -122,7 +122,7 @@ int main(int argc, char* argv[]) {
     CameraComponent camera;
     camera.isActive = true;
     camera.viewportSize = {800, 600};
-    camera.offset = {0, 0};
+    camera.offset = {100, 0};
     camera.zoom = 1.0f;
     camera.mode = CameraMode::Follow;
     camera.target = player;
@@ -167,7 +167,15 @@ int main(int argc, char* argv[]) {
     SpatialGrid<EntityID> spatialGrid;
     systemManager.RegisterSystem<SurfaceBehaviorSystem>(transforms, velocities, surfaces, spatialGrid);
 
+    // Background
+    Texture background;
+    if (!background.LoadFromFile("../assets/background.jpeg", renderer.GetSDLRenderer())) {
+        std::cerr << "Failed to load texture." << std::endl;
+        return -1;
+    }
+    
     RenderSystem renderSystem(transforms, sprites, &renderer);
+    renderSystem.AddBackgroundLayer(&background, 0.0f);
 
     auto* position = transforms.Get(player);
 

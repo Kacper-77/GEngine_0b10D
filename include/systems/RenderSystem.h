@@ -6,6 +6,7 @@
 #include "components/SpriteComponent.h"
 #include "graphics/Renderer.h"
 #include "core/IRenderer.h"
+#include "graphics/BackgroundLayer.h"
 
 class RenderSystem : public ISystem {
 public:
@@ -18,6 +19,10 @@ public:
     // Set and get camera position
     void SetCameraPosition(const SDL_Point& position);
     const SDL_Point& GetCameraPosition() const;
+
+    // Background
+    void AddBackgroundLayer(Texture* texture, float parallaxFactor);
+    void ClearBackgroundLayers();
 
     // Other setters
     void SetCameraZoom(float zoom);
@@ -35,4 +40,8 @@ private:
     Uint8 m_fadeAlpha;
     SDL_Point m_viewport;
     IRenderer* m_renderer;
+    
+    // Background
+    std::vector<BackgroundLayer> m_backgroundLayers;
+    void DrawBackgroundLayers();
 };

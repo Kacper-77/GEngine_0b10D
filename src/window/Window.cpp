@@ -1,7 +1,7 @@
 #include "window/Window.h"
 #include <iostream>
 
-// UPGRADE AND OPTIMALISATION IS COMING POLL EVENTS !!!
+// UPGRADE AND OPTIMALIZATION IS COMING POLL EVENTS !!!
 
 Window::Window()
     : m_window(nullptr), m_width(0), m_height(0), m_isRunning(false) {}
