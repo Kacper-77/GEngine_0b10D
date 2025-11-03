@@ -14,6 +14,7 @@
 #include "systems/MovementSystem.h"
 #include "systems/PhysicsSystem.h"
 #include "systems/RenderSystem.h"
+#include "systems/SurfaceBehaviorSystem.h"
 
 // Forward declaration — Input
 class InputManager;

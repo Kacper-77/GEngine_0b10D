@@ -27,7 +27,7 @@ void CollisionSystem::Update(float deltaTime) {
         const int endX = (t->x + c->width) / cellSize;
         const int startY = t->y / cellSize;
         const int endY = (t->y + c->height) / cellSize;
-        // std::cout << "Entity " << id << " inserted from (" << startX << "," << startY << ") to (" << endX << "," << endY << ")\n";
+
         for (int x = startX; x <= endX; ++x) {
             for (int y = startY; y <= endY; ++y) {
                 m_spatialGrid.Insert({x, y}, id);
@@ -79,16 +79,14 @@ void CollisionSystem::CheckAndHandleCollision(EntityID a, EntityID b) {
     const auto& ca = *m_colliders.Get(a);
     const auto& cb = *m_colliders.Get(b);
 
+    // Skip if entities cannot collide
+    if (!CanCollide(ca, cb)) return;
+    
     if (IsColliding(ta.x, ta.y, ca.width, ca.height,
                     tb.x, tb.y, cb.width, cb.height)) {
         // Get info about entities
         std::string typeA = m_entityManager.GetInfo(a, "type");
         std::string typeB = m_entityManager.GetInfo(b, "type");
-        
-        // std::cout << "COLLISION DETECTED!\n";  // TO ERASE LATER
-        // std::cout << "Checking collision between " << a << " and " << b << "\n";
-        // std::cout << "A: " << ta.x << ' ' << ta.y << ' ' << ca.width << ' ' << ca.height << '\n' <<
-        //             "B: " << tb.x << ' ' << tb.y << ' ' << cb. width << ' ' << cb.height << '\n';
 
         m_eventBus.PublishImmediate(CollisionEvent{a, b, typeA, typeB});
     }

@@ -103,7 +103,7 @@ int main(int argc, char* argv[]) {
     // Create player
     EntityID player = creationSystem.CreateEntityWith(
         TransformComponent{364, 200, 128, 128},
-        ColliderComponent{64, 64},
+        ColliderComponent{64, 64, CollisionLayer::Player, CollisionLayer::Enemy},
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{0.0f, 0.0f},
         SpriteComponent{&texture, 64, 64},
@@ -142,7 +142,7 @@ int main(int argc, char* argv[]) {
     EntityID blocker = creationSystem.CreateEntityWith(
         TransformComponent{600, 300, 64, 64},
         SpriteComponent{&texture, 64, 64},
-        ColliderComponent{64, 64}
+        ColliderComponent{64, 64, CollisionLayer::Enemy, CollisionLayer::Projectile}
     );
 
     CameraComponent blockerCamera;
