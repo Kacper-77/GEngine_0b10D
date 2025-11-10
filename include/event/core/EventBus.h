@@ -6,22 +6,25 @@
 #include <functional>
 #include <typeindex>
 #include <memory>
-#include <mutex>
+#include <shared_mutex> 
 #include <cassert>
 #include <cstdint>
+#include <iostream>
 
 #include "Event.h"
 
+// Cosmetics
+using HandlerID = std::uint64_t;
+
+template<typename T>
+using EventHandler = std::function<void(const T&)>;
+
 class EventBus {
 public:
-    using HandlerID = std::uint64_t;
-
-    EventBus() = default;
-
     // Subscribe event
     template<typename T>
-    HandlerID Subscribe(std::function<void(const T&)> handler) {
-        const std::type_index type = typeid(T);  // Get identificator
+    HandlerID Subscribe(EventHandler<T> handler) {
+        const std::type_index type = typeid(T);  // Get type index
 
         // Check types and valid them
         auto wrapper = [handler](const Event& e) {
@@ -30,31 +33,37 @@ public:
         };
 
         // Thread safety (deadlock, race conditon etc.)
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::shared_mutex> lock(mutex_);
 
-        HandlerID id = nextHandlerId_++;
+        HandlerID id = nextHandlerID_++;
         listeners[type].emplace_back(id, std::move(wrapper));
         return id;
     }
 
     // Unsubscribe event
-    bool Unsubscribe(std::type_index type, HandlerID id) {
-        std::lock_guard<std::mutex> lock(mutex_);
+    template<typename T>
+    void Unsubscribe(HandlerID id) {
+        std::unique_lock<std::shared_mutex> lock(mutex_);
+        std::type_index type = typeid(T);
+        bool unsubscribed = false;
+
         auto it = listeners.find(type);
         if (it != listeners.end()) {
             auto& vec = it->second;
-            vec.erase(std::remove_if(vec.begin(), vec.end(),  // Check condition
+            vec.erase(std::remove_if(vec.begin(), vec.end(),
                       [id](const auto& pair) { return pair.first == id; }),
                       vec.end());
-            return true;
+            unsubscribed = true;
         }
-        return false;
+        if (!unsubscribed) {
+            std::cerr << "Something went wrong / Event not found." << std::endl;
+        }
     }
 
     // Add event to queue
     template<typename T>
     void Publish(const T& event) {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::shared_mutex> lock(mutex_);
         eventQueue.emplace(std::make_unique<T>(event));
     }
 
@@ -64,11 +73,11 @@ public:
         const std::type_index type = typeid(T);
 
         // To avoid undefined behaviors
-        std::vector<std::function<void(const Event&)>> handlersCopy;
+        std::vector<EventHandler<T>> handlersCopy;
 
         {
             // Thread safety
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::shared_lock<std::shared_mutex> lock(mutex_);
 
             auto it = listeners.find(type);
             if (it != listeners.end()) {
@@ -90,7 +99,7 @@ public:
         std::queue<std::unique_ptr<Event>> localQueue;
 
         {
-            std::lock_guard<std::mutex> lock(mutex_);
+            std::shared_lock<std::shared_mutex> lock(mutex_);
 
             // To avoid undefined behaviors pt. 2
             std::swap(eventQueue, localQueue);
@@ -104,10 +113,10 @@ public:
             // Type of event
             const std::type_index type = typeid(*event);
             // To avoid undefined behaviors pt. 3
-            std::vector<std::function<void(const Event&)>> handlersCopy;
+            std::vector<EventHandler<const Event&>> handlersCopy;
 
             {
-                std::lock_guard<std::mutex> lock(mutex_);
+                std::shared_lock<std::shared_mutex> lock(mutex_);
                 // Get registered event and insert in handlersCopy
                 auto it = listeners.find(type);
                 if (it != listeners.end()) {
@@ -126,7 +135,7 @@ public:
 
     // Cleanup
     void Clear() {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::unique_lock<std::shared_mutex> lock(mutex_);
         listeners.clear();
         std::queue<std::unique_ptr<Event>> empty;
         std::swap(eventQueue, empty);
@@ -134,13 +143,16 @@ public:
 
     // Get number of queued events
     size_t QueuedEventCount() const {
-        std::lock_guard<std::mutex> lock(mutex_);
+        std::shared_lock<std::shared_mutex> lock(mutex_);
         return eventQueue.size();
     }
 
     // Get number of registered events by type
-    size_t ListenerCount(std::type_index type) const {
-        std::lock_guard<std::mutex> lock(mutex_);
+    template<typename T>
+    size_t ListenerCount() const {
+        std::shared_lock<std::shared_mutex> lock(mutex_);
+        std::type_index type = typeid(T);
+
         auto it = listeners.find(type);
         return it != listeners.end() ? it->second.size() : 0;
     }
@@ -148,9 +160,9 @@ public:
 private:
     std::unordered_map<std::type_index,
                        std::vector<std::pair<HandlerID, 
-                       std::function<void(const Event&)>>>> listeners;
+                       EventHandler<const Event&>>>> listeners;
 
     std::queue<std::unique_ptr<Event>> eventQueue;
-    mutable std::mutex mutex_;  // Thread-Safe
-    HandlerID nextHandlerId_ = 1;
+    mutable std::shared_mutex mutex_;  // Thread-Safe, shared in future
+    HandlerID nextHandlerID_ = 1;
 };

@@ -34,8 +34,8 @@ TEST_F(EventBusTest, DamageEventIsHandledCorrectly) {
     EXPECT_TRUE(handled);
 
     // Check listener count and unsubscribe
-    EXPECT_EQ(bus.ListenerCount(typeid(DamageEvent)), 1);
-    EXPECT_TRUE(bus.Unsubscribe(typeid(DamageEvent), id));
+    EXPECT_EQ(bus.ListenerCount<DamageEvent>(), 1);
+    EXPECT_NO_THROW(bus.Unsubscribe<DamageEvent>(id));
 }
 
 // Test that MovementEvent is correctly received and handled
