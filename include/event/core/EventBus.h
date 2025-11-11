@@ -14,7 +14,7 @@
 #include "Event.h"
 
 // Cosmetics
-using HandlerID = std::uint64_t;
+using HandlerID = size_t;
 
 template<typename T>
 using EventHandler = std::function<void(const T&)>;
