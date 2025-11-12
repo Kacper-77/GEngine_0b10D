@@ -10,7 +10,7 @@ using EntityInfo = std::unordered_map<std::string, std::string>;
 
 class EntityManager {
 public:
-    // Add to list of "alive"  entities
+    // Add to list of "alive" entities
     void InsertToEntityList(EntityID id) {
         alive.insert(id);
     }

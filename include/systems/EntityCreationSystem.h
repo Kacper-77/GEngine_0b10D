@@ -17,7 +17,7 @@ public:
     // Create entities with registred components
     template<typename... Args>
     EntityID CreateEntityWith(Args&&... args) {
-        EntityID id = GetIdentification();
+        EntityID id = GetIdentificator();
         m_manager->InsertToEntityList(id);
         (ProcessArgument(id, std::forward<Args>(args)), ...);
         return id;
@@ -30,7 +30,7 @@ public:
     }
 
 private:
-    EntityID GetIdentification() {
+    EntityID GetIdentificator() {
         return NextID_++;
     }
 
