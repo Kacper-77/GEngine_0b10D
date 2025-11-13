@@ -30,4 +30,9 @@ struct VectorFloat {
         float len = Length();
         return len > 0 ? VectorFloat{x/len, y/len} : VectorFloat{};
     }
+
+    // Dot product
+    float Dot(const VectorFloat& other) const {
+        return x * other.x + y * other.y;
+    }
 };

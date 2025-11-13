@@ -58,21 +58,44 @@ bool AIController::HealthLow() const {
 
 // Perception
 bool AIController::CanHearEnemy(ComponentStorage<TransformComponent>& transforms) const {
+    // Check condition
     if (!targetID.has_value() || !m_isAlive) return false;
 
-    auto it = transforms.Get(targetID.value());
-    if (!it) return false;
+    // Get target from ComponentStorage
+    auto target = transforms.Get(targetID.value());
+    if (!target) return false;
     
-    VectorFloat targetPos = {it->x, it->y};
+    // Compute distance
+    VectorFloat targetPos = {target->x, target->y};
     float distance = (targetPos - m_position).Length();
+    
     return distance <= m_hearingRange;
 }
 
-bool AIController::CanSeeEnemy() const {
-    // LATER
-    return false;
-}
+bool AIController::CanSeeEnemy(ComponentStorage<TransformComponent>& transforms) const {
+    // Check condition
+    if (!targetID.has_value() || !m_isAlive) return false;
 
+    // Get target from ComponentStorage
+    auto target = transforms.Get(targetID.value());
+    if (!target) return false;
+
+    // Get distance to target
+    VectorFloat targetPos = {target->x, target->y};
+    VectorFloat toTarget = targetPos - m_position;
+
+    // Check condition v2
+    if (toTarget.Length() > m_visionRange) return false;
+
+    // Get facing direction
+    VectorFloat facing = m_velocity.Length() > 0 ? m_velocity.Normalized() : VectorFloat{1,0};
+
+    // Compute angle
+    float dot = facing.Dot(toTarget.Normalized());
+    float angle = std::acos(dot) * 180.0f / M_PI;
+
+    return angle <= (m_fieldOfView * 0.5f);
+}
 
 // Friendliness
 void AIController::ToggleFriendliness() {
