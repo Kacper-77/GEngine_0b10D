@@ -31,8 +31,8 @@ public:
     void Heal(int amount);
 
     bool HealthLow() const;
-    bool CanSeeEnemy(ComponentStorage<TransformComponent>& transforms) const;
-    bool CanHearEnemy(ComponentStorage<TransformComponent>& transforms) const;
+    bool CanSeeEnemy() const;
+    bool CanHearEnemy() const;
 
     void ToggleFriendliness();
     bool IsFriendly() const;

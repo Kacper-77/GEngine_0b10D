@@ -57,12 +57,12 @@ bool AIController::HealthLow() const {
 
 
 // Perception
-bool AIController::CanHearEnemy(ComponentStorage<TransformComponent>& transforms) const {
+bool AIController::CanHearEnemy() const {
     // Check condition
     if (!targetID.has_value() || !m_isAlive) return false;
 
-    // Get target from ComponentStorage
-    auto target = transforms.Get(targetID.value());
+    // Get TransformComponent of current target
+    auto* target = m_transform;
     if (!target) return false;
     
     // Calculate distance
@@ -72,12 +72,12 @@ bool AIController::CanHearEnemy(ComponentStorage<TransformComponent>& transforms
     return distance <= m_hearingRange;
 }
 
-bool AIController::CanSeeEnemy(ComponentStorage<TransformComponent>& transforms) const {
+bool AIController::CanSeeEnemy() const {
     // Check condition
     if (!targetID.has_value() || !m_isAlive) return false;
 
-    // Get target from ComponentStorage
-    auto target = transforms.Get(targetID.value());
+    // Get TransformComponent of current target
+    auto* target = m_transform;
     if (!target) return false;
 
     // Get distance to target
@@ -92,6 +92,7 @@ bool AIController::CanSeeEnemy(ComponentStorage<TransformComponent>& transforms)
 
     // Calculate angle
     float dot = facing.Dot(toTarget.Normalized());
+    dot = std::clamp(dot, -1.0f, 1.0f);
     float angle = std::acos(dot) * 180.0f / M_PI;
 
     return angle <= (m_fieldOfView * 0.5f);

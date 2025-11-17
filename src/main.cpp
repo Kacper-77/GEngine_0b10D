@@ -152,6 +152,7 @@ int main(int argc, char* argv[]) {
 
     AIController blockerAI(100, 100);
     blockerAI.SetPosition({600, 300});
+    blockerAI.ChangeState(AIState::Patrol);
     auto* blockerTransform = transforms.Get(blocker);
     auto* blockerVelocity = velocities.Get(blocker);
     blockerAI.AttachComponents(blockerTransform, blockerVelocity);

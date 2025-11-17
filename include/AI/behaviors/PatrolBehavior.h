@@ -6,6 +6,9 @@
 class PatrolBehavior : public AIBehavior {
 public:
     void UpdateAI(AIController& component, float deltaTime) override {
+        // Check state of NPC
+        if (component.GetState() != AIState::Patrol) return;
+
         auto& route = component.GetPatrolRoute();
         if (route.empty()) return;  // No route defined
 
