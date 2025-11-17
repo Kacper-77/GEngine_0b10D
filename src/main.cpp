@@ -2,6 +2,10 @@
 #include <SDL_image.h>
 #include <iostream>
 
+#include "AI/AISystem.h"
+#include "AI/AIController.h"
+#include "AI/behaviors/PatrolBehavior.h"
+
 #include "core/SystemManager.h"
 #include "core/EntityManager.h"
 #include "core/ComponentStorage.h"
@@ -142,8 +146,30 @@ int main(int argc, char* argv[]) {
     EntityID blocker = creationSystem.CreateEntityWith(
         TransformComponent{600, 300, 64, 64},
         SpriteComponent{&texture, 64, 64},
+        VelocityComponent{0.0f, 0.0f},
         ColliderComponent{64, 64, CollisionLayer::Enemy, CollisionLayer::Projectile}
     );
+
+    AIController blockerAI(100, 100);
+    blockerAI.SetPosition({600, 300});
+    auto* blockerTransform = transforms.Get(blocker);
+    auto* blockerVelocity = velocities.Get(blocker);
+    blockerAI.AttachComponents(blockerTransform, blockerVelocity);
+
+    // Define patrol route
+    blockerAI.SetPatrolRoute({
+        {600, 300},   // start point
+        {700, 300},   // move right
+        {700, 400},   // move down
+        {600, 400}    // move left
+    });
+
+    // Attach PatrolBehavior
+    blockerAI.SetBehavior(std::make_unique<PatrolBehavior>());
+
+    // Add to AISystem
+    AISystem aiSystem;
+    aiSystem.AddController(&blockerAI);
 
     CameraComponent blockerCamera;
     blockerCamera.isActive = false;
@@ -212,6 +238,7 @@ int main(int argc, char* argv[]) {
         renderer.SetDrawColor(30, 30, 60, 255);
         systemManager.UpdateAll(1.0f);
         cameraSystem.ApplyToRenderSystem(renderSystem);
+        aiSystem.Update(100.0f);
         
         renderer.Clear();
         renderSystem.Update(1.0f);

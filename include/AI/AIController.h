@@ -7,6 +7,7 @@
 #include "utils/Vector.h"
 #include "core/ComponentStorage.h"
 #include "components/TransformComponent.h"
+#include "components/VelocityComponent.h"
 
 enum class AIState {
     Idle,
@@ -67,6 +68,13 @@ public:
     VectorFloat GetDestination() const;
     void SetVelocity(const VectorFloat& vel);
     VectorFloat GetVelocity() const;
+    void SetPatrolRoute(std::vector<VectorFloat> route);
+    const std::vector<VectorFloat>& GetPatrolRoute() const;
+    void SetPatrolIndex(int newIndex);
+    int GetPatrolIndex() const;
+    void AttachComponents(TransformComponent* t, VelocityComponent* v);
+    VelocityComponent* GetVelocityComponent();
+    TransformComponent* GetTransformComponent();
 
     // Target handling
     void SetTarget(EntityID entityID);
@@ -103,6 +111,10 @@ private:
     VectorFloat m_position;
     VectorFloat m_velocity;
     VectorFloat m_destination;
+    std::vector<VectorFloat> m_patrolRoute;
+    int m_currentPatrolIndex = 0;
+    TransformComponent* m_transform = nullptr;
+    VelocityComponent* m_velocityComp = nullptr;
 
     // Behavior
     std::unique_ptr<AIBehavior> behavior;

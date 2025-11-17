@@ -65,8 +65,8 @@ bool AIController::CanHearEnemy(ComponentStorage<TransformComponent>& transforms
     auto target = transforms.Get(targetID.value());
     if (!target) return false;
     
-    // Compute distance
-    VectorFloat targetPos = {target->x, target->y};
+    // Calculate distance
+    VectorFloat targetPos = {static_cast<float>(target->x), static_cast<float>(target->y)};
     float distance = (targetPos - m_position).Length();
     
     return distance <= m_hearingRange;
@@ -81,7 +81,7 @@ bool AIController::CanSeeEnemy(ComponentStorage<TransformComponent>& transforms)
     if (!target) return false;
 
     // Get distance to target
-    VectorFloat targetPos = {target->x, target->y};
+    VectorFloat targetPos = {static_cast<float>(target->x), static_cast<float>(target->y)};
     VectorFloat toTarget = targetPos - m_position;
 
     // Check condition v2
@@ -90,7 +90,7 @@ bool AIController::CanSeeEnemy(ComponentStorage<TransformComponent>& transforms)
     // Get facing direction
     VectorFloat facing = m_velocity.Length() > 0 ? m_velocity.Normalized() : VectorFloat{1,0};
 
-    // Compute angle
+    // Calculate angle
     float dot = facing.Dot(toTarget.Normalized());
     float angle = std::acos(dot) * 180.0f / M_PI;
 
@@ -148,6 +148,21 @@ VectorFloat AIController::GetDestination() const { return m_destination; }
 
 void AIController::SetVelocity(const VectorFloat& vel) { m_velocity = vel; }
 VectorFloat AIController::GetVelocity() const { return m_velocity; }
+
+void AIController::SetPatrolRoute(std::vector<VectorFloat> route) {
+    m_patrolRoute = route;
+    m_currentPatrolIndex = 0;
+}
+const std::vector<VectorFloat>& AIController::GetPatrolRoute() const { return m_patrolRoute; }
+void AIController::SetPatrolIndex(int newIndex) { m_currentPatrolIndex = newIndex; }
+int AIController::GetPatrolIndex() const { return m_currentPatrolIndex; }
+
+void AIController::AttachComponents(TransformComponent* t, VelocityComponent* v) {
+    m_transform = t;
+    m_velocityComp = v;
+}
+TransformComponent* AIController::GetTransformComponent() { return m_transform; }
+VelocityComponent* AIController::GetVelocityComponent() { return m_velocityComp; }
 
 
 // Target handling

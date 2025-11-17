@@ -1,6 +1,6 @@
 #pragma once
 
-#include "AIController.h"
+class AIController;
 
 class AIBehavior {
 public:
