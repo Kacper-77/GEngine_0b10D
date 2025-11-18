@@ -18,6 +18,10 @@ struct VectorFloat {
         return {x - other.x, y - other.y};
     }
 
+    VectorFloat operator-() const {
+        return {-x, -y};
+    }
+
     VectorFloat operator*(float scalar) const {
         return {x * scalar, y * scalar};
     }

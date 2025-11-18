@@ -164,7 +164,10 @@ void AIController::AttachComponents(TransformComponent* t, VelocityComponent* v)
 }
 TransformComponent* AIController::GetTransformComponent() { return m_transform; }
 VelocityComponent* AIController::GetVelocityComponent() { return m_velocityComp; }
-
+void AIController::SetTargetTransform(TransformComponent* t) { m_targetTransform = t; }
+TransformComponent* AIController::GetTargetTransform() { return m_targetTransform; }
+void AIController::SetDesiredDistance(float distance) { m_desiredDistance = distance; }
+float AIController::GetDesiredDistance() { return m_desiredDistance; }
 
 // Target handling
 void AIController::SetTarget(EntityID entityID) { targetID = entityID; }

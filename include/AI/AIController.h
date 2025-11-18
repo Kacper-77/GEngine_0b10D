@@ -14,6 +14,8 @@ enum class AIState {
     Patrol,
     Attack,
     Flee,
+    Chase,
+    Follow,
     Dead
 };
 
@@ -75,6 +77,10 @@ public:
     void AttachComponents(TransformComponent* t, VelocityComponent* v);
     VelocityComponent* GetVelocityComponent();
     TransformComponent* GetTransformComponent();
+    void SetTargetTransform(TransformComponent* t);
+    TransformComponent* GetTargetTransform();
+    void SetDesiredDistance(float distance);
+    float GetDesiredDistance();
 
     // Target handling
     void SetTarget(EntityID entityID);
@@ -115,6 +121,8 @@ private:
     int m_currentPatrolIndex = 0;
     TransformComponent* m_transform = nullptr;
     VelocityComponent* m_velocityComp = nullptr;
+    TransformComponent* m_targetTransform = nullptr;
+    float m_desiredDistance;
 
     // Behavior
     std::unique_ptr<AIBehavior> behavior;
