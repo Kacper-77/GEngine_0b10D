@@ -128,6 +128,7 @@ float AIController::GetSpeed() const { return m_speed; }
 int AIController::GetArmor() const { return m_armor; }
 int AIController::GetStamina() const { return m_stamina; }
 int AIController::GetMorale() const { return m_morale; }
+float AIController::GetAttackRange() const { return m_attackRange; }
 
 
 // Basic data (setters)
@@ -138,7 +139,7 @@ void AIController::SetSpeed(float speed) { m_speed = speed; }
 void AIController::SetArmor(int armor) { m_armor = armor; }
 void AIController::SetStamina(int stamina) { m_stamina = stamina; }
 void AIController::SetMorale(int morale) { m_morale = morale; }
-
+void AIController::SetAttackRange(float range) { m_attackRange = range; }
 
 // Position & movement
 void AIController::SetPosition(const VectorFloat& pos) { m_position = pos; }

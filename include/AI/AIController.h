@@ -53,6 +53,7 @@ public:
     int GetArmor() const;
     int GetStamina() const;
     int GetMorale() const;
+    float GetAttackRange() const;
 
     // Basic data (setters)
     void SetVisionRange(float range);
@@ -62,6 +63,7 @@ public:
     void SetArmor(int armor);
     void SetStamina(int stamina);
     void SetMorale(int morale);
+    void SetAttackRange(float range);
 
     // Position & movement
     void SetPosition(const VectorFloat& pos);
@@ -99,6 +101,7 @@ private:
     int m_stamina;
     int m_morale;
     float m_speed;
+    float m_attackRange;
 
     // Perception
     float m_visionRange;
