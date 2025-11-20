@@ -2,6 +2,7 @@
 
 #include "AI/AIBehavior.h"
 #include "AI/AIController.h"
+#include "event/core/EventBus.h"
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
 

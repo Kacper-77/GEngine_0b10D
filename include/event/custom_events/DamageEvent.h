@@ -10,7 +10,8 @@ struct DamageEvent : public Event {
     int amount = 0;
     std::string type = "";
     std::string effect = "";
-    bool critical = false;
+    float effectDuration = 0.0f;
+    float criticalChance = 0.0f;
 
     explicit DamageEvent(EntityID dest)
         : dest{dest} {}

@@ -9,6 +9,7 @@
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
 #include "components/HealthComponent.h"
+#include "event/custom_events/DamageEvent.h"
 
 enum class AIState {
     Idle,
@@ -56,6 +57,11 @@ public:
     int GetMorale() const;
     float GetAttackRange() const;
     int GetDamage() const;
+    const std::string& GetAttackType() const;
+    const std::string& GetAttackEffect() const;
+    float GetAttackEffectDuration() const;
+    float GetCriticalChance() const;
+    float GetCriticalBonus() const;
 
     // Basic data (setters)
     void SetVisionRange(float range);
@@ -67,6 +73,11 @@ public:
     void SetMorale(int morale);
     void SetAttackRange(float range);
     void SetDamage(int damage);
+    void SetAttackType(const std::string& type);
+    void SetAttackEffect(const std::string& effect);
+    void SetAttackEffectDuration(float duration);
+    void SetCriticalChance(float chance);
+    void SetCriticalBonus(float bonus);
 
     // Position & movement
     void SetPosition(const VectorFloat& pos);
@@ -99,7 +110,7 @@ public:
     int GetFaction() const;
 
 private:
-    // Stats
+    // Stats and attack
     int m_health;
     int m_maxHealth;
     int m_armor;
@@ -108,6 +119,12 @@ private:
     int m_damage;
     float m_speed;
     float m_attackRange;
+
+    std::string m_attackType;
+    std::string m_attackEffect;
+    float m_attackEffectDuration;
+    float m_criticalChance;
+    float m_criticalBonus;
 
     // Perception
     float m_visionRange;
