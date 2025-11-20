@@ -15,7 +15,8 @@ public:
         TransformComponent* self = component.GetTransformComponent();
         VelocityComponent* v = component.GetVelocityComponent();
         TransformComponent* target = component.GetTargetTransform();
-        if (!self || !v || !target) return;
+        HealthComponent* targetHealth = component.GetTargetHealth();
+        if (!self || !v || !target || !targetHealth) return;
 
         // NPC doesn't move
         v->dx = 0.0f;
@@ -27,8 +28,10 @@ public:
         float distance = (targetPos - selfPos).Length();
 
         // Check condition and handle attack
+        if (targetHealth->isDead == true) return;
+
         if (distance <= component.GetAttackRange()) {
-            // LATER 
+            // COMBAT SYSTEM NEEDED
         }
     }
 };

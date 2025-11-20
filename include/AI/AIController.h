@@ -8,6 +8,7 @@
 #include "core/ComponentStorage.h"
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
+#include "components/HealthComponent.h"
 
 enum class AIState {
     Idle,
@@ -54,6 +55,7 @@ public:
     int GetStamina() const;
     int GetMorale() const;
     float GetAttackRange() const;
+    int GetDamage() const;
 
     // Basic data (setters)
     void SetVisionRange(float range);
@@ -64,6 +66,7 @@ public:
     void SetStamina(int stamina);
     void SetMorale(int morale);
     void SetAttackRange(float range);
+    void SetDamage(int damage);
 
     // Position & movement
     void SetPosition(const VectorFloat& pos);
@@ -81,6 +84,8 @@ public:
     TransformComponent* GetTransformComponent();
     void SetTargetTransform(TransformComponent* t);
     TransformComponent* GetTargetTransform();
+    void SetTargetHealth(HealthComponent* t);
+    HealthComponent* GetTargetHealth();
     void SetDesiredDistance(float distance);
     float GetDesiredDistance();
 
@@ -100,6 +105,7 @@ private:
     int m_armor;
     int m_stamina;
     int m_morale;
+    int m_damage;
     float m_speed;
     float m_attackRange;
 
@@ -125,6 +131,7 @@ private:
     TransformComponent* m_transform = nullptr;
     VelocityComponent* m_velocityComp = nullptr;
     TransformComponent* m_targetTransform = nullptr;
+    HealthComponent* m_targetHealth = nullptr;
     float m_desiredDistance;
 
     // Behavior

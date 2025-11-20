@@ -1,13 +1,13 @@
 #pragma once
 
 #include <string>
-#include "../core/Event.h"
-#include "../../utils/EntityTypes.h"
+#include "event/core/Event.h"
+#include "utils/EntityTypes.h"
 
 struct DamageEvent : public Event {
     EntityID dest;
     EntityID src = INVALID_ENTITY;
-    float amount = 0.0f;
+    int amount = 0;
     std::string type = "";
     std::string effect = "";
     bool critical = false;

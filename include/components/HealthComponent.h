@@ -8,6 +8,6 @@ struct HealthComponent {
     float regenRate = 0.0f;
     bool invulnerable = false;
 
-    HealthComponent(int maxHealth = 100)
-        : currentHP{maxHealth}, maxHP{maxHealth} {}
+    HealthComponent(int health, int maxHealth)
+        : currentHP{health}, maxHP{maxHealth} {}
 };

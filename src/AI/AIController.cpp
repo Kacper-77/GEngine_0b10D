@@ -129,6 +129,7 @@ int AIController::GetArmor() const { return m_armor; }
 int AIController::GetStamina() const { return m_stamina; }
 int AIController::GetMorale() const { return m_morale; }
 float AIController::GetAttackRange() const { return m_attackRange; }
+int AIController::GetDamage() const { return m_damage; }
 
 
 // Basic data (setters)
@@ -140,6 +141,7 @@ void AIController::SetArmor(int armor) { m_armor = armor; }
 void AIController::SetStamina(int stamina) { m_stamina = stamina; }
 void AIController::SetMorale(int morale) { m_morale = morale; }
 void AIController::SetAttackRange(float range) { m_attackRange = range; }
+void AIController::SetDamage(int damage) { m_damage = damage; }
 
 // Position & movement
 void AIController::SetPosition(const VectorFloat& pos) { m_position = pos; }
@@ -167,6 +169,8 @@ TransformComponent* AIController::GetTransformComponent() { return m_transform; 
 VelocityComponent* AIController::GetVelocityComponent() { return m_velocityComp; }
 void AIController::SetTargetTransform(TransformComponent* t) { m_targetTransform = t; }
 TransformComponent* AIController::GetTargetTransform() { return m_targetTransform; }
+void AIController::SetTargetHealth(HealthComponent* t) { m_targetHealth = t; }
+HealthComponent* AIController::GetTargetHealth() { return m_targetHealth; }
 void AIController::SetDesiredDistance(float distance) { m_desiredDistance = distance; }
 float AIController::GetDesiredDistance() { return m_desiredDistance; }
 
