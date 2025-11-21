@@ -11,6 +11,7 @@ struct DamageEvent : public Event {
     std::string type = "";
     std::string effect = "";
     float effectDuration = 0.0f;
+    bool enableCritical = false;
     float criticalChance = 0.0f;
 
     explicit DamageEvent(EntityID dest)

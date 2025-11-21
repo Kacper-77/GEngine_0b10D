@@ -56,12 +56,12 @@ public:
     int GetStamina() const;
     int GetMorale() const;
     float GetAttackRange() const;
-    int GetDamage() const;
-    const std::string& GetAttackType() const;
-    const std::string& GetAttackEffect() const;
-    float GetAttackEffectDuration() const;
-    float GetCriticalChance() const;
-    float GetCriticalBonus() const;
+    // int GetDamage() const;
+    // const std::string& GetAttackType() const;
+    // const std::string& GetAttackEffect() const;
+    // float GetAttackEffectDuration() const;
+    // float GetCriticalChance() const;
+    // float GetCriticalBonus() const;
 
     // Basic data (setters)
     void SetVisionRange(float range);
@@ -72,12 +72,12 @@ public:
     void SetStamina(int stamina);
     void SetMorale(int morale);
     void SetAttackRange(float range);
-    void SetDamage(int damage);
-    void SetAttackType(const std::string& type);
-    void SetAttackEffect(const std::string& effect);
-    void SetAttackEffectDuration(float duration);
-    void SetCriticalChance(float chance);
-    void SetCriticalBonus(float bonus);
+    // void SetDamage(int damage);
+    // void SetAttackType(const std::string& type);
+    // void SetAttackEffect(const std::string& effect);
+    // void SetAttackEffectDuration(float duration);
+    // void SetCriticalChance(float chance);
+    // void SetCriticalBonus(float bonus);
 
     // Position & movement
     void SetPosition(const VectorFloat& pos);
@@ -116,15 +116,15 @@ private:
     int m_armor;
     int m_stamina;
     int m_morale;
-    int m_damage;
+    // int m_damage;
     float m_speed;
     float m_attackRange;
 
-    std::string m_attackType;
-    std::string m_attackEffect;
-    float m_attackEffectDuration;
-    float m_criticalChance;
-    float m_criticalBonus;
+    // std::string m_attackType;
+    // std::string m_attackEffect;
+    // float m_attackEffectDuration;
+    // float m_criticalChance;
+    // float m_criticalBonus;
 
     // Perception
     float m_visionRange;
