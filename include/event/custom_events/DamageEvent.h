@@ -5,7 +5,7 @@
 #include "utils/EntityTypes.h"
 
 struct DamageEvent : public Event {
-    EntityID dest;
+    std::optional<EntityID> dest;
     EntityID src = INVALID_ENTITY;
     int amount = 0;
     std::string type = "";
@@ -13,7 +13,8 @@ struct DamageEvent : public Event {
     float effectDuration = 0.0f;
     bool enableCritical = false;
     float criticalChance = 0.0f;
+    float criticalBouns = 0.0f;
 
-    explicit DamageEvent(EntityID dest)
+    explicit DamageEvent(std::optional<EntityID> dest)
         : dest{dest} {}
 };

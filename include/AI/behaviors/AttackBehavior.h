@@ -32,6 +32,11 @@ public:
         if (targetHealth->isDead == true) return;
 
         if (distance <= component.GetAttackRange()) {
+            EventBus eventBus;
+            std::optional<EntityID> id = component.GetTarget();
+            DamageEvent damageEvent{id};
+            damageEvent.amount = component.GetDamage();
+            // eventBus.PublishImmediate()
             // COMBAT SYSTEM NEEDED
         }
     }
