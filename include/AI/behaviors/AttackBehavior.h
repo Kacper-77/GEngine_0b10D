@@ -6,8 +6,23 @@
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
 
+DamageEvent CreateDamageEvent(AIController& component) {
+    DamageEvent damageEvent{component.GetTarget()};
+    damageEvent.amount = component.GetDamage();
+    damageEvent.type = component.GetAttackType();
+    damageEvent.effect = component.GetAttackEffect();
+    damageEvent.effectDuration = component.GetAttackEffectDuration();
+    damageEvent.isCriticalEnabled = component.GetEnabledCritical();
+    damageEvent.criticalChance = component.GetCriticalChance();
+    damageEvent.criticalBonus = component.GetCriticalBonus();
+
+    return damageEvent;
+}
+
 class AttackBehavior : public AIBehavior {
 public:
+    AttackBehavior(EventBus& eventBus) : m_eventBus{eventBus} {}
+
     void UpdateAI(AIController& component, float deltaTime) override {
         // Check state of NPC
         if (component.GetState() != AIState::Attack) return;
@@ -32,12 +47,11 @@ public:
         if (targetHealth->isDead == true) return;
 
         if (distance <= component.GetAttackRange()) {
-            EventBus eventBus;
-            std::optional<EntityID> id = component.GetTarget();
-            DamageEvent damageEvent{id};
-            damageEvent.amount = component.GetDamage();
-            // eventBus.PublishImmediate()
-            // COMBAT SYSTEM NEEDED
+            // Create event and send it straight to CombatSystem
+            DamageEvent dmgEvent = CreateDamageEvent(component);
+            m_eventBus.PublishImmediate(dmgEvent);
         }
     }
+private:
+    EventBus& m_eventBus;
 };

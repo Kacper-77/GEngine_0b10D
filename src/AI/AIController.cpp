@@ -132,6 +132,7 @@ int AIController::GetDamage() const { return m_damage; }
 const std::string& AIController::GetAttackType() const { return m_attackType; }
 const std::string& AIController::GetAttackEffect() const { return m_attackEffect; }
 float AIController::GetAttackEffectDuration() const { return m_attackEffectDuration; }
+bool AIController::GetEnabledCritical() const { return m_isEnabledCritical; }
 float AIController::GetCriticalChance() const { return m_criticalChance; }
 float AIController::GetCriticalBonus() const { return m_criticalBonus; }
 
@@ -148,6 +149,7 @@ void AIController::SetDamage(int damage) { m_damage = damage; }
 void AIController::SetAttackType(const std::string& type) { m_attackType = type; }
 void AIController::SetAttackEffect(const std::string& effect) { m_attackEffect = effect; }
 void AIController::SetAttackEffectDuration(float duration) { m_attackEffectDuration = duration; }
+void AIController::SetEnabledCritical(bool isCritical) { m_isEnabledCritical = isCritical; }
 void AIController::SetCriticalChance(float chance) { m_criticalChance = chance; }
 void AIController::SetCriticalBonus(float bonus) { m_criticalBonus = bonus; }
 

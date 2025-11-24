@@ -60,6 +60,7 @@ public:
     const std::string& GetAttackType() const;
     const std::string& GetAttackEffect() const;
     float GetAttackEffectDuration() const;
+    bool GetEnabledCritical() const;
     float GetCriticalChance() const;
     float GetCriticalBonus() const;
 
@@ -76,6 +77,7 @@ public:
     void SetAttackType(const std::string& type);
     void SetAttackEffect(const std::string& effect);
     void SetAttackEffectDuration(float duration);
+    void SetEnabledCritical(bool isCritical);
     void SetCriticalChance(float chance);
     void SetCriticalBonus(float bonus);
 
@@ -123,6 +125,7 @@ private:
     std::string m_attackType;
     std::string m_attackEffect;
     float m_attackEffectDuration;
+    bool m_isEnabledCritical;
     float m_criticalChance;
     float m_criticalBonus;
 

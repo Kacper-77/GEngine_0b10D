@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <optional>
 #include "event/core/Event.h"
 #include "utils/EntityTypes.h"
 
@@ -11,9 +12,9 @@ struct DamageEvent : public Event {
     std::string type = "";
     std::string effect = "";
     float effectDuration = 0.0f;
-    bool enableCritical = false;
+    bool isCriticalEnabled = false;
     float criticalChance = 0.0f;
-    float criticalBouns = 0.0f;
+    float criticalBonus = 0.0f;
 
     explicit DamageEvent(std::optional<EntityID> dest)
         : dest{dest} {}
