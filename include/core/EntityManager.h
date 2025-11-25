@@ -1,12 +1,21 @@
 #pragma once
 
-#include "utils/EntityTypes.h"
-#include "ComponentStorage.h"
 #include <string>
 #include <unordered_set>
 #include <unordered_map>
 
+
+#include "utils/Vector.h"
+#include "utils/EntityTypes.h"
+#include "utils/ItemsAndDrops.h"
+#include "ComponentStorage.h"
+
 using EntityInfo = std::unordered_map<std::string, std::string>;
+
+struct RespawnInfo {
+    VectorFloat position;
+    float respawnDelay;
+};
 
 class EntityManager {
 public:
@@ -84,10 +93,38 @@ public:
         m_entityInfo.erase(id);
     }
 
+    // Respawn
+    void SetRespawnPoint(EntityID id,const RespawnInfo& respawn) {
+        m_respawnPoint[id] = respawn;
+    }
+
+    RespawnInfo GetRespawnPoint(EntityID id) {
+        auto it = m_respawnPoint.find(id);
+        return it != m_respawnPoint.end() ? it->second : RespawnInfo{};
+    }
+
+    // Drop
+    void AddDrop(EntityID id, const DropInfo& drop) {
+        m_entityDrops[id].push_back(drop);
+    }
+
+    const std::vector<DropInfo>& GetDrops(EntityID id) const {
+        static const std::vector<DropInfo> empty;
+        auto it = m_entityDrops.find(id);
+        return it != m_entityDrops.end() ? it->second : empty;
+    }
+
+    void ClearDrops(EntityID id) {
+        m_entityDrops.erase(id);
+    }
+
 private:
     std::unordered_set<EntityID> alive;
     std::unordered_map<EntityID, std::string> tags;
     std::unordered_map<std::string, std::unordered_set<EntityID>> groups;
     std::vector<IComponentStorage*> componentStorage;
     std::unordered_map<EntityID, EntityInfo> m_entityInfo;
+    
+    std::unordered_map<EntityID, RespawnInfo> m_respawnPoint;
+    std::unordered_map<EntityID, std::vector<DropInfo>> m_entityDrops;
 };

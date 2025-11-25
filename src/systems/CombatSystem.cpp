@@ -20,7 +20,7 @@ CombatSystem::CombatSystem(ComponentStorage<HealthComponent>& health, EventBus& 
     }
 
 void CombatSystem::Update(float deltaTime) {
- for (auto& [entity, health] : m_health.GetAll()) {
+    for (auto& [entity, health] : m_health.GetAll()) {
         if (health.isDead) continue;
 
         // Base regen
