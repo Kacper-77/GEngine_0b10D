@@ -124,6 +124,12 @@ target_include_directories(WorldTest PRIVATE ${CMAKE_SOURCE_DIR}/include)
 target_link_libraries(WorldTest GameEngineLib gtest_main)
 add_test(NAME WorldTest COMMAND WorldTest)
 
+# ITEMS AND DROPS
+add_executable(ItemsTest tests/test_ItemsDropsSystem.cpp)
+target_include_directories(ItemsTest PRIVATE ${CMAKE_SOURCE_DIR}/include ${CMAKE_SOURCE_DIR}/include/systems)
+target_link_libraries(ItemsTest GameEngineLib gtest_main)
+add_test(NAME ItemsTest COMMAND ItemsTest)
+
 # Info
 message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")

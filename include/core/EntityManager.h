@@ -7,7 +7,7 @@
 
 #include "utils/Vector.h"
 #include "utils/EntityTypes.h"
-#include "utils/ItemsAndDrops.h"
+#include "systems/ItemsDropsSystem.h"
 #include "ComponentStorage.h"
 
 using EntityInfo = std::unordered_map<std::string, std::string>;
