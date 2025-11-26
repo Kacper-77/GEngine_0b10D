@@ -8,9 +8,10 @@ protected:
     void SetUp() override {
         // Register few items
         Stat swordStats{"ATK", 106};
+        Stat potionStats{"Amount", 25};
 
         ItemDefinition sword{1, "Sword", Rarity::COMMON, ItemType::EQUIPMENT, {swordStats}, "Basic sword"};
-        ItemDefinition potion{2, "Health Potion", Rarity::RARE, ItemType::CONSUMABLE, {}, "Restores HP"};
+        ItemDefinition potion{2, "Health Potion", Rarity::RARE, ItemType::CONSUMABLE, {potionStats}, "Restores HP"};
         ItemDefinition gem{3, "Epic Gem", Rarity::EPIC, ItemType::MATERIAL, {}, "Shiny gem"};
 
         itemSystem.RegisterItem(sword);
@@ -31,6 +32,7 @@ TEST_F(ItemSystemTest, RegisterAndGetDefinition) {
     ASSERT_NE(def, nullptr);
     EXPECT_EQ(def->itemName, "Health Potion");
     EXPECT_EQ(def->type, ItemType::CONSUMABLE);
+    EXPECT_EQ(std::get<int>(def->baseStats[0].value), 25);
 }
 
 // Checking instance of items
