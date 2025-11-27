@@ -1,5 +1,5 @@
 #include "systems/AnimationSystem.h"
-#include "components/SpriteComponent.h" // jeśli używasz poklatkowych animacji
+#include "components/SpriteComponent.h"
 
 AnimationSystem::AnimationSystem(ComponentStorage<AnimationComponent>& animations,
                                  ComponentStorage<SpriteComponent>& sprites,
