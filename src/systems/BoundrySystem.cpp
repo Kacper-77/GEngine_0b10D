@@ -14,21 +14,24 @@ void BoundrySystem::Update(float deltaTime) {
         auto* transform = m_transforms.Get(id);
         if (!transform) continue;
 
-        // Check conditions
-        if (boundry.blockLeft && transform->x < 0) {
-            transform->x = 0;
+        // Left
+        if (boundry.blockLeft && transform->position.x < 0.0f) {
+            transform->position.x = 0.0f;
         }
 
-        if (boundry.blockRight && transform->x + transform->width > screenWidth) {
-            transform->x = screenWidth - transform->width;
+        // Right
+        if (boundry.blockRight && transform->position.x + transform->scale.x > static_cast<float>(screenWidth)) {
+            transform->position.x = static_cast<float>(screenWidth) - transform->scale.x;
         }
 
-        if (boundry.blockTop && transform->y < 0) {
-            transform->y = 0;
+        // Up
+        if (boundry.blockTop && transform->position.y < 0.0f) {
+            transform->position.y = 0.0f;
         }
 
-        if (boundry.blockBottom && transform->y + transform->height > screenHeight) {
-            transform->y = screenHeight - transform->height;
+        // Down
+        if (boundry.blockBottom && transform->position.y + transform->scale.y > static_cast<float>(screenHeight)) {
+            transform->position.y = static_cast<float>(screenHeight) - transform->scale.y;
         }
     }
 }

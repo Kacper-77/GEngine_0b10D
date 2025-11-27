@@ -66,7 +66,7 @@ bool AIController::CanHearEnemy() const {
     if (!target) return false;
     
     // Calculate distance
-    VectorFloat targetPos = {static_cast<float>(target->x), static_cast<float>(target->y)};
+    VectorFloat targetPos = {target->position};
     float distance = (targetPos - m_position).Length();
     
     return distance <= m_hearingRange;
@@ -81,7 +81,7 @@ bool AIController::CanSeeEnemy() const {
     if (!target) return false;
 
     // Get distance to target
-    VectorFloat targetPos = {static_cast<float>(target->x), static_cast<float>(target->y)};
+    VectorFloat targetPos = {target->position};
     VectorFloat toTarget = targetPos - m_position;
 
     // Check condition v2

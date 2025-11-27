@@ -106,7 +106,7 @@ int main(int argc, char* argv[]) {
 
     // Create player
     EntityID player = creationSystem.CreateEntityWith(
-        TransformComponent{364, 200, 128, 128},
+        TransformComponent{ VectorFloat{364.0f, 200.0f}, 0.0f, VectorFloat{128.0f, 128.0f} },
         ColliderComponent{64, 64, CollisionLayer::Player, CollisionLayer::Enemy},
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{0.0f, 0.0f},
@@ -115,7 +115,7 @@ int main(int argc, char* argv[]) {
     );
 
     EntityID grass = creationSystem.CreateEntityWith(
-        TransformComponent{364, 280, 128, 128},
+        TransformComponent{ VectorFloat{364.0f, 280.0f}, 0.0f, VectorFloat{128.0f, 128.0f} },
         SpriteComponent{&platform, 200, 40},
         SurfaceComponent{364, 280, 200, 40, SurfaceType::GRASS}
     );
@@ -144,7 +144,7 @@ int main(int argc, char* argv[]) {
 
     // Create blocker
     EntityID blocker = creationSystem.CreateEntityWith(
-        TransformComponent{600, 300, 64, 64},
+        TransformComponent{ VectorFloat{600.0f, 300.0f}, 0.0f, VectorFloat{64.0f, 64.0f} },
         SpriteComponent{&texture, 64, 64},
         VelocityComponent{0.0f, 0.0f},
         ColliderComponent{64, 64, CollisionLayer::Enemy, CollisionLayer::Projectile}

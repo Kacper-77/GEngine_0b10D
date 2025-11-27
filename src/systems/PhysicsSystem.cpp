@@ -47,10 +47,10 @@ void PhysicsSystem::Update(float deltaTime) {
         physics.velocityY = std::clamp(physics.velocityY, -physics.maxVelocityY, physics.maxVelocityY);
 
         // 5. Update position
-        transform->x += physics.velocityX * deltaTime;
-        transform->y += physics.velocityY * deltaTime;
-        physics.posX = transform->x;
-        physics.posY = transform->y;
+        transform->position.x += physics.velocityX * deltaTime;
+        transform->position.y += physics.velocityY * deltaTime;
+        physics.posX = transform->position.x;
+        physics.posY = transform->position.y;
 
         physics.isGrounded = false;
     }

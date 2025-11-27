@@ -58,7 +58,7 @@ protected:
 
 TEST_F(RenderSystemTest, RendersEntityWithValidComponents) {
     EntityID entity = creationSystem.CreateEntityWith(
-        TransformComponent{100, 200, 64, 64},
+        TransformComponent{VectorFloat{100.0f, 200.0f}, 0.0f, VectorFloat{64.0f, 64.0f}},
         SpriteComponent{&texture, 64, 64}
     );
 
@@ -85,7 +85,7 @@ TEST_F(RenderSystemTest, SkipsEntityWithoutTransform) {
 
 TEST_F(RenderSystemTest, SkipsEntityWithoutTexture) {
     EntityID entity = creationSystem.CreateEntityWith(
-        TransformComponent{50, 50, 32, 32},
+        TransformComponent{VectorFloat{32.0f, 32.0f}, 0.0f, VectorFloat{50.0f, 50.0f}},
         SpriteComponent{nullptr, 32, 32}
     );
 

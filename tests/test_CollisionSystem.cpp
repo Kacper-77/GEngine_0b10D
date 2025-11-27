@@ -44,11 +44,11 @@ protected:
 
 TEST_F(CollisionSystemTest, EmitsCollisionEventWhenEntitiesOverlap) {
     EntityID a = creationSystem.CreateEntityWith(
-        TransformComponent{0, 0, 0, 0},
+        TransformComponent{ VectorFloat{0.0f, 0.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
     EntityID b = creationSystem.CreateEntityWith(
-        TransformComponent{5, 5, 0, 0},
+        TransformComponent{ VectorFloat{5.0f, 5.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
 
@@ -61,11 +61,11 @@ TEST_F(CollisionSystemTest, EmitsCollisionEventWhenEntitiesOverlap) {
 
 TEST_F(CollisionSystemTest, DoesNotEmitCollisionEventWhenEntitiesDoNotOverlap) {
     EntityID a = creationSystem.CreateEntityWith(
-        TransformComponent{0, 0, 0, 0},
+        TransformComponent{ VectorFloat{0.0f, 0.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
     EntityID b = creationSystem.CreateEntityWith(
-        TransformComponent{100, 100, 0, 0},
+        TransformComponent{ VectorFloat{100.0f, 100.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
 
@@ -77,11 +77,11 @@ TEST_F(CollisionSystemTest, DoesNotEmitCollisionEventWhenEntitiesDoNotOverlap) {
 
 TEST_F(CollisionSystemTest, IgnoresEntitiesWithoutColliderComponent) {
     EntityID a = creationSystem.CreateEntityWith(
-        TransformComponent{0, 0, 0, 0},
+        TransformComponent{ VectorFloat{0.0f, 0.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
     EntityID b = creationSystem.CreateEntityWith(
-        TransformComponent{5, 5, 0, 0}
+        TransformComponent{ VectorFloat{5.0f, 5.0f}, 0.0f, VectorFloat{0.0f, 0.0f} }
     );
 
     system.Update(0.0f);
@@ -92,15 +92,15 @@ TEST_F(CollisionSystemTest, IgnoresEntitiesWithoutColliderComponent) {
 
 TEST_F(CollisionSystemTest, EmitsMultipleCollisionEventsForMultiplePairs) {
     EntityID a = creationSystem.CreateEntityWith(
-        TransformComponent{0, 0, 0, 0},
+        TransformComponent{ VectorFloat{0.0f, 0.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
     EntityID b = creationSystem.CreateEntityWith(
-        TransformComponent{5, 5, 0, 0},
+        TransformComponent{ VectorFloat{5.0f, 5.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
     EntityID c = creationSystem.CreateEntityWith(
-        TransformComponent{8, 8, 0, 0},
+        TransformComponent{ VectorFloat{8.0f, 8.0f}, 0.0f, VectorFloat{0.0f, 0.0f} },
         ColliderComponent{10, 10}
     );
 

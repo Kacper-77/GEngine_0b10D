@@ -17,8 +17,8 @@ public:
         VelocityComponent* v = component.GetVelocityComponent();
         if (!t || !v) return;
 
-        float posX = static_cast<float>(t->x);
-        float posY = static_cast<float>(t->y);
+        float posX = t->position.x;
+        float posY = t->position.y;
 
         VectorFloat dest = route[component.GetPatrolIndex()];
         VectorFloat dir = (dest - VectorFloat{posX, posY}).Normalized();

@@ -29,7 +29,7 @@ protected:
 
 TEST_F(MovementSystemTest, AppliesAccelerationToVelocityAndMovesEntity) {
     EntityID player = creationSystem.CreateEntityWith(
-        TransformComponent{0, 0, 64, 64},
+        TransformComponent{ VectorFloat{0.0f, 0.0f}, 0.0f, VectorFloat{64.0f, 64.0f} },
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{10.0f, 5.0f}
     );
@@ -45,6 +45,6 @@ TEST_F(MovementSystemTest, AppliesAccelerationToVelocityAndMovesEntity) {
 
     EXPECT_FLOAT_EQ(velocity->dx, 10.0f);
     EXPECT_FLOAT_EQ(velocity->dy, 5.0f);
-    EXPECT_EQ(transform->x, 10);
-    EXPECT_EQ(transform->y, 5);
+    EXPECT_EQ(transform->position.x, 10);
+    EXPECT_EQ(transform->position.y, 5);
 }

@@ -17,8 +17,8 @@ void RenderSystem::Update(float deltaTime) {
         if (!transform || !sprite.texture) continue;
 
         SDL_Rect dstRect = {
-            static_cast<int>((transform->x - m_cameraPosition.x) * m_cameraZoom),
-            static_cast<int>((transform->y - m_cameraPosition.y) * m_cameraZoom),
+            static_cast<int>((transform->position.x - m_cameraPosition.x) * m_cameraZoom),
+            static_cast<int>((transform->position.y - m_cameraPosition.y) * m_cameraZoom),
             static_cast<int>(sprite.width * m_cameraZoom),
             static_cast<int>(sprite.height * m_cameraZoom)
         };

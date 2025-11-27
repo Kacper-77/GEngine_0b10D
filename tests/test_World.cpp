@@ -21,13 +21,13 @@ TEST_F(WorldTest, AddAndGetComponentStorage) {
     EXPECT_TRUE(world.HasComponentStorage<TransformComponent>());
 
     auto& retrieved = world.GetComponentStorage<TransformComponent>();
-    TransformComponent tc{1, 2};
+    TransformComponent tc{ VectorFloat{1.0f, 2.0f}, 0.0f, VectorFloat{0.0f, 0.0f} };
     retrieved.Add(1, tc);
 
     auto* result = retrieved.Get(1);
     ASSERT_NE(result, nullptr);
-    EXPECT_FLOAT_EQ(result->x, 1);
-    EXPECT_FLOAT_EQ(result->y, 2);
+    EXPECT_FLOAT_EQ(result->position.x, 1.0f);
+    EXPECT_FLOAT_EQ(result->position.y, 2.0f);
 }
 
 TEST_F(WorldTest, RemoveComponentStorage) {

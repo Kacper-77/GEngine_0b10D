@@ -1,8 +1,9 @@
 #pragma once
 
+#include "utils/Vector.h"
+
 struct TransformComponent {
-    int x = 0;
-    int y = 0;
-    int width = 0;
-    int height = 0;
+    VectorFloat position {0.0f, 0.0f};
+    float rotationDeg = 0.0f;
+    VectorFloat scale {1.0f, 1.0f};
 };

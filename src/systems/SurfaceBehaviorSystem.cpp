@@ -37,8 +37,8 @@ void SurfaceBehaviorSystem::Update(float deltaTime) {
         if (!transform || !m_velocities.Has(entityID)) continue;
 
         auto* velocity = m_velocities.Get(entityID);
-        int cellX = transform->x / cellSize;
-        int cellY = transform->y / cellSize;
+        int cellX = transform->position.x / cellSize;
+        int cellY = transform->position.y / cellSize;
 
         std::vector<EntityID> nearbySurfaces = m_spatialGrid.Query(cellX, cellY);
         std::vector<EntityID> neighbors = m_spatialGrid.QueryNeighbors(cellX, cellY);
@@ -48,7 +48,7 @@ void SurfaceBehaviorSystem::Update(float deltaTime) {
             const auto* surface = m_surfaces.Get(surfaceID);
             if (!surface) continue;
 
-            if (surface->Contains(transform->x, transform->y)) {
+            if (surface->Contains(transform->position.x, transform->position.y)) {
                 switch (surface->surfaceType) {
                     case SurfaceType::ICE:
                         velocity->dx *= 1.05f;

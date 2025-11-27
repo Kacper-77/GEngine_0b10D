@@ -33,7 +33,7 @@ protected:
 
 TEST_F(PhysicsSystemTest, DoesPhysicsAffectTransform) {
     EntityID player = creationSystem.CreateEntityWith(
-        TransformComponent{0, 0, 64, 64},
+        TransformComponent{ VectorFloat{0.0f, 0.0f}, 0.0f, VectorFloat{64.0f, 64.0f} },
         AccelerationComponent{10.0f, 0.0f},
         PhysicsComponent{0.0f, 0.0f, 0.0f, 9.8f}
     );
@@ -50,6 +50,6 @@ TEST_F(PhysicsSystemTest, DoesPhysicsAffectTransform) {
     ASSERT_FLOAT_EQ(phys->posX, 10.0f);
     ASSERT_FLOAT_EQ(phys->posY, 9.8f);
 
-    ASSERT_EQ(transform->x, 10);
-    ASSERT_EQ(transform->y, 9);
+    ASSERT_EQ(transform->position.x, 10);
+    ASSERT_EQ(transform->position.y, 9);
 }

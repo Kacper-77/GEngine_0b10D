@@ -1,5 +1,7 @@
 #pragma once
 
+#include <cmath>
+
 struct VectorInt {
     int x, y;
 };

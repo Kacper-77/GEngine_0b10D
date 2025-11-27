@@ -20,8 +20,8 @@ void MovementSystem::Update(float deltaTime) {
         }
 
         if (transform) {
-            transform->x += static_cast<int>(velocity.dx * deltaTime);
-            transform->y += static_cast<int>(velocity.dy * deltaTime);
+            transform->position.x += velocity.dx * deltaTime;
+            transform->position.y += velocity.dy * deltaTime;
         }
     }
 }

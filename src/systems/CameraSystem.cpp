@@ -1,6 +1,8 @@
 #include "systems/CameraSystem.h"
+
 #include <random>
 #include <iostream>
+#include <algorithm>
 
 CameraSystem::CameraSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<CameraComponent>& camera)
@@ -111,22 +113,27 @@ void CameraSystem::UpdateCameraPosition(CameraComponent& cam) {
     if (cam.manualControl || cam.mode == CameraMode::Static) return;
     if (cam.target == INVALID_ENTITY) return;
 
-    // Get position from transformComponent
+    // Get position from TransformComponent
     auto* transform = m_transforms.Get(cam.target);
     if (!transform) return;
 
-    // Calculate position
+    // Desired camera top-left so that target is centered (plus offset)
+    const float targetX = transform->position.x + static_cast<float>(cam.offset.x);
+    const float targetY = transform->position.y + static_cast<float>(cam.offset.y);
+
     SDL_Point desired = {
-        transform->x + cam.offset.x - cam.viewportSize.x / 2,
-        transform->y + cam.offset.y - cam.viewportSize.y / 2
+        static_cast<int>(std::round(targetX - static_cast<float>(cam.viewportSize.x) * 0.5f)),
+        static_cast<int>(std::round(targetY - static_cast<float>(cam.viewportSize.y) * 0.5f))
     };
 
-    // Set position
+    // Set position based on mode
     if (cam.mode == CameraMode::Follow) {
         cam.position = desired;
     } else if (cam.mode == CameraMode::SmoothFollow) {
-        cam.position.x += (desired.x - cam.position.x) / cam.smoothing;
-        cam.position.y += (desired.y - cam.position.y) / cam.smoothing;
+        // smoothing > 1.0f means slower movement; clamp to avoid division by zero
+        const float smoothing = std::max(1, cam.smoothing);
+        cam.position.x += static_cast<int>(std::round((desired.x - cam.position.x) / smoothing));
+        cam.position.y += static_cast<int>(std::round((desired.y - cam.position.y) / smoothing));
     }
 }
 

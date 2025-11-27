@@ -129,7 +129,7 @@ TEST(CameraSystemTest, UpdateCameraPositionFollowsTarget) {
     cameras.Add(camId, cam);
     system.SetActiveCamera(camId);
 
-    TransformComponent targetTransform{1000, 500};
+    TransformComponent targetTransform{ VectorFloat{1000.0f, 500.0f}, 0.0f, VectorFloat{0.0f, 0.0f} };
     transforms.Add(2, targetTransform);
 
     system.Update(0.016f); // Simulate one frame

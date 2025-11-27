@@ -10,7 +10,6 @@ CollisionSystem::CollisionSystem(EntityManager& entityManager,
           m_colliders{colliders}, 
           m_eventBus{eventBus} {}
 
-// Update state
 void CollisionSystem::Update(float deltaTime) {
     const int cellSize = m_spatialGrid.GetCellSize();
     m_spatialGrid.Clear();
@@ -22,15 +21,19 @@ void CollisionSystem::Update(float deltaTime) {
         const auto* t = m_transforms.Get(id);
         const auto* c = m_colliders.Get(id);
 
-        // Nessesary to divide here! We want to add cells not pixels to grid
-        const int startX = t->x / cellSize;
-        const int endX = (t->x + c->width) / cellSize;
-        const int startY = t->y / cellSize;
-        const int endY = (t->y + c->height) / cellSize;
+        const float x = t->position.x;
+        const float y = t->position.y;
+        const int w = c->width;
+        const int h = c->height;
 
-        for (int x = startX; x <= endX; ++x) {
-            for (int y = startY; y <= endY; ++y) {
-                m_spatialGrid.Insert({x, y}, id);
+        const int startX = static_cast<int>(std::floor(x / cellSize));
+        const int endX   = static_cast<int>(std::floor((x + w) / cellSize));
+        const int startY = static_cast<int>(std::floor(y / cellSize));
+        const int endY   = static_cast<int>(std::floor((y + h) / cellSize));
+
+        for (int cx = startX; cx <= endX; ++cx) {
+            for (int cy = startY; cy <= endY; ++cy) {
+                m_spatialGrid.Insert({cx, cy}, id);
             }
         }
     }
@@ -38,7 +41,7 @@ void CollisionSystem::Update(float deltaTime) {
     // Checked collisions
     std::unordered_set<std::pair<EntityID, EntityID>, PairHash> checked;
 
-    // Getting all cells with entities inside
+    // Check collisions in all occupied cells
     for (const auto& [cell, entities] : m_spatialGrid.GetAllCells()) {
         for (EntityID a : entities) {
             for (EntityID b : entities) {
@@ -48,10 +51,9 @@ void CollisionSystem::Update(float deltaTime) {
                 checked.insert(pair);
                 CheckAndHandleCollision(a, b);
             }
-            // Get neighbors
-            auto neighbors = m_spatialGrid.QueryNeighbors(cell.x, cell.y);
 
-            // Check and handle neighbors
+            // Neighbors
+            auto neighbors = m_spatialGrid.QueryNeighbors(cell.x, cell.y);
             for (EntityID b : neighbors) {
                 if (a == b) continue; 
                 auto pair = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
@@ -62,6 +64,7 @@ void CollisionSystem::Update(float deltaTime) {
         }
     }
 }
+
 
 // Check collision between entities
 bool CollisionSystem::IsColliding(int ax, int ay, int aw, int ah,
@@ -74,16 +77,27 @@ bool CollisionSystem::IsColliding(int ax, int ay, int aw, int ah,
 
 // Handle collision and publish event
 void CollisionSystem::CheckAndHandleCollision(EntityID a, EntityID b) {
-    const auto& ta = *m_transforms.Get(a);
-    const auto& tb = *m_transforms.Get(b);
-    const auto& ca = *m_colliders.Get(a);
-    const auto& cb = *m_colliders.Get(b);
+    const auto* ta = m_transforms.Get(a);
+    const auto* tb = m_transforms.Get(b);
+    const auto* ca = m_colliders.Get(a);
+    const auto* cb = m_colliders.Get(b);
+
+    if (!ta || !tb || !ca || !cb) return;
 
     // Skip if entities cannot collide
-    if (!CanCollide(ca, cb)) return;
-    
-    if (IsColliding(ta.x, ta.y, ca.width, ca.height,
-                    tb.x, tb.y, cb.width, cb.height)) {
+    if (!CanCollide(*ca, *cb)) return;
+
+    const float ax = ta->position.x;
+    const float ay = ta->position.y;
+    const int   aw = ca->width;
+    const int   ah = ca->height;
+
+    const float bx = tb->position.x;
+    const float by = tb->position.y;
+    const int   bw = cb->width;
+    const int   bh = cb->height;
+
+    if (IsColliding(ax, ay, aw, ah, bx, by, bw, bh)) {
         // Get info about entities
         std::string typeA = m_entityManager.GetInfo(a, "type");
         std::string typeB = m_entityManager.GetInfo(b, "type");
