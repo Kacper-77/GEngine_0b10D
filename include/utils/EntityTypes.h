@@ -1,6 +1,6 @@
 #pragma once
 
-#include <cstdint>
+#include <cstddef>
 
-using EntityID = std::uint32_t;
+using EntityID = std::size_t;
 const EntityID INVALID_ENTITY = static_cast<EntityID>(-1);

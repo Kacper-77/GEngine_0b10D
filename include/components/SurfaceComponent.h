@@ -3,10 +3,10 @@
 #include "utils/SurfaceTypes.h"
 
 struct SurfaceComponent {
-    int x;
-    int y;
-    int width;
-    int height;
+    float x;
+    float y;
+    float width;
+    float height;
     SurfaceType surfaceType;
 
     // Helpers

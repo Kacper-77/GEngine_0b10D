@@ -49,28 +49,31 @@ void SurfaceBehaviorSystem::Update(float deltaTime) {
             if (!surface) continue;
 
             if (surface->Contains(transform->position.x, transform->position.y)) {
-                switch (surface->surfaceType) {
-                    case SurfaceType::ICE:
-                        velocity->dx *= 1.05f;
-                        velocity->dy *= 1.05f;
-                        break;
-                    case SurfaceType::SAND:
-                        velocity->dx *= 0.6f;
-                        velocity->dy *= 0.6f;
-                        break;
-                    case SurfaceType::GRASS:
-                        velocity->dx *= 0.9f;
-                        velocity->dy *= 0.9f;
-                        break;
-                    case SurfaceType::LIQUID:
-                        velocity->dx *= 0.4f;
-                        velocity->dy *= 0.4f;
-                        break;
-                    case SurfaceType::CUSTOM:
-                        break;
-                }
-                break; // Only one surface applies
+                float multiplier = GetVelocityBySurfaceType(surface->surfaceType);
+
+                // Set velocity by type
+                velocity->dx *= multiplier;
+                velocity->dy *= multiplier;
             }
+                break; // Only one surface applies
         }
     }
+}
+
+void SurfaceBehaviorSystem::SetVelocityBySurfaceType(SurfaceType type, float velocity) {
+    m_surfaceVelocity[type] = velocity;
+}
+
+void SurfaceBehaviorSystem::SetDefaultVelocities() {
+    m_surfaceVelocity[SurfaceType::GRASS] = 0.8f;
+    m_surfaceVelocity[SurfaceType::ICE] = 1.05f;
+    m_surfaceVelocity[SurfaceType::SAND] = 0.4f;
+    m_surfaceVelocity[SurfaceType::LIQUID] = 0.2f;
+}
+
+float SurfaceBehaviorSystem::GetVelocityBySurfaceType(SurfaceType type) const {
+    const auto it = m_surfaceVelocity.find(type);
+
+    // If velocity is not set then return const 1.0f by
+    return it != m_surfaceVelocity.end() ? it->second : 1.0f;
 }

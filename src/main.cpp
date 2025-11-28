@@ -115,9 +115,9 @@ int main(int argc, char* argv[]) {
     );
 
     EntityID grass = creationSystem.CreateEntityWith(
-        TransformComponent{ VectorFloat{364.0f, 280.0f}, 0.0f, VectorFloat{128.0f, 128.0f} },
+        TransformComponent{ VectorFloat{364.0f, 280.0f}, 0.0f, VectorFloat{200.0f, 40.0f} },
         SpriteComponent{&platform, 200, 40},
-        SurfaceComponent{364, 280, 200, 40, SurfaceType::GRASS}
+        SurfaceComponent{364.0f, 280.0f, 200.0f, 40.0f, SurfaceType::SAND}
     );
 
     entityManager.AddTag(grass, "grass");
@@ -192,7 +192,11 @@ int main(int argc, char* argv[]) {
     EventBus eventBus;
     systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders, eventBus);
     SpatialGrid<EntityID> spatialGrid;
-    systemManager.RegisterSystem<SurfaceBehaviorSystem>(transforms, velocities, surfaces, spatialGrid);
+
+    SurfaceBehaviorSystem sbh(transforms, velocities, surfaces, spatialGrid);
+    // sbh.SetVelocityBySurfaceType(SurfaceType::GRASS, 0.7);
+    sbh.SetDefaultVelocities();
+    systemManager.RegisterSystem<SurfaceBehaviorSystem>(sbh);
 
     // Background
     Texture background;

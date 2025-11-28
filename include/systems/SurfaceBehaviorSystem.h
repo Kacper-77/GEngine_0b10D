@@ -1,5 +1,7 @@
 #pragma once
 
+#include <unordered_map>
+
 #include "utils/SpatialGrid.h"
 #include "core/ISystem.h"
 #include "event/core/EventBus.h"
@@ -18,9 +20,16 @@ public:
     
     void Update(float deltaTime) override;  // ISystem method
 
+    void SetVelocityBySurfaceType(SurfaceType type, float velocity);
+    void SetDefaultVelocities();
+
 private:
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<VelocityComponent>& m_velocities;
     ComponentStorage<SurfaceComponent>& m_surfaces;
     SpatialGrid<EntityID>& m_spatialGrid;
+    
+    float GetVelocityBySurfaceType(SurfaceType type) const;
+
+    std::unordered_map<SurfaceType, float> m_surfaceVelocity;
 };
