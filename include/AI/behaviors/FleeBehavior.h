@@ -18,8 +18,8 @@ public:
         if (!self || !v || !target) return;
 
         // Position
-        VectorFloat selfPos = {static_cast<float>(self->x), static_cast<float>(self->y)};
-        VectorFloat targetPos = {static_cast<float>(target->x), static_cast<float>(target->y)};
+        VectorFloat selfPos{self->position.x, self->position.y};
+        VectorFloat targetPos{target->position.x, target->position.y};
 
         // Calculate distance between
         VectorFloat toTarget = targetPos - selfPos;

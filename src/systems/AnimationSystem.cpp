@@ -60,6 +60,7 @@ void AnimationSystem::ApplyLayer(EntityID entity, const AnimationLayer& layer) {
         }
     }
 }
+
 AnimationTransform AnimationSystem::Interpolate(const BoneAnimation& ba, float time, float duration, bool loop) {
     AnimationTransform out{};
     if (ba.frames.empty()) return out;

@@ -39,8 +39,8 @@ public:
         v->dy = 0.0f;
 
         // Calculate distance between
-        VectorFloat selfPos{static_cast<float>(self->x), static_cast<float>(self->y)};
-        VectorFloat targetPos{static_cast<float>(target->x), static_cast<float>(target->y)};
+        VectorFloat selfPos{self->position.x, self->position.y};
+        VectorFloat targetPos{target->position.x, target->position.y};
         float distance = (targetPos - selfPos).Length();
 
         // Check condition and handle attack
