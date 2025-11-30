@@ -1,6 +1,9 @@
 #include <SDL2/SDL.h>
 #include <SDL_image.h>
 #include <iostream>
+#include <cmath>
+
+static constexpr float PI = 3.14159265358979323846f;
 
 #include "AI/AISystem.h"
 #include "AI/AIController.h"
@@ -27,6 +30,7 @@
 #include "systems/AudioSystem.h"
 #include "systems/CameraSystem.h"
 #include "systems/SurfaceBehaviorSystem.h"
+#include "systems/AnimationSystem.h"
 
 #include "window/Window.h"
 #include "graphics/Renderer.h"
@@ -35,6 +39,64 @@
 #include "event/core/EventBus.h"
 #include "event/custom_events/CollisionEvent.h"
 #include "utils/SpatialGrid.h"
+#include "utils/AnimationUtils.h"
+
+void DrawArm(SDL_Renderer* renderer,
+             const TransformComponent& body,
+             const TransformComponent& arm,
+             const SDL_Point& camPos,
+             bool isLeft) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    int cx = static_cast<int>(body.position.x - camPos.x);
+    int cy = static_cast<int>(body.position.y - camPos.y);
+
+    int anchorX = cx;
+    int anchorY = cy + 11;
+
+    float length = 20.0f;
+
+    float baseAngle = isLeft ? 180.0f : 0.0f;
+    float rad = (arm.rotationDeg + baseAngle) * PI / 180.0f;
+
+    int endX = anchorX + static_cast<int>(std::cos(rad) * length);
+    int endY = anchorY + static_cast<int>(std::sin(rad) * length);
+
+    SDL_RenderDrawLine(renderer, anchorX, anchorY, endX, endY);
+}
+
+void DrawStickman(SDL_Renderer* renderer,
+                  const TransformComponent& body,
+                  const TransformComponent* leftArm,
+                  const TransformComponent* rightArm,
+                  const SDL_Point& camPos) {
+    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+
+    int headRadius = 10;
+    int cx = static_cast<int>(body.position.x - camPos.x);
+    int cy = static_cast<int>(body.position.y - camPos.y);
+
+    // Head
+    for (int w = -headRadius; w <= headRadius; ++w) {
+        for (int h = -headRadius; h <= headRadius; ++h) {
+            if (w*w + h*h <= headRadius*headRadius) {
+                SDL_RenderDrawPoint(renderer, cx + w, cy + h);
+            }
+        }
+    }
+
+    // Arms: draw with explicit side anchors
+    if (leftArm)  DrawArm(renderer, body, *leftArm, camPos, true);
+    if (rightArm) DrawArm(renderer, body, *rightArm, camPos, false);
+
+    // Body
+    SDL_RenderDrawLine(renderer, cx, cy + headRadius, cx, cy + 40);
+
+    // Legs
+    SDL_RenderDrawLine(renderer, cx, cy + 40, cx - 15, cy + 60);
+    SDL_RenderDrawLine(renderer, cx, cy + 40, cx + 15, cy + 60);
+}
+
 
 void DrawGrid(SDL_Renderer* sdlRenderer, const SDL_Point& camPos, int width, int height, int cellSize = 64) {
     SDL_SetRenderDrawColor(sdlRenderer, 80, 80, 80, 255);
@@ -66,6 +128,7 @@ int main(int argc, char* argv[]) {
     ComponentStorage<BoundryComponent> boundaries;
     ComponentStorage<ColliderComponent> colliders;
     ComponentStorage<SurfaceComponent> surfaces;
+    ComponentStorage<AnimationComponent> animations;
 
     creationSystem.RegisterStorage(&transforms);
     creationSystem.RegisterStorage(&velocities);
@@ -75,6 +138,7 @@ int main(int argc, char* argv[]) {
     creationSystem.RegisterStorage(&boundaries);
     creationSystem.RegisterStorage(&colliders);
     creationSystem.RegisterStorage(&surfaces);
+    creationSystem.RegisterStorage(&animations);
 
     entityManager.RegisterComponentStorage(&transforms);
     entityManager.RegisterComponentStorage(&velocities);
@@ -84,6 +148,7 @@ int main(int argc, char* argv[]) {
     entityManager.RegisterComponentStorage(&boundaries);
     entityManager.RegisterComponentStorage(&colliders);
     entityManager.RegisterComponentStorage(&surfaces);
+    entityManager.RegisterComponentStorage(&animations);
 
     // Window and renderer
     Window window;
@@ -159,10 +224,10 @@ int main(int argc, char* argv[]) {
 
     // Define patrol route
     blockerAI.SetPatrolRoute({
-        {600, 300},   // start point
-        {700, 300},   // move right
-        {700, 400},   // move down
-        {600, 400}    // move left
+        {600, 300},
+        {700, 300},
+        {700, 400},
+        {600, 400}
     });
 
     // Attach PatrolBehavior
@@ -172,13 +237,66 @@ int main(int argc, char* argv[]) {
     AISystem aiSystem;
     aiSystem.AddController(&blockerAI);
 
-    CameraComponent blockerCamera;
-    blockerCamera.isActive = false;
-    blockerCamera.viewportSize = {800, 600};
-    blockerCamera.offset = {0, 0};
-    blockerCamera.zoom = 1.0f;
-    blockerCamera.mode = CameraMode::Static;
-    blockerCamera.target = blocker;
+    // Animations: stickman body and arms
+    EntityID stickmanEntity = creationSystem.CreateEntityWith(
+        TransformComponent{ VectorFloat{400.0f, 200.0f}, 0.0f, VectorFloat{1.0f, 1.0f} }
+    );
+
+    EntityID leftArmEntity  = creationSystem.CreateEntityWith(
+        TransformComponent{ VectorFloat{-10.0f, 0.0f}, 0.0f, VectorFloat{1.0f, 1.0f} }
+    );
+    EntityID rightArmEntity = creationSystem.CreateEntityWith(
+        TransformComponent{ VectorFloat{ 10.0f, 0.0f}, 0.0f, VectorFloat{1.0f, 1.0f} }
+    );
+
+    // Keyframes
+    BoneAnimation leftAnim;
+    leftAnim.boneID = leftArmEntity;
+    leftAnim.frames = {
+        {0.0f, AnimationTransform{ {0,0}, -30.0f, {1,1} }},
+        {0.5f, AnimationTransform{ {0,0},  30.0f, {1,1} }},
+        {1.0f, AnimationTransform{ {0,0}, -30.0f, {1,1} }}
+    };
+
+    SkeletalAnimationClip leftClip;
+    leftClip.duration = 1.0f;
+    leftClip.loop = true;
+    leftClip.bones = { leftAnim };
+
+    BoneAnimation rightAnim;
+    rightAnim.boneID = rightArmEntity;
+    rightAnim.frames = {
+        {0.0f, AnimationTransform{ {0,0},  30.0f, {1,1} }},
+        {0.5f, AnimationTransform{ {0,0}, -30.0f, {1,1} }},
+        {1.0f, AnimationTransform{ {0,0},  30.0f, {1,1} }}
+    };
+    
+    SkeletalAnimationClip rightClip;
+    rightClip.duration = 1.0f;
+    rightClip.loop = true;
+    rightClip.bones = { rightAnim };
+
+    AnimationLayer leftLayer;
+    leftLayer.type = AnimationType::SKELETAL;
+    leftLayer.clip = &leftClip;
+    leftLayer.loop = true;
+    leftLayer.weight = 1.0f;
+
+    AnimationLayer rightLayer;
+    rightLayer.type = AnimationType::SKELETAL;
+    rightLayer.clip = &rightClip;
+    rightLayer.loop = true;
+    rightLayer.weight = 1.0f;
+
+    AnimationComponent leftComp;
+    leftComp.baseLayer = leftLayer;
+    leftComp.speed = 1.0f;
+    animations.Add(leftArmEntity, leftComp);
+
+    AnimationComponent rightComp;
+    rightComp.baseLayer = rightLayer;
+    rightComp.speed = 1.0f;
+    animations.Add(rightArmEntity, rightComp);
 
     // Systems
     MovementSystem movementSystem(transforms, velocities, accelerations);
@@ -186,6 +304,9 @@ int main(int argc, char* argv[]) {
     cameraSystem.SetActiveCamera(player);
 
     SystemManager systemManager;
+    AnimationSystem animationSystem(animations, sprites, transforms);
+    systemManager.RegisterSystem<AnimationSystem>(animationSystem);
+
     systemManager.RegisterSystem<MovementSystem>(movementSystem);
     systemManager.RegisterSystem<CameraSystem>(cameraSystem);
     systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, &window);
@@ -194,7 +315,6 @@ int main(int argc, char* argv[]) {
     SpatialGrid<EntityID> spatialGrid;
 
     SurfaceBehaviorSystem sbh(transforms, velocities, surfaces, spatialGrid);
-    // sbh.SetVelocityBySurfaceType(SurfaceType::GRASS, 0.7);
     sbh.SetDefaultVelocities();
     systemManager.RegisterSystem<SurfaceBehaviorSystem>(sbh);
 
@@ -204,11 +324,9 @@ int main(int argc, char* argv[]) {
         std::cerr << "Failed to load texture." << std::endl;
         return -1;
     }
-    
+
     RenderSystem renderSystem(transforms, sprites, &renderer);
     renderSystem.AddBackgroundLayer(&background, 0.0f);
-
-    auto* position = transforms.Get(player);
 
     // Input
     InputManager input;
@@ -222,32 +340,37 @@ int main(int argc, char* argv[]) {
     });
 
     // Main loop
+    const float dt = 1.0f / 60.0f;
+
     while (window.IsRunning()) {
         window.PollEvents();
         input.Update();
 
         if (auto* velocity = velocities.Get(player)) {
-            if (input.IsActionHeld("Left")) {
-                velocity->dx -= 1;
-            }
-            if (input.IsActionHeld("Right")) {
-                velocity->dx += 1;
-            }
-            if (input.IsActionHeld("Down")) {
-                velocity->dy += 1;
-            }
-            if (input.IsActionHeld("Up")) {
-                velocity->dy -= 1;
-            }
+            if (input.IsActionHeld("Left"))  velocity->dx -= 1;
+            if (input.IsActionHeld("Right")) velocity->dx += 1;
+            if (input.IsActionHeld("Down"))  velocity->dy += 1;
+            if (input.IsActionHeld("Up"))    velocity->dy -= 1;
         }
+
         renderer.SetDrawColor(30, 30, 60, 255);
-        systemManager.UpdateAll(1.0f);
+        systemManager.UpdateAll(dt);
         cameraSystem.ApplyToRenderSystem(renderSystem);
         aiSystem.Update(100.0f);
-        
+
         renderer.Clear();
-        renderSystem.Update(1.0f);
-        DrawGrid(renderer.GetSDLRenderer(), renderSystem.GetCameraPosition(), 800, 600, 64);
+        renderSystem.Update(dt);
+
+        SDL_Point camPos = renderSystem.GetCameraPosition();
+        auto* body    = transforms.Get(stickmanEntity);
+        auto* leftArm = transforms.Get(leftArmEntity);
+        auto* rightArm= transforms.Get(rightArmEntity);
+
+        if (body) {
+            DrawStickman(renderer.GetSDLRenderer(), *body, leftArm, rightArm, camPos);
+        }
+
+        DrawGrid(renderer.GetSDLRenderer(), camPos, 800, 600, 64);
         renderer.Present();
 
         SDL_Delay(1000 / 60);

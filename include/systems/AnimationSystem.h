@@ -1,7 +1,7 @@
 #pragma once
 
 #include "core/ISystem.h"
-#include "animations/AnimationUtils.h"
+#include "utils/AnimationUtils.h"
 #include "core/EntityManager.h"
 #include "core/ComponentStorage.h"     
 #include "components/TransformComponent.h"
