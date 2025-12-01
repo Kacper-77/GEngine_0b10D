@@ -1,8 +1,6 @@
 #include "window/Window.h"
 #include <iostream>
 
-// UPGRADE AND OPTIMALIZATION IS COMING POLL EVENTS !!!
-
 Window::Window()
     : m_window(nullptr), m_width(0), m_height(0), m_isRunning(false) {}
 
@@ -17,7 +15,11 @@ bool Window::Init(const std::string& title, int width, int height, bool fullscre
         return false;
     }
     // Get flag
-    Uint32 flags = fullscreen ? SDL_WINDOW_FULLSCREEN : SDL_WINDOW_SHOWN;
+    Uint32 flags = SDL_WINDOW_SHOWN | SDL_WINDOW_RESIZABLE;
+
+    if (fullscreen) {
+        flags = SDL_WINDOW_FULLSCREEN_DESKTOP;
+    }
 
     // Create window
     m_window = SDL_CreateWindow(title.c_str(), SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED,

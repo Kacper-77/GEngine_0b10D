@@ -17,6 +17,7 @@ bool Renderer::Init(SDL_Window* window) {
         std::cerr << "Renderer could not be created! SDL_Error: " << SDL_GetError() << std::endl;
         return false;
     }
+    SDL_RenderSetLogicalSize(m_renderer, 1280, 720);
 
     return true;
 }

@@ -153,7 +153,7 @@ int main(int argc, char* argv[]) {
     // Window and renderer
     Window window;
     Renderer renderer;
-    if (!window.Init("Minimal ECS Test", 800, 600, false)) return -1;
+    if (!window.Init("Minimal ECS Test", 800, 600, true)) return -1;
     if (!renderer.Init(window.GetSDLWindow())) return -1;
 
     // Load texture
@@ -354,9 +354,10 @@ int main(int argc, char* argv[]) {
         }
 
         renderer.SetDrawColor(30, 30, 60, 255);
-        systemManager.UpdateAll(dt);
+        systemManager.UpdateAll(1.0f);
         cameraSystem.ApplyToRenderSystem(renderSystem);
         aiSystem.Update(100.0f);
+        animationSystem.Update(dt);
 
         renderer.Clear();
         renderSystem.Update(dt);
