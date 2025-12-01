@@ -17,15 +17,29 @@ public:
     int GetWidth() const;
     int GetHeight() const;
     bool GetIsFullscreen() const;
+    bool IsRunning() const;
 
-    // Setting resolution and full screen
+    // Resolution and fullscreen
     void SetResolution(int width, int height);
     void ToggleFullscreen();
 
-    // Key info
-    bool IsRunning() const;
+    // Window properties
+    void SetTitle(const std::string& title);
+    void SetIcon(SDL_Surface* icon);
+    void SetPosition(int x, int y);
+    void CenterOnDisplay(int displayIndex);
+    void SetBorderless(bool borderless);
+    void SetResizable(bool resizable);
 
-    // Init poll events
+    // Cursor
+    void ShowCursor(bool show);
+    void SetRelativeMouseMode(bool enabled);
+
+    // DPI / info
+    float GetDPI(int displayIndex = 0) const;
+    void LogWindowInfo() const;
+
+    // Events
     void PollEvents();
 
 private:

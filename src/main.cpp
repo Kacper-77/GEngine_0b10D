@@ -41,12 +41,12 @@ static constexpr float PI = 3.14159265358979323846f;
 #include "utils/SpatialGrid.h"
 #include "utils/AnimationUtils.h"
 
-void DrawArm(SDL_Renderer* renderer,
+void DrawArm(Renderer* renderer,
              const TransformComponent& body,
              const TransformComponent& arm,
              const SDL_Point& camPos,
              bool isLeft) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    renderer->SetDrawColor(0, 0, 0, 255);
 
     int cx = static_cast<int>(body.position.x - camPos.x);
     int cy = static_cast<int>(body.position.y - camPos.y);
@@ -62,15 +62,15 @@ void DrawArm(SDL_Renderer* renderer,
     int endX = anchorX + static_cast<int>(std::cos(rad) * length);
     int endY = anchorY + static_cast<int>(std::sin(rad) * length);
 
-    SDL_RenderDrawLine(renderer, anchorX, anchorY, endX, endY);
+    renderer->DrawLine(anchorX, anchorY, endX, endY);
 }
 
-void DrawStickman(SDL_Renderer* renderer,
+void DrawStickman(Renderer* renderer,
                   const TransformComponent& body,
                   const TransformComponent* leftArm,
                   const TransformComponent* rightArm,
                   const SDL_Point& camPos) {
-    SDL_SetRenderDrawColor(renderer, 0, 0, 0, 255);
+    renderer->SetDrawColor(0, 0, 0, 255);
 
     int headRadius = 10;
     int cx = static_cast<int>(body.position.x - camPos.x);
@@ -80,7 +80,7 @@ void DrawStickman(SDL_Renderer* renderer,
     for (int w = -headRadius; w <= headRadius; ++w) {
         for (int h = -headRadius; h <= headRadius; ++h) {
             if (w*w + h*h <= headRadius*headRadius) {
-                SDL_RenderDrawPoint(renderer, cx + w, cy + h);
+                renderer->DrawPoint(cx + w, cy + h);
             }
         }
     }
@@ -90,11 +90,12 @@ void DrawStickman(SDL_Renderer* renderer,
     if (rightArm) DrawArm(renderer, body, *rightArm, camPos, false);
 
     // Body
-    SDL_RenderDrawLine(renderer, cx, cy + headRadius, cx, cy + 40);
+    renderer->DrawLine( cx, cy + headRadius, cx, cy + 40);
 
     // Legs
-    SDL_RenderDrawLine(renderer, cx, cy + 40, cx - 15, cy + 60);
-    SDL_RenderDrawLine(renderer, cx, cy + 40, cx + 15, cy + 60);
+    renderer->DrawLine(cx, cy + 40, cx - 15, cy + 60);
+    renderer->DrawLine(cx, cy + 40, cx + 15, cy + 60);
+
 }
 
 
@@ -153,7 +154,7 @@ int main(int argc, char* argv[]) {
     // Window and renderer
     Window window;
     Renderer renderer;
-    if (!window.Init("Minimal ECS Test", 800, 600, true)) return -1;
+    if (!window.Init("Minimal ECS Test", 1200, 720, true)) return -1;
     if (!renderer.Init(window.GetSDLWindow())) return -1;
 
     // Load texture
@@ -326,7 +327,7 @@ int main(int argc, char* argv[]) {
     }
 
     RenderSystem renderSystem(transforms, sprites, &renderer);
-    renderSystem.AddBackgroundLayer(&background, 0.0f);
+    // renderSystem.AddBackgroundLayer(&background, 0.0f);
 
     // Input
     InputManager input;
@@ -353,7 +354,7 @@ int main(int argc, char* argv[]) {
             if (input.IsActionHeld("Up"))    velocity->dy -= 1;
         }
 
-        renderer.SetDrawColor(30, 30, 60, 255);
+        renderer.SetDrawColor(255, 255, 255, 255);
         systemManager.UpdateAll(1.0f);
         cameraSystem.ApplyToRenderSystem(renderSystem);
         aiSystem.Update(100.0f);
@@ -368,10 +369,22 @@ int main(int argc, char* argv[]) {
         auto* rightArm= transforms.Get(rightArmEntity);
 
         if (body) {
-            DrawStickman(renderer.GetSDLRenderer(), *body, leftArm, rightArm, camPos);
+            DrawStickman(&renderer, *body, leftArm, rightArm, camPos);
         }
 
         DrawGrid(renderer.GetSDLRenderer(), camPos, 800, 600, 64);
+
+        SDL_Rect rect{ 500, 300, 200, 100 };
+        renderer.SetDrawColor(200, 50, 50, 255);
+        renderer.DrawRect(rect, true);          
+
+        renderer.SetDrawColor(30, 30, 60, 255);
+        renderer.DrawRect(rect, false);           
+
+        renderer.SetDrawColor(0, 255, 0, 255);
+        renderer.DrawLine(0, 0, 1200, 720);
+
+
         renderer.Present();
 
         SDL_Delay(1000 / 60);
