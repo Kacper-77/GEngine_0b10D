@@ -12,11 +12,12 @@ public:
 
         // Get velocity of current target
         if (auto* v = component.GetVelocityComponent()) {
-        // NPC doesn't move because it's dead
-        v->dx = 0.0f;
-        v->dy = 0.0f;
+            // NPC doesn't move because it's dead
+            v->dx = 0.0f;
+            v->dy = 0.0f;
         }
 
+        // Animation
         if (auto* anim = component.GetAnimationComponent()) {
             if (anim->stateMachine) {
                 anim->stateMachine->currentState = "Dead";
