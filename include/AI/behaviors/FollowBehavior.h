@@ -5,7 +5,7 @@
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
 
-class FollowBahavior : public AIBehavior {
+class FollowBehavior : public AIBehavior {
 public:
     void UpdateAI(AIController& component, float deltaTime) override {
         // Check state of NPC
@@ -25,12 +25,29 @@ public:
         VectorFloat toTarget = targetPos - selfPos;
         float distance = toTarget.Length();
 
-        // Keep distance between
+        // Desired follow distance
         float desiredDistance = component.GetDesiredDistance();
+
         if (distance > desiredDistance) {
             VectorFloat dir = toTarget.Normalized();
-            v->dx = dir.x * component.GetSpeed();
-            v->dy = dir.y * component.GetSpeed();
+
+            // If it's far -> RUN
+            if (distance > desiredDistance * 2.0f) {
+                component.SetMovementMode(MovementMode::Run);
+            } else {
+                component.SetMovementMode(MovementMode::Walk);
+            }
+
+            float speed = component.GetSpeed();
+            v->dx = dir.x * speed;
+            v->dy = dir.y * speed;
+
+            // Animation
+            if (auto* anim = component.GetAnimationComponent()) {
+                if (anim->stateMachine) {
+                    anim->stateMachine->currentState = component.IsRunning() ? "Run" : "Walk";
+                }
+            }
         } else {
             // Stop if it's too close
             v->dx = 0.0f;

@@ -2,6 +2,8 @@
 
 #include "AI/AIBehavior.h"
 #include "AI/AIController.h"
+#include "components/TransformComponent.h"
+#include "components/VelocityComponent.h"
 
 class PatrolBehavior : public AIBehavior {
 public:
@@ -23,9 +25,17 @@ public:
         VectorFloat dest = route[component.GetPatrolIndex()];
         VectorFloat dir = (dest - VectorFloat{posX, posY}).Normalized();
 
-        // Move str8 to the point
-        v->dx = dir.x * component.GetSpeed();
-        v->dy = dir.y * component.GetSpeed();
+        // Determine speed based on movement mode (walk/run)
+        float speed = component.GetSpeed();
+        v->dx = dir.x * speed;
+        v->dy = dir.y * speed;
+
+        // Trigger animation if available
+        if (auto* anim = component.GetAnimationComponent()) {
+            if (anim->stateMachine) {
+                anim->stateMachine->currentState = component.IsRunning() ? "Run" : "Walk";
+            }
+        }
 
         // If NPC reached destination
         if ((dest - VectorFloat{posX, posY}).Length() < 0.5f) {

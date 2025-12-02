@@ -6,7 +6,7 @@
 
 class IdleBehavior : public AIBehavior {
 public:
-    void UpdateAI(AIController& component, float dletaTime) override {
+    void UpdateAI(AIController& component, float deltaTime) override {
         // Check state of NPC
         if (component.GetState() != AIState::Idle) return;
 
@@ -18,6 +18,11 @@ public:
         v->dx = 0.0f;
         v->dy = 0.0f;
 
-        // ANIMATIONS LATER!
+        // Animation
+        if (auto* anim = component.GetAnimationComponent()) {
+            if (anim->stateMachine) {
+                anim->stateMachine->currentState = "Idle";
+            }
+        }
     }
 };

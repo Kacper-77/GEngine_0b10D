@@ -18,15 +18,25 @@ public:
         if (!self || !v || !target) return;
 
         // Position
-        VectorFloat selfPos = {self->position.x, self->position.y};
-        VectorFloat targetPos = {target->position.x, target->position.y};
+        VectorFloat selfPos{self->position.x, self->position.y};
+        VectorFloat targetPos{target->position.x, target->position.y};
 
-        // Calculate distance between
+        // Calculate direction to target
         VectorFloat toTarget = targetPos - selfPos;
         if (toTarget.Length() == 0) return;
 
         VectorFloat dir = toTarget.Normalized();
-        v->dx = dir.x * component.GetSpeed();
-        v->dy = dir.y * component.GetSpeed();
+
+        // Speed depends on movement mode (walk/run)
+        float speed = component.GetSpeed();
+        v->dx = dir.x * speed;
+        v->dy = dir.y * speed;
+
+        // Trigger chase animation if available
+        if (auto* anim = component.GetAnimationComponent()) {
+            if (anim->stateMachine) {
+                anim->stateMachine->currentState = component.IsRunning() ? "Run" : "Walk";
+            }
+        }
     }
 };

@@ -123,7 +123,9 @@ int AIController::GetMaxHealth() const { return m_maxHealth; }
 float AIController::GetVisionRange() const { return m_visionRange; }
 float AIController::GetHearingRange() const { return m_hearingRange; }
 float AIController::GetFieldOfView() const { return m_fieldOfView; }
-float AIController::GetSpeed() const { return m_speed; }
+float AIController::GetSpeed() const { 
+    return (m_movementMode == MovementMode::Run) ? m_runSpeed : m_walkSpeed;
+}
 int AIController::GetArmor() const { return m_armor; }
 int AIController::GetStamina() const { return m_stamina; }
 int AIController::GetMorale() const { return m_morale; }
@@ -135,6 +137,7 @@ float AIController::GetAttackEffectDuration() const { return m_attackEffectDurat
 bool AIController::GetEnabledCritical() const { return m_isEnabledCritical; }
 float AIController::GetCriticalChance() const { return m_criticalChance; }
 float AIController::GetCriticalBonus() const { return m_criticalBonus; }
+float AIController::GetAttackCooldown() const { return m_attackCooldown; }
 
 // Basic data (setters)
 void AIController::SetVisionRange(float range) { m_visionRange = range; }
@@ -152,6 +155,7 @@ void AIController::SetAttackEffectDuration(float duration) { m_attackEffectDurat
 void AIController::SetEnabledCritical(bool isCritical) { m_isEnabledCritical = isCritical; }
 void AIController::SetCriticalChance(float chance) { m_criticalChance = chance; }
 void AIController::SetCriticalBonus(float bonus) { m_criticalBonus = bonus; }
+void AIController::SetAttackCooldown(float cd) { m_attackCooldown = cd; }
 
 // Position & movement
 void AIController::SetPosition(const VectorFloat& pos) { m_position = pos; }
@@ -184,6 +188,12 @@ HealthComponent* AIController::GetTargetHealth() { return m_targetHealth; }
 void AIController::SetDesiredDistance(float distance) { m_desiredDistance = distance; }
 float AIController::GetDesiredDistance() { return m_desiredDistance; }
 
+void AIController::SetMovementMode(MovementMode mode) { m_movementMode = mode; }
+MovementMode AIController::GetMovementMode() const { return m_movementMode; }
+bool AIController::IsRunning() const { return m_movementMode == MovementMode::Run; }
+void AIController::SetWalkSpeed(float speed) { m_walkSpeed = speed; }
+void AIController::SetRunSpeed(float speed) { m_runSpeed = speed; }
+
 // Target handling
 void AIController::SetTarget(EntityID entityID) { targetID = entityID; }
 std::optional<EntityID> AIController::GetTarget() const { return targetID; }
@@ -192,3 +202,6 @@ void AIController::ClearTarget() { targetID.reset(); }
 // Faction
 void AIController::SetFaction(int factionID) { m_factionID = factionID; }
 int AIController::GetFaction() const { return m_factionID; }
+
+void AIController::SetAnimationComponent(AnimationComponent* anim) { m_animation = anim; }
+AnimationComponent* AIController::GetAnimationComponent() { return m_animation; }

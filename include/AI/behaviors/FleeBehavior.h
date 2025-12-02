@@ -21,14 +21,22 @@ public:
         VectorFloat selfPos{self->position.x, self->position.y};
         VectorFloat targetPos{target->position.x, target->position.y};
 
-        // Calculate distance between
+        // Calculate flee direction (opposite to target)
         VectorFloat toTarget = targetPos - selfPos;
         if (toTarget.Length() == 0) return;  // Avoid division by zero
 
         VectorFloat fleeDir = (-toTarget).Normalized();
 
-        // Set velocity
-        v->dx = fleeDir.x * component.GetSpeed();
-        v->dy = fleeDir.y * component.GetSpeed();
+        // Speed depends on movement mode (walk/run)
+        float speed = component.GetSpeed();
+        v->dx = fleeDir.x * speed;
+        v->dy = fleeDir.y * speed;
+
+        // Trigger flee animation if available
+        if (auto* anim = component.GetAnimationComponent()) {
+            if (anim->stateMachine) {
+                anim->stateMachine->currentState = component.IsRunning() ? "Run" : "Walk";
+            }
+        }
     }
 };

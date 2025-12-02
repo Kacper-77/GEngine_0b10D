@@ -11,13 +11,16 @@ public:
         if (component.GetState() != AIState::Dead) return;
 
         // Get velocity of current target
-        VelocityComponent* v = component.GetVelocityComponent();
-        if (!v) return;
-
+        if (auto* v = component.GetVelocityComponent()) {
         // NPC doesn't move because it's dead
         v->dx = 0.0f;
         v->dy = 0.0f;
+        }
 
-        // ANIMATIONS LATER! (respawn, disappear etc.)
+        if (auto* anim = component.GetAnimationComponent()) {
+            if (anim->stateMachine) {
+                anim->stateMachine->currentState = "Dead";
+            }
+        }
     }
 };

@@ -2,9 +2,12 @@
 
 #include <memory>
 #include <optional>
+
 #include "AIBehavior.h"
 #include "utils/EntityTypes.h"
 #include "utils/Vector.h"
+#include "utils/AnimationUtils.h"
+
 #include "core/ComponentStorage.h"
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
@@ -20,6 +23,8 @@ enum class AIState {
     Follow,
     Dead
 };
+
+enum class MovementMode { Walk, Run };
 
 class AIController {
 public:
@@ -63,6 +68,7 @@ public:
     bool GetEnabledCritical() const;
     float GetCriticalChance() const;
     float GetCriticalBonus() const;
+    float GetAttackCooldown() const;
 
     // Basic data (setters)
     void SetVisionRange(float range);
@@ -80,6 +86,7 @@ public:
     void SetEnabledCritical(bool isCritical);
     void SetCriticalChance(float chance);
     void SetCriticalBonus(float bonus);
+    void SetAttackCooldown(float cd);
 
     // Position & movement
     void SetPosition(const VectorFloat& pos);
@@ -101,6 +108,11 @@ public:
     HealthComponent* GetTargetHealth();
     void SetDesiredDistance(float distance);
     float GetDesiredDistance();
+    void SetMovementMode(MovementMode mode);
+    MovementMode GetMovementMode() const;
+    bool IsRunning() const;
+    void SetWalkSpeed(float speed);
+    void SetRunSpeed(float speed);
 
     // Target handling
     void SetTarget(EntityID entityID);
@@ -110,6 +122,10 @@ public:
     // Faction
     void SetFaction(int factionID);
     int GetFaction() const;
+
+    // Animations
+    void SetAnimationComponent(AnimationComponent* anim);
+    AnimationComponent* GetAnimationComponent();
 
 private:
     // Stats and attack
@@ -121,6 +137,7 @@ private:
     int m_damage;
     float m_speed;
     float m_attackRange;
+    float m_attackCooldown;
 
     std::string m_attackType;
     std::string m_attackEffect;
@@ -153,6 +170,9 @@ private:
     TransformComponent* m_targetTransform = nullptr;
     HealthComponent* m_targetHealth = nullptr;
     float m_desiredDistance;
+    MovementMode m_movementMode = MovementMode::Walk;
+    float m_walkSpeed = 1.0f;
+    float m_runSpeed  = 3.0f;
 
     // Behavior
     std::unique_ptr<AIBehavior> behavior;
@@ -162,4 +182,7 @@ private:
 
     // Faction
     int m_factionID;
+
+    // Animations
+    AnimationComponent* m_animation;
 };
