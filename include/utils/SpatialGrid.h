@@ -24,15 +24,19 @@ public:
         return it != m_cells.end() ? it->second : empty;
     }
 
+    // Return all entities from the 8 neighboring cells around (x, y)
     std::vector<T> QueryNeighbors(int x, int y) const {
-        std::vector<T> result;
-        Int2 center = {x, y};
+        std::vector<T> result; // store found entities
+        Int2 center = {x, y};  // current cell coordinates
 
+        // Loop through offsets in a 3x3 area around the center
         for (int dx = -1; dx <= 1; ++dx) {
             for (int dy = -1; dy <= 1; ++dy) {
-                if (dx == 0 && dy == 0) continue;
-                Int2 neighbor = {center.x + dx, center.y + dy};
-                auto it = m_cells.find(neighbor);
+                if (dx == 0 && dy == 0) continue; // skip the center cell itself
+
+                Int2 neighbor = {center.x + dx, center.y + dy}; // neighbor cell coordinates
+                auto it = m_cells.find(neighbor);               // check if neighbor cell exists
+
                 if (it != m_cells.end()) {
                     result.insert(result.end(), it->second.begin(), it->second.end());
                 }
@@ -46,10 +50,14 @@ public:
     }
 
     int GetCellSize() {
-        return cellSize;
+        return cellSize_;
+    }
+
+    void SetCellSize(int size) {
+        cellSize_ = size;
     }
 
 private:
     std::unordered_map<Int2, std::vector<T>> m_cells;
-    static inline const int cellSize = 64;
+    static inline int cellSize_ = 64;
 };

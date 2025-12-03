@@ -21,10 +21,11 @@ class CollisionSystem : public ISystem {
 public:
     CollisionSystem(EntityManager& entityManager,
                     ComponentStorage<TransformComponent> & transforms,
-                    ComponentStorage<ColliderComponent>& colliders,
-                    EventBus& eventBus);
+                    ComponentStorage<ColliderComponent>& colliders);
     
     void Update(float deltaTime) override; // ISystem method
+
+    const std::vector<std::pair<EntityID, EntityID>>& GetCollisions() const;
 
 private:
     // Check that entities are colliding
@@ -37,6 +38,6 @@ private:
     EntityManager& m_entityManager;
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<ColliderComponent>& m_colliders;
-    EventBus& m_eventBus;
     SpatialGrid<EntityID> m_spatialGrid;
+    std::vector<std::pair<EntityID, EntityID>> m_collisions;
 };

@@ -312,7 +312,7 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<CameraSystem>(cameraSystem);
     systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, &window);
     EventBus eventBus;
-    systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders, eventBus);
+    systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders);
     SpatialGrid<EntityID> spatialGrid;
 
     SurfaceBehaviorSystem sbh(transforms, velocities, surfaces, spatialGrid);
@@ -356,6 +356,14 @@ int main(int argc, char* argv[]) {
 
         renderer.SetDrawColor(255, 255, 255, 255);
         systemManager.UpdateAll(1.0f);
+
+        auto* collisionSystem = systemManager.GetSystem<CollisionSystem>();
+        for (auto& [a, b] : collisionSystem->GetCollisions()) {
+            std::string typeA = entityManager.GetInfo(a, "type");
+            std::string typeB = entityManager.GetInfo(b, "type");
+            eventBus.PublishImmediate(CollisionEvent{a, b, typeA, typeB});
+        }
+        
         cameraSystem.ApplyToRenderSystem(renderSystem);
         aiSystem.Update(100.0f);
         animationSystem.Update(dt);
@@ -364,9 +372,9 @@ int main(int argc, char* argv[]) {
         renderSystem.Update(dt);
 
         SDL_Point camPos = renderSystem.GetCameraPosition();
-        auto* body    = transforms.Get(stickmanEntity);
+        auto* body = transforms.Get(stickmanEntity);
         auto* leftArm = transforms.Get(leftArmEntity);
-        auto* rightArm= transforms.Get(rightArmEntity);
+        auto* rightArm = transforms.Get(rightArmEntity);
 
         if (body) {
             DrawStickman(&renderer, *body, leftArm, rightArm, camPos);

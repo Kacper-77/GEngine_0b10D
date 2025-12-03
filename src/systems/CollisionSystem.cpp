@@ -3,16 +3,15 @@
 
 CollisionSystem::CollisionSystem(EntityManager& entityManager,
                                  ComponentStorage<TransformComponent>& transforms,
-                                 ComponentStorage<ColliderComponent>& colliders,
-                                 EventBus& eventBus)
+                                 ComponentStorage<ColliderComponent>& colliders)
         : m_entityManager{entityManager}, 
           m_transforms{transforms}, 
-          m_colliders{colliders}, 
-          m_eventBus{eventBus} {}
+          m_colliders{colliders} {}
 
 void CollisionSystem::Update(float deltaTime) {
     const int cellSize = m_spatialGrid.GetCellSize();
     m_spatialGrid.Clear();
+    m_collisions.clear();
 
     // Insert to grid
     for (EntityID id : m_entityManager.GetAllEntities()) {
@@ -38,24 +37,21 @@ void CollisionSystem::Update(float deltaTime) {
         }
     }
 
-    // Checked collisions
-    std::unordered_set<std::pair<EntityID, EntityID>, PairHash> checked;
-
     // Check collisions in all occupied cells
+    std::unordered_set<std::pair<EntityID, EntityID>, PairHash> checked;
     for (const auto& [cell, entities] : m_spatialGrid.GetAllCells()) {
         for (EntityID a : entities) {
             for (EntityID b : entities) {
-                if (a == b) continue; 
+                if (a == b) continue;
                 auto pair = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
                 if (checked.count(pair)) continue;
                 checked.insert(pair);
+
                 CheckAndHandleCollision(a, b);
             }
-
-            // Neighbors
             auto neighbors = m_spatialGrid.QueryNeighbors(cell.x, cell.y);
             for (EntityID b : neighbors) {
-                if (a == b) continue; 
+                if (a == b) continue;
                 auto pair = (a < b) ? std::make_pair(a, b) : std::make_pair(b, a);
                 if (checked.count(pair)) continue;
                 checked.insert(pair);
@@ -98,10 +94,11 @@ void CollisionSystem::CheckAndHandleCollision(EntityID a, EntityID b) {
     const int   bh = cb->height;
 
     if (IsColliding(ax, ay, aw, ah, bx, by, bw, bh)) {
-        // Get info about entities
-        std::string typeA = m_entityManager.GetInfo(a, "type");
-        std::string typeB = m_entityManager.GetInfo(b, "type");
-
-        m_eventBus.PublishImmediate(CollisionEvent{a, b, typeA, typeB});
+        m_collisions.push_back( {a, b} );
     }
+}
+
+// Get all collisions
+const std::vector<std::pair<EntityID, EntityID>>& CollisionSystem::GetCollisions() const {
+    return m_collisions;
 }
