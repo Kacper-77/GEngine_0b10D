@@ -135,3 +135,38 @@ message(STATUS "SDL2 include dirs: ${SDL2_INCLUDE_DIRS}")
 message(STATUS "SDL2 libraries: ${SDL2_LIBRARIES}")
 message(STATUS "SDL2 cflags: ${SDL2_CFLAGS}")
 message(STATUS "SDL2 libs: ${SDL2_LIBS}")
+
+# Unified Test Runner
+file(GLOB TEST_SOURCES
+    tests/test_MovementSystem.cpp
+    tests/test_ComponentStorage.cpp
+    tests/test_SystemManager.cpp
+    tests/test_RenderSystem.cpp
+    tests/test_PhysicsSystem.cpp
+    tests/test_EntityManager.cpp
+    tests/test_CollisionSystem.cpp
+    tests/test_EventTest.cpp
+    tests/test_AudioSystem.cpp
+    tests/test_CameraSystem.cpp
+    tests/test_LevelManager.cpp
+    tests/test_World.cpp
+    tests/test_ItemsDropsSystem.cpp
+)
+
+add_executable(AllTests ${TEST_SOURCES})
+
+target_include_directories(AllTests PRIVATE
+    ${CMAKE_SOURCE_DIR}/include
+    ${CMAKE_SOURCE_DIR}/include/core
+    ${CMAKE_SOURCE_DIR}/include/event
+    ${CMAKE_SOURCE_DIR}/include/systems
+)
+
+target_link_libraries(AllTests
+    GameEngineLib
+    gtest_main
+    SDL2_mixer
+)
+
+add_test(NAME AllTests COMMAND AllTests)
+

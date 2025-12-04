@@ -21,6 +21,7 @@ static constexpr float PI = 3.14159265358979323846f;
 #include "components/SpriteComponent.h"
 #include "components/CameraComponent.h"
 #include "components/SurfaceComponent.h"
+#include "components/PhysicsComponent.h"
 
 #include "systems/MovementSystem.h"
 #include "systems/RenderSystem.h"
@@ -31,6 +32,7 @@ static constexpr float PI = 3.14159265358979323846f;
 #include "systems/CameraSystem.h"
 #include "systems/SurfaceBehaviorSystem.h"
 #include "systems/AnimationSystem.h"
+#include "systems/PhysicsSystem.h"
 
 #include "window/Window.h"
 #include "graphics/Renderer.h"
@@ -130,6 +132,7 @@ int main(int argc, char* argv[]) {
     ComponentStorage<ColliderComponent> colliders;
     ComponentStorage<SurfaceComponent> surfaces;
     ComponentStorage<AnimationComponent> animations;
+    ComponentStorage<PhysicsComponent> physics;
 
     creationSystem.RegisterStorage(&transforms);
     creationSystem.RegisterStorage(&velocities);
@@ -140,6 +143,7 @@ int main(int argc, char* argv[]) {
     creationSystem.RegisterStorage(&colliders);
     creationSystem.RegisterStorage(&surfaces);
     creationSystem.RegisterStorage(&animations);
+    creationSystem.RegisterStorage(&physics);
 
     entityManager.RegisterComponentStorage(&transforms);
     entityManager.RegisterComponentStorage(&velocities);
@@ -150,6 +154,7 @@ int main(int argc, char* argv[]) {
     entityManager.RegisterComponentStorage(&colliders);
     entityManager.RegisterComponentStorage(&surfaces);
     entityManager.RegisterComponentStorage(&animations);
+    entityManager.RegisterComponentStorage(&physics);
 
     // Window and renderer
     Window window;
@@ -176,9 +181,11 @@ int main(int argc, char* argv[]) {
         ColliderComponent{64, 64, CollisionLayer::Player, CollisionLayer::Enemy},
         VelocityComponent{0.0f, 0.0f},
         AccelerationComponent{0.0f, 0.0f},
+        PhysicsComponent{},
         SpriteComponent{&texture, 64, 64},
         BoundryComponent{true, true, true, true}
     );
+
 
     EntityID grass = creationSystem.CreateEntityWith(
         TransformComponent{ VectorFloat{364.0f, 280.0f}, 0.0f, VectorFloat{200.0f, 40.0f} },
@@ -314,6 +321,8 @@ int main(int argc, char* argv[]) {
     EventBus eventBus;
     systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders);
     SpatialGrid<EntityID> spatialGrid;
+    systemManager.RegisterSystem<AISystem>(aiSystem);
+    systemManager.RegisterSystem<PhysicsSystem>(transforms, accelerations, physics);
 
     SurfaceBehaviorSystem sbh(transforms, velocities, surfaces, spatialGrid);
     sbh.SetDefaultVelocities();
@@ -351,7 +360,11 @@ int main(int argc, char* argv[]) {
             if (input.IsActionHeld("Left"))  velocity->dx -= 1;
             if (input.IsActionHeld("Right")) velocity->dx += 1;
             if (input.IsActionHeld("Down"))  velocity->dy += 1;
-            if (input.IsActionHeld("Up"))    velocity->dy -= 1;
+            if (input.IsActionHeld("Up")) {
+                if (auto* phys = physics.Get(player)) {
+                    phys->impulse.y = -30.0f; // jump
+                }
+            }
         }
 
         renderer.SetDrawColor(255, 255, 255, 255);

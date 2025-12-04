@@ -35,8 +35,8 @@ private:
     ComponentStorage<SpriteComponent>& m_sprites;
     SDL_Point m_cameraPosition = {0, 0};
 
-    float m_cameraZoom;
-    float m_rotationDegrees;
+    float m_cameraZoom = 1.0f;
+    float m_rotationDegrees = 0.0f;
     Uint8 m_fadeAlpha;
     SDL_Point m_viewport;
     IRenderer* m_renderer;

@@ -2,56 +2,80 @@
 
 PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
                              ComponentStorage<AccelerationComponent>& accelerations,
-                             ComponentStorage<ForceComponent>& forces,
                              ComponentStorage<PhysicsComponent>& physics)
-    : m_transforms{transforms}, m_accelerations{accelerations}, 
-      m_forces{forces}, m_physics{physics} {}
+    : m_transforms{transforms}, m_accelerations{accelerations}, m_physics{physics} {}
 
 // Update state
 void PhysicsSystem::Update(float deltaTime) {
-    const float globalGravity = 9.8f;  // WORLD WILL REPLACE IT
+    const float GRAVITY = 9.81f;
 
-    for (auto& [id, physics] : m_physics.GetAll()) {
-        auto* acceleration = m_accelerations.Get(id);
+    for (auto& [id, phys] : m_physics.GetAll()) {
         auto* transform = m_transforms.Get(id);
         if (!transform) continue;
 
-        // Apply physical forces
-        if (acceleration) {
-            physics.velocityX += (acceleration->ax / physics.mass) * deltaTime;
-            physics.velocityY += (acceleration->ay / physics.mass) * deltaTime;
-            acceleration->ax = 0.0f;
-            acceleration->ay = 0.0f;
+        auto* accel = m_accelerations.Get(id);
+        if (accel && phys.invMass > 0.0f) {
+            phys.velocity.x += accel->ax * deltaTime;
+            phys.velocity.y += accel->ay * deltaTime;
         }
 
-        auto* force = m_forces.Get(id);
-        if (force) {
-            physics.velocityX += (force->fx / physics.mass) * deltaTime;
-            physics.velocityY += (force->fy / physics.mass) * deltaTime;
+        // Apply gravity
+        if (!phys.isGrounded && phys.invMass > 0.0f) {
+            phys.force.y += GRAVITY * phys.gravityScale * phys.mass;
+        }
 
-            if (!force->persistent) {
-                force->fx = 0.0f;
-                force->fy = 0.0f;
+        // Apply impulses (instant velocity change)
+        if (phys.invMass > 0.0f) {
+            phys.velocity.x += phys.impulse.x * phys.invMass;
+            phys.velocity.y += phys.impulse.y * phys.invMass;
+        }
+        phys.impulse = {0, 0};
+
+        // Apply forces (F = m * a → a = F * invMass)
+        if (phys.invMass > 0.0f) {
+            phys.velocity.x += phys.force.x * phys.invMass * deltaTime;
+            phys.velocity.y += phys.force.y * phys.invMass * deltaTime;
+        }
+        phys.force = {0, 0};
+
+        // Apply friction (static + kinetic)
+        if (phys.isGrounded) {
+            float speed = std::sqrt(phys.velocity.x * phys.velocity.x +
+                                    phys.velocity.y * phys.velocity.y);
+
+            if (speed < 0.01f) {
+                phys.velocity = {0, 0}; // static friction stops object
+            } else {
+                float frictionForce = phys.frictionKinetic * phys.mass * GRAVITY;
+                VectorFloat frictionDir = {
+                    -phys.velocity.x / speed,
+                    -phys.velocity.y / speed
+                };
+
+                phys.velocity.x += frictionDir.x * frictionForce * phys.invMass * deltaTime;
+                phys.velocity.y += frictionDir.y * frictionForce * phys.invMass * deltaTime;
             }
         }
 
-        // Gravity
-        physics.velocityY += globalGravity * physics.gravityScale * deltaTime;
+        // Apply linear damping (drag)
+        phys.velocity.x *= (1.0f - phys.linearDamping);
+        phys.velocity.y *= (1.0f - phys.linearDamping);
 
-        // Friction
-        physics.velocityX *= (1.0f - physics.friction);
-        physics.velocityY *= (1.0f - physics.friction);
+        // Clamp max speed
+        float speed = std::sqrt(phys.velocity.x * phys.velocity.x +
+                                phys.velocity.y * phys.velocity.y);
 
-        // Velocity
-        physics.velocityX = std::clamp(physics.velocityX, -physics.maxVelocityX, physics.maxVelocityX);
-        physics.velocityY = std::clamp(physics.velocityY, -physics.maxVelocityY, physics.maxVelocityY);
+        if (speed > phys.maxSpeed) {
+            float scale = phys.maxSpeed / speed;
+            phys.velocity.x *= scale;
+            phys.velocity.y *= scale;
+        }
 
-        // 5. Update position
-        transform->position.x += physics.velocityX * deltaTime;
-        transform->position.y += physics.velocityY * deltaTime;
-        physics.posX = transform->position.x;
-        physics.posY = transform->position.y;
+        // Integrate position
+        transform->position.x += phys.velocity.x * deltaTime;
+        transform->position.y += phys.velocity.y * deltaTime;
 
-        physics.isGrounded = false;
+        // Reset grounded (CollisionSystem will set it again)
+        phys.isGrounded = false;
     }
 }

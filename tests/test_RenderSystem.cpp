@@ -63,13 +63,13 @@ TEST_F(RenderSystemTest, RendersEntityWithValidComponents) {
     );
 
     RenderSystem system(transforms, sprites, &renderer);
-    system.Update(0.016f);
+    system.Update(1.0f);
 
     EXPECT_EQ(renderer.drawCalls, 1);
-    EXPECT_EQ(renderer.lastDstRect.x, 100);
-    EXPECT_EQ(renderer.lastDstRect.y, 200);
-    EXPECT_EQ(renderer.lastDstRect.w, 64);
-    EXPECT_EQ(renderer.lastDstRect.h, 64);
+    EXPECT_EQ(renderer.lastDstRect.x, 100.0f);
+    EXPECT_EQ(renderer.lastDstRect.y, 200.0f);
+    EXPECT_EQ(renderer.lastDstRect.w, 64.0f);
+    EXPECT_EQ(renderer.lastDstRect.h, 64.0f);
 }
 
 TEST_F(RenderSystemTest, SkipsEntityWithoutTransform) {

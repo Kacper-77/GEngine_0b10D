@@ -8,8 +8,15 @@ RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
 
 // Update state
 void RenderSystem::Update(float deltaTime) {
-    // Set backround
-    DrawBackgroundLayers();
+    /* 
+
+        Set backround
+        Draw background only if viewport is valid
+
+    */
+    if (m_viewport.x > 0 && m_viewport.y > 0) {
+        DrawBackgroundLayers();
+    }
 
     // Main rendering loop
     for (auto& [id, sprite] : m_sprites.GetAll()) {

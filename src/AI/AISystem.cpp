@@ -14,7 +14,7 @@ AIController* AISystem::GetController(ControllerID id) const {
     return it != m_controllers.end() ? it->second : nullptr;
 }
 
-// Update state (external not in SystemManager)
+// Update state
 void AISystem::Update(float deltaTime) {
     for (auto& [id, controller] : m_controllers) {
         if (controller && controller->GetCurrentBehavior()) {
