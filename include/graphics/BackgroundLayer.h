@@ -4,6 +4,8 @@
 #include "graphics/Texture.h"
 
 struct BackgroundLayer {
+    int texW;
+    int texH;
     Texture* texture;
     float parallaxFactor = 0.0f;  /*
                                     0.0f - static,
@@ -12,4 +14,5 @@ struct BackgroundLayer {
                                     1.0f - moves with camera,
                                     > 1.0f - faster than camera
                                   */
+                                 
 };

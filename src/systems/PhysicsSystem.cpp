@@ -7,7 +7,7 @@ PhysicsSystem::PhysicsSystem(ComponentStorage<TransformComponent>& transforms,
 
 // Update state
 void PhysicsSystem::Update(float deltaTime) {
-    const float GRAVITY = 9.81f;
+    const float GRAVITY = GetGravity();
 
     for (auto& [id, phys] : m_physics.GetAll()) {
         auto* transform = m_transforms.Get(id);
@@ -79,3 +79,6 @@ void PhysicsSystem::Update(float deltaTime) {
         phys.isGrounded = false;
     }
 }
+
+void PhysicsSystem::SetGravity(float gravity) { m_gravity = gravity; }
+const float PhysicsSystem::GetGravity() const { return m_gravity; }

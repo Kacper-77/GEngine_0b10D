@@ -1,0 +1,150 @@
+{
+  "assets": {
+    "textures": {
+      "player": "../assets/fish_brown.png",
+      "platform": "../assets/platforms.png",
+      "background": "../assets/background.jpeg"
+    }
+  },
+
+  "prefabs": {
+    "player_prefab": {
+      "components": {
+        "Transform": { "x": 364, "y": 200, "w": 128, "h": 128 },
+        "Collider": { "w": 64, "h": 64, "layer": "Player", "mask": "Enemy" },
+        "Velocity": { "dx": 0, "dy": 0 },
+        "Acceleration": { "ax": 0, "ay": 0 },
+        "Physics": { "mass": 1.0, "gravityScale": 1.0, "linearDamping": 0.0 },
+        "Sprite": { "texture": "player", "w": 64, "h": 64 },
+        "Camera": {
+          "active": true,
+          "viewportW": 800,
+          "viewportH": 600,
+          "offsetX": 100,
+          "offsetY": 0,
+          "zoom": 1.0,
+          "rotation": 0.0,
+          "mode": "Follow",
+          "target": "player",
+          "smoothing": 8,
+          "useBounds": false,
+          "fadeAlpha": 255
+        },
+       "Boundry": {
+          "left": true,
+          "right": true,
+          "top": true,
+          "bottom": true
+        }
+      }
+    },
+
+    "platform_prefab": {
+      "components": {
+        "Transform": { "x": 0, "y": 0, "w": 200, "h": 40 },
+        "Sprite": { "texture": "platform", "w": 200, "h": 40 },
+        "Surface": { "x": 0, "y": 0, "w": 200, "h": 40, "type": "SAND" }
+      }
+    },
+
+    "stickman_body_prefab": {
+      "components": {
+        "Transform": { "x": 400, "y": 200, "w": 1, "h": 1 }
+      }
+    },
+
+    "stickman_arm_prefab": {
+      "components": {
+        "Transform": { "x": 0, "y": 0, "w": 1, "h": 1 }
+      }
+    }
+  },
+
+  "entities": [
+    {
+      "prefab": "player_prefab",
+      "tag": "player",
+      "info": { "type": "Player" }
+    },
+
+    {
+      "prefab": "platform_prefab",
+      "tag": "grass",
+      "components": {
+        "Transform": { "x": 364, "y": 280, "w": 200, "h": 40 },
+        "Surface": { "x": 364, "y": 280, "w": 200, "h": 40, "type": "SAND" }
+      }
+    },
+
+    {
+      "id": "blocker",
+      "tag": "blocker",
+      "info": { "type": "Enemy" },
+      "components": {
+        "Transform": { "x": 600, "y": 300, "w": 64, "h": 64 },
+        "Sprite": { "texture": "player", "w": 64, "h": 64 },
+        "Velocity": { "dx": 0, "dy": 0 },
+        "Collider": { "w": 64, "h": 64, "layer": "Enemy", "mask": "Projectile" }
+      }
+    },
+
+    {
+      "prefab": "stickman_body_prefab",
+      "tag": "stickman_body"
+    },
+
+    {
+      "prefab": "stickman_arm_prefab",
+      "tag": "leftArm",
+      "components": {
+        "Transform": { "x": -10, "y": 0, "w": 1, "h": 1 },
+        "Animation": {
+          "type": "SKELETAL",
+          "speed": 1.0,
+          "clip": {
+            "name": "left_swing",
+            "duration": 1.0,
+            "loop": true,
+            "bones": [
+              {
+                "boneID": "leftArm",
+                "keyframes": [
+                  { "time": 0.0, "pos": { "x": 0, "y": 0 }, "rot": -30, "scale": { "x": 1, "y": 1 } },
+                  { "time": 0.5, "pos": { "x": 0, "y": 0 }, "rot":  30, "scale": { "x": 1, "y": 1 } },
+                  { "time": 1.0, "pos": { "x": 0, "y": 0 }, "rot": -30, "scale": { "x": 1, "y": 1 } }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    },
+
+    {
+      "prefab": "stickman_arm_prefab",
+      "tag": "rightArm",
+      "components": {
+        "Transform": { "x": 10, "y": 0, "w": 1, "h": 1 },
+        "Animation": {
+          "type": "SKELETAL",
+          "speed": 1.0,
+          "clip": {
+            "name": "right_swing",
+            "duration": 1.0,
+            "loop": true,
+            "bones": [
+              {
+                "boneID": "rightArm",
+                "keyframes": [
+                  { "time": 0.0, "pos": { "x": 0, "y": 0 }, "rot":  30, "scale": { "x": 1, "y": 1 } },
+                  { "time": 0.5, "pos": { "x": 0, "y": 0 }, "rot": -30, "scale": { "x": 1, "y": 1 } },
+                  { "time": 1.0, "pos": { "x": 0, "y": 0 }, "rot":  30, "scale": { "x": 1, "y": 1 } }
+                ]
+              }
+            ]
+          }
+        }
+      }
+    }
+  ]
+}

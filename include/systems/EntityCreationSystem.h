@@ -23,6 +23,13 @@ public:
         return id;
     }
 
+    // No arguments entity
+    EntityID CreateEntity() {
+        EntityID id = GetIdentificator();
+        m_manager->InsertToEntityList(id);
+        return id;
+    }
+
     // Component registration
     template<typename T>
     void RegisterStorage(ComponentStorage<T>* storage) {

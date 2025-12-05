@@ -14,8 +14,13 @@ public:
 
     void Update(float deltaTime) override;  // ISystem method
 
+    void SetGravity(float gravity);
+
 private:
     ComponentStorage<TransformComponent>& m_transforms;
     ComponentStorage<PhysicsComponent>& m_physics;
     ComponentStorage<AccelerationComponent>& m_accelerations;
+
+    const float GetGravity() const;
+    float m_gravity = 9.81;
 };
