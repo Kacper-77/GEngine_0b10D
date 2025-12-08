@@ -1,79 +1,103 @@
 #include "systems/SurfaceBehaviorSystem.h"
 
-SurfaceBehaviorSystem::SurfaceBehaviorSystem(ComponentStorage<TransformComponent>& transforms,
-                                             ComponentStorage<VelocityComponent>& velocities,
-                                             ComponentStorage<SurfaceComponent>& surfaces,
-                                             SpatialGrid<EntityID>& spatialGrid)
+SurfaceBehaviorSystem::SurfaceBehaviorSystem(
+    ComponentStorage<TransformComponent>& transforms,
+    ComponentStorage<VelocityComponent>& velocities,
+    ComponentStorage<SurfaceComponent>& surfaces,
+    ComponentStorage<PhysicsComponent>& physics,
+    SpatialGrid<EntityID>& spatialGrid)
     : m_transforms{transforms},
       m_velocities{velocities},
       m_surfaces{surfaces},
+      m_physics{physics},
       m_spatialGrid{spatialGrid} {}
 
-// Update state
 void SurfaceBehaviorSystem::Update(float deltaTime) {
     const int cellSize = m_spatialGrid.GetCellSize();
     m_spatialGrid.Clear();
 
     // Insert surfaces into spatial grid
     for (const auto& [surfaceID, _] : m_surfaces.GetAll()) {
-        const auto* surface = m_surfaces.Get(surfaceID);
-        if (!surface) continue;
+        const auto* t = m_transforms.Get(surfaceID);
+        if (!t) continue;
 
-        const int startX = surface->x / cellSize;
-        const int endX = (surface->x + surface->width) / cellSize;
-        const int startY = surface->y / cellSize;
-        const int endY = (surface->y + surface->height) / cellSize;
+        float x = t->position.x;
+        float y = t->position.y;
+        float w = t->scale.x;
+        float h = t->scale.y;
 
-        for (int x = startX; x <= endX; ++x) {
-            for (int y = startY; y <= endY; ++y) {
-                m_spatialGrid.Insert({x, y}, surfaceID);
-            }
-        }
+        int startX = x / cellSize;
+        int endX   = (x + w) / cellSize;
+        int startY = y / cellSize;
+        int endY   = (y + h) / cellSize;
+
+        for (int cx = startX; cx <= endX; ++cx)
+            for (int cy = startY; cy <= endY; ++cy)
+                m_spatialGrid.Insert({cx, cy}, surfaceID);
     }
 
-    // Apply surface behavior to entities
+    // Apply surface behavior
     for (const auto& [entityID, _] : m_transforms.GetAll()) {
-        const auto* transform = m_transforms.Get(entityID);
-        if (!transform || !m_velocities.Has(entityID)) continue;
+        const auto* t = m_transforms.Get(entityID);
+        if (!t) continue;
 
-        auto* velocity = m_velocities.Get(entityID);
-        int cellX = transform->position.x / cellSize;
-        int cellY = transform->position.y / cellSize;
+        float ex = t->position.x;
+        float ey = t->position.y;
 
-        std::vector<EntityID> nearbySurfaces = m_spatialGrid.Query(cellX, cellY);
-        std::vector<EntityID> neighbors = m_spatialGrid.QueryNeighbors(cellX, cellY);
-        nearbySurfaces.insert(nearbySurfaces.end(), neighbors.begin(), neighbors.end());
+        int cellX = ex / cellSize;
+        int cellY = ey / cellSize;
 
-        for (EntityID surfaceID : nearbySurfaces) {
+        auto nearby = m_spatialGrid.Query(cellX, cellY);
+        auto neighbors = m_spatialGrid.QueryNeighbors(cellX, cellY);
+        nearby.insert(nearby.end(), neighbors.begin(), neighbors.end());
+
+        for (EntityID surfaceID : nearby) {
             const auto* surface = m_surfaces.Get(surfaceID);
-            if (!surface) continue;
+            const auto* st = m_transforms.Get(surfaceID);
+            if (!surface || !st) continue;
 
-            if (surface->Contains(transform->position.x, transform->position.y)) {
-                float multiplier = GetVelocityBySurfaceType(surface->surfaceType);
+            float sx = st->position.x - st->scale.x * 0.5f;
+            float sy = st->position.y - st->scale.y * 0.5f;
+            float sw = st->scale.x;
+            float sh = st->scale.y;
 
-                // Set velocity by type
-                velocity->dx *= multiplier;
-                velocity->dy *= multiplier;
+            bool inside =
+                ex >= sx && ex <= sx + sw &&
+                ey >= sy && ey <= sy + sh;
+
+            if (!inside) continue;
+
+            if (auto* vel = m_velocities.Get(entityID)) {
+                vel->dx *= surface->multiplier;
+                vel->dy *= surface->multiplier;
             }
-                break; // Only one surface applies
+
+            if (auto* phys = m_physics.Get(entityID)) {
+                phys->velocity.x *= surface->multiplier;
+                phys->velocity.y *= surface->multiplier;
+
+                // Change friction
+                phys->frictionKinetic *= surface->frictionMultiplier;
+            }
+
+            break;
         }
     }
 }
+
 
 void SurfaceBehaviorSystem::SetVelocityBySurfaceType(SurfaceType type, float velocity) {
     m_surfaceVelocity[type] = velocity;
 }
 
 void SurfaceBehaviorSystem::SetDefaultVelocities() {
-    m_surfaceVelocity[SurfaceType::GRASS] = 0.8f;
-    m_surfaceVelocity[SurfaceType::ICE] = 1.05f;
-    m_surfaceVelocity[SurfaceType::SAND] = 0.4f;
+    m_surfaceVelocity[SurfaceType::GRASS]  = 0.8f;
+    m_surfaceVelocity[SurfaceType::ICE]    = 1.05f;
+    m_surfaceVelocity[SurfaceType::SAND]   = 0.4f;
     m_surfaceVelocity[SurfaceType::LIQUID] = 0.2f;
 }
 
 float SurfaceBehaviorSystem::GetVelocityBySurfaceType(SurfaceType type) const {
     const auto it = m_surfaceVelocity.find(type);
-
-    // If velocity is not set then return const 1.0f by
     return it != m_surfaceVelocity.end() ? it->second : 1.0f;
 }

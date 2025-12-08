@@ -121,33 +121,20 @@ int main(int argc, char* argv[]) {
 
     // Systems
     SystemManager systemManager;
-
-    MovementSystem movementSystem(transforms, velocities, accelerations);
-    CameraSystem cameraSystem(transforms, cameras);
-    AnimationSystem animationSystem(animations, sprites, transforms);
-    BoundrySystem boundrySystem(transforms, boundaries, &window);
-    CollisionSystem collisionSystem(entityManager, transforms, colliders);
-    PhysicsSystem physicsSystem(transforms, accelerations, physics);
-
-    SpatialGrid<EntityID> spatialGrid;
-    SurfaceBehaviorSystem sbh(transforms, velocities, surfaces, spatialGrid);
-
     RenderSystem renderSystem(transforms, sprites, &renderer);
 
-    systemManager.RegisterSystem<MovementSystem>(movementSystem);
-    systemManager.RegisterSystem<CameraSystem>(cameraSystem);
-    systemManager.RegisterSystem<AnimationSystem>(animationSystem);
-    systemManager.RegisterSystem<BoundrySystem>(boundrySystem);
-    systemManager.RegisterSystem<CollisionSystem>(collisionSystem);
-    systemManager.RegisterSystem<PhysicsSystem>(physicsSystem);
-    systemManager.RegisterSystem<SurfaceBehaviorSystem>(sbh);
+    systemManager.RegisterSystem<MovementSystem>(transforms, velocities, accelerations, physics);
+    systemManager.RegisterSystem<CameraSystem>(transforms, cameras);
+    systemManager.RegisterSystem<AnimationSystem>(animations, sprites, transforms);
+    systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, &window);
+    systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders);
+    systemManager.RegisterSystem<PhysicsSystem>(transforms, accelerations, physics);
+    SpatialGrid<EntityID> spatialGrid;
+    systemManager.RegisterSystem<SurfaceBehaviorSystem>(transforms, velocities, surfaces, physics, spatialGrid);
     systemManager.RegisterSystem<AISystem>(ai);
 
-    // Texture background;
-    // background.LoadFromFile("../assets/background.jpeg", renderer.GetSDLRenderer());
-    // renderSystem.AddBackgroundLayer(&background, 0.0f);
-    renderSystem.AddBackgroundLayer(assets.GetTexture("background"), 0.0f);
 
+    renderSystem.AddBackgroundLayer(assets.GetTexture("background"), 0.0f);
 
     // Input
     InputManager input;
@@ -163,25 +150,23 @@ int main(int argc, char* argv[]) {
                       ? INVALID_ENTITY
                       : *entityManager.GetGroup("player").begin();
 
+    auto* cam = systemManager.GetSystem<CameraSystem>();
+    cam->SetActiveCamera(player);
+
     while (window.IsRunning()) {
         window.PollEvents();
         input.Update();
 
         // Player movement
-        if (auto* velocity = velocities.Get(player)) {
-            if (input.IsActionHeld("Left"))  velocity->dx -= 1;
-            if (input.IsActionHeld("Right")) velocity->dx += 1;
-            if (input.IsActionHeld("Up")) {
-                if (auto* phys = physics.Get(player)) {
-                    phys->impulse.y = -30.0f;
-                }
-            }
+        if (auto* velocity = physics.Get(player)) {
+            if (input.IsActionHeld("Left"))  velocity->impulse.x -= 1;
+            if (input.IsActionHeld("Right")) velocity->impulse.x += 1;
+            if (input.IsActionHeld("Up")) velocity->impulse.y -= 30;
         }
 
         systemManager.UpdateAll(dt);
-        animationSystem.Update(dt);
-        cameraSystem.ApplyToRenderSystem(renderSystem);
-        ai.Update(100.0f);
+        cam->ApplyToRenderSystem(renderSystem);
+        ai.Update(dt);
 
         renderer.Clear();
         renderSystem.Update(dt);

@@ -41,9 +41,7 @@
 
     "platform_prefab": {
       "components": {
-        "Transform": { "x": 0, "y": 0, "w": 200, "h": 40 },
-        "Sprite": { "texture": "platform", "w": 200, "h": 40 },
-        "Surface": { "x": 0, "y": 0, "w": 200, "h": 40, "type": "SAND" }
+        "Sprite": { "texture": "platform", "w": 200, "h": 40 }
       }
     },
 
@@ -71,8 +69,8 @@
       "prefab": "platform_prefab",
       "tag": "grass",
       "components": {
-        "Transform": { "x": 364, "y": 280, "w": 200, "h": 40 },
-        "Surface": { "x": 364, "y": 280, "w": 200, "h": 40, "type": "SAND" }
+        "Transform": { "x": 364, "y": 340, "w": 200, "h": 40 },
+        "Surface": { "type": "SAND", "multiplier": 0.4, "friction": 2.0 }
       }
     },
 
@@ -81,7 +79,7 @@
       "tag": "blocker",
       "info": { "type": "Enemy" },
       "components": {
-        "Transform": { "x": 600, "y": 300, "w": 64, "h": 64 },
+        "Transform": { "x": 200, "y": 300, "w": 64, "h": 64 },
         "Sprite": { "texture": "player", "w": 64, "h": 64 },
         "Velocity": { "dx": 0, "dy": 0 },
         "Collider": { "w": 64, "h": 64, "layer": "Enemy", "mask": "Projectile" }

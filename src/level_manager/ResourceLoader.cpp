@@ -331,21 +331,13 @@ CameraComponent ResourceLoader::ParseCamera(const json& j) {
     cam.zoom = j.value("zoom", 1.0f);
     cam.rotationDegrees = j.value("rotation", 0.0f);
 
-    // Position
+    // Initial camera position
     cam.position.x = j.value("posX", 0);
     cam.position.y = j.value("posY", 0);
 
-    // Target entity (by tag)
-    if (j.contains("target")) {
-        std::string tag = j["target"].get<std::string>();
-        const auto& group = m_em->GetGroup(tag);
-        if (!group.empty()) {
-            cam.target = *group.begin();
-        } else {
-            std::cerr << "Camera target tag not found: " << tag << "\n";
-            cam.target = INVALID_ENTITY;
-        }
-    }
+    // Target (store tag, resolve later)
+    cam.targetTag = j.value("target", "");
+    cam.target = INVALID_ENTITY; // resolved after scene load
 
     // Mode
     std::string modeStr = j.value("mode", "Static");
@@ -372,15 +364,15 @@ CameraComponent ResourceLoader::ParseCamera(const json& j) {
         cam.bounds.h = j["bounds"].value("h", 0);
     }
 
-    // --- Manual control ---
+    // Manual control
     cam.manualControl = j.value("manual", false);
 
     // Effects
     cam.shakeIntensity = j.value("shakeIntensity", 0);
     cam.shakeDuration  = j.value("shakeDuration", 0.0f);
-    cam.fadeAlpha      = j.value("fadeAlpha", 0);
+    cam.fadeAlpha      = j.value("fadeAlpha", 255);
 
-    // Scripted target (for Scripted mode)
+    // Scripted mode target 
     cam.scriptTarget.x = j.value("scriptX", 0);
     cam.scriptTarget.y = j.value("scriptY", 0);
 
@@ -388,15 +380,15 @@ CameraComponent ResourceLoader::ParseCamera(const json& j) {
 }
 
 
+
 SurfaceComponent ResourceLoader::ParseSurface(const json& j) {
     SurfaceComponent s;
-    s.x           = j.value("x", 0.0f);
-    s.y           = j.value("y", 0.0f);
-    s.width       = j.value("w", 0.0f);
-    s.height      = j.value("h", 0.0f);
-    s.surfaceType = StringToSurfaceType(j.value("type", "CUSTOM"));
+    s.surfaceType       = StringToSurfaceType(j.value("type", "CUSTOM"));
+    s.multiplier        = j.value("multiplier", 1.0f);
+    s.frictionMultiplier = j.value("friction", 1.0f);
     return s;
 }
+
 
 VelocityComponent ResourceLoader::ParseVelocity(const json& j) {
     VelocityComponent v;

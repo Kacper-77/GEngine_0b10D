@@ -63,14 +63,19 @@ TEST_F(RenderSystemTest, RendersEntityWithValidComponents) {
     );
 
     RenderSystem system(transforms, sprites, &renderer);
+
+    // Camera defaults to (0,0), zoom = 1
     system.Update(1.0f);
 
     EXPECT_EQ(renderer.drawCalls, 1);
-    EXPECT_EQ(renderer.lastDstRect.x, 100.0f);
-    EXPECT_EQ(renderer.lastDstRect.y, 200.0f);
-    EXPECT_EQ(renderer.lastDstRect.w, 64.0f);
-    EXPECT_EQ(renderer.lastDstRect.h, 64.0f);
+
+    // EXPECTED: pivot center top-left = position - halfSize
+    EXPECT_EQ(renderer.lastDstRect.x, 100 - 32);
+    EXPECT_EQ(renderer.lastDstRect.y, 200 - 32);
+    EXPECT_EQ(renderer.lastDstRect.w, 64);
+    EXPECT_EQ(renderer.lastDstRect.h, 64);
 }
+
 
 TEST_F(RenderSystemTest, SkipsEntityWithoutTransform) {
     EntityID entity = creationSystem.CreateEntityWith(
@@ -93,4 +98,41 @@ TEST_F(RenderSystemTest, SkipsEntityWithoutTexture) {
     system.Update(0.016f);
 
     EXPECT_EQ(renderer.drawCalls, 0);
+}
+
+TEST_F(RenderSystemTest, AppliesCameraOffset) {
+    EntityID entity = creationSystem.CreateEntityWith(
+        TransformComponent{VectorFloat{200.0f, 200.0f}, 0.0f, VectorFloat{64.0f, 64.0f}},
+        SpriteComponent{&texture, 64, 64}
+    );
+
+    RenderSystem system(transforms, sprites, &renderer);
+    system.SetCameraPosition({100, 50});
+
+    system.Update(1.0f);
+
+    EXPECT_EQ(renderer.drawCalls, 1);
+
+    // expected = (pos - halfSize - camera)
+    EXPECT_EQ(renderer.lastDstRect.x, (200 - 32 - 100));
+    EXPECT_EQ(renderer.lastDstRect.y, (200 - 32 - 50));
+}
+
+TEST_F(RenderSystemTest, AppliesCameraZoom) {
+    EntityID entity = creationSystem.CreateEntityWith(
+        TransformComponent{VectorFloat{100.0f, 100.0f}, 0.0f, VectorFloat{64.0f, 64.0f}},
+        SpriteComponent{&texture, 64, 64}
+    );
+
+    RenderSystem system(transforms, sprites, &renderer);
+    system.SetCameraZoom(2.0f);
+
+    system.Update(1.0f);
+
+    EXPECT_EQ(renderer.drawCalls, 1);
+
+    EXPECT_EQ(renderer.lastDstRect.x, (100 - 32) * 2);
+    EXPECT_EQ(renderer.lastDstRect.y, (100 - 32) * 2);
+    EXPECT_EQ(renderer.lastDstRect.w, 64 * 2);
+    EXPECT_EQ(renderer.lastDstRect.h, 64 * 2);
 }

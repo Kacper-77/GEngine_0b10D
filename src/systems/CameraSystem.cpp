@@ -8,7 +8,7 @@ CameraSystem::CameraSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<CameraComponent>& camera)
     : m_transforms{transforms}, m_camera{camera} {}
 
-    // Update state
+// Update state
 void CameraSystem::Update(float deltaTime) {
     if (auto* cam = CheckActiveCamera()) {
         UpdateCameraPosition(*cam);

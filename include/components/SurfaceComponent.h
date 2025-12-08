@@ -3,17 +3,11 @@
 #include "utils/SurfaceTypes.h"
 
 struct SurfaceComponent {
-    float x;
-    float y;
-    float width;
-    float height;
     SurfaceType surfaceType;
+    float multiplier = 1.0f;         
+    float frictionMultiplier = 1.0f;
 
-    // Helpers
-    bool Contains(float px, float py) const {
-        return px >= x && px <= x + width &&
-               py >= y && py <= y + height;
-    }
+
 
     static const char* ToString(SurfaceType type) {
         switch (type) {

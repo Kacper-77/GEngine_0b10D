@@ -3,6 +3,7 @@
 #include "SDL.h"
 #include "utils/EntityTypes.h"
 #include "utils/Vector.h"
+#include <string>
 
 enum CameraMode {
     Static,
@@ -16,6 +17,7 @@ enum CameraMode {
 struct CameraComponent {
     // Basic
     EntityID target = INVALID_ENTITY;
+    std::string targetTag;
     SDL_Point position;
     SDL_Point offset;
     SDL_Point viewportSize;
