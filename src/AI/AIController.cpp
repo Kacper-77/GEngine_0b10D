@@ -32,7 +32,6 @@ AIBehavior* AIController::GetCurrentBehavior() const {
     return behavior.get();
 }
 
-
 // Commands
 void AIController::TakeDamage(int amount) {
     m_health -= amount;
@@ -137,7 +136,6 @@ float AIController::GetAttackEffectDuration() const { return m_attackEffectDurat
 bool AIController::GetEnabledCritical() const { return m_isEnabledCritical; }
 float AIController::GetCriticalChance() const { return m_criticalChance; }
 float AIController::GetCriticalBonus() const { return m_criticalBonus; }
-float AIController::GetAttackCooldown() const { return m_attackCooldown; }
 
 // Basic data (setters)
 void AIController::SetVisionRange(float range) { m_visionRange = range; }
@@ -155,7 +153,6 @@ void AIController::SetAttackEffectDuration(float duration) { m_attackEffectDurat
 void AIController::SetEnabledCritical(bool isCritical) { m_isEnabledCritical = isCritical; }
 void AIController::SetCriticalChance(float chance) { m_criticalChance = chance; }
 void AIController::SetCriticalBonus(float bonus) { m_criticalBonus = bonus; }
-void AIController::SetAttackCooldown(float cd) { m_attackCooldown = cd; }
 
 // Position & movement
 void AIController::SetPosition(const VectorFloat& pos) { m_position = pos; }
@@ -205,3 +202,16 @@ int AIController::GetFaction() const { return m_factionID; }
 
 void AIController::SetAnimationComponent(AnimationComponent* anim) { m_animation = anim; }
 AnimationComponent* AIController::GetAnimationComponent() { return m_animation; }
+
+// CD
+void AIController::SetAttackCooldown(float cd) { m_attackCooldown = cd; }
+float AIController::GetAttackCooldown() const { return m_attackCooldown; }
+void AIController::ResetAttackTimer() { m_attackTimer = m_attackCooldown; }
+void AIController::TickAttackTimer(float dt) { m_attackTimer -= dt; }
+bool AIController::CanAttack() const { return m_attackTimer <= 0.0f; }
+
+void AIController::SetCustomCooldown(float cd) { m_customCooldown = cd; }
+float AIController::GetCustomCooldown() const { return m_customCooldown; }
+void AIController::ResetCustomTimer() { m_customTimer = m_customCooldown; }
+void AIController::TickCustomTimer(float dt) { m_customTimer -= dt; }
+bool AIController::IsCustomReady() const { return m_customTimer <= 0.0f; }

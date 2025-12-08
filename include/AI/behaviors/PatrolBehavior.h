@@ -8,6 +8,8 @@
 class PatrolBehavior : public AIBehavior {
 public:
     void UpdateAI(AIController& component, float deltaTime) override {
+        std::cout << "Patrol update\n";
+
         // Check state of NPC
         if (component.GetState() != AIState::Patrol) return;
 

@@ -3,6 +3,7 @@
 #include "core/EntityManager.h"
 #include "systems/EntityCreationSystem.h"
 #include "core/ComponentStorage.h"
+#include "event/core/EventBus.h"
 
 #include "components/TransformComponent.h"
 #include "components/SpriteComponent.h"
@@ -15,9 +16,19 @@
 #include "components/BoundryComponent.h"
 #include "utils/AnimationUtils.h"
 
+#include "AI/behaviors/AttackBehavior.h"
+#include "AI/behaviors/ChaseBehavior.h"
+#include "AI/behaviors/DeadBehavior.h"
+#include "AI/behaviors/FleeBehavior.h"
+#include "AI/behaviors/FollowBehavior.h"
+#include "AI/behaviors/IdleBehavior.h"
+#include "AI/behaviors/PatrolBehavior.h"
+#include "AI/AISystem.h"
+
 #include "graphics/Renderer.h"
 #include <fstream>
 #include <iostream>
+#include <unordered_map>
 
 using json = nlohmann::json;
 
@@ -25,6 +36,8 @@ ResourceLoader::ResourceLoader(Renderer* renderer,
                                EntityCreationSystem* ecs,
                                AssetManager* assets,
                                EntityManager* em,
+                               EventBus* eventBus,
+                               AISystem* ai,
                                ComponentStorage<TransformComponent>* transforms,
                                ComponentStorage<BoundryComponent>* boundaries,
                                ComponentStorage<SpriteComponent>* sprites,
@@ -35,9 +48,9 @@ ResourceLoader::ResourceLoader(Renderer* renderer,
                                ComponentStorage<VelocityComponent>* velocities,
                                ComponentStorage<AccelerationComponent>* accelerations,
                                ComponentStorage<AnimationComponent>* animations)
-    : m_renderer{renderer}, m_ecs{ecs}, m_assets{assets}, m_em{em},
-      m_transforms{transforms}, m_boundaries{boundaries}, m_sprites{sprites}, m_physics{physics},
-      m_colliders{colliders}, m_cameras{cameras}, m_surfaces{surfaces},
+    : m_renderer{renderer}, m_ecs{ecs}, m_assets{assets}, m_em{em}, m_eventBus{eventBus}, 
+      m_aiSystem{ai}, m_transforms{transforms}, m_boundaries{boundaries}, m_sprites{sprites}, 
+      m_physics{physics}, m_colliders{colliders}, m_cameras{cameras}, m_surfaces{surfaces},
       m_velocities{velocities}, m_accelerations{accelerations}, m_animations{animations} {}
 
 bool ResourceLoader::LoadScene(const std::string& path) {
@@ -174,6 +187,10 @@ void ResourceLoader::LoadEntities(const json& j) {
             if (components.contains("Animation") && m_animations) {
                 m_animations->Add(id, ParseAnimation(components["Animation"]));
             }
+            if (components.contains("AI")) {
+                AIController* ctrl = ParseAIController(components["AI"], id);
+                m_aiSystem->AddController(ctrl);
+            }
 
             continue;
         }
@@ -243,6 +260,10 @@ void ResourceLoader::LoadEntities(const json& j) {
         }
         if (comps.contains("Animation") && m_animations) {
             m_animations->Add(id, ParseAnimation(comps["Animation"]));
+        }
+        if (e.contains("AI")) {
+            AIController* ctrl = ParseAIController(e["AI"], id);
+            m_aiSystem->AddController(ctrl);
         }
     }
 }
@@ -530,4 +551,118 @@ SurfaceType ResourceLoader::StringToSurfaceType(const std::string& s) {
 
     std::cerr << "Unknown SurfaceType: " << s << " (defaulting to CUSTOM)\n";
     return SurfaceType::CUSTOM;
+}
+
+// AI
+
+std::unique_ptr<AIBehavior> ResourceLoader::CreateBehavior(const std::string& name) {
+    if (name == "Idle")   return std::make_unique<IdleBehavior>();
+    if (name == "Patrol") return std::make_unique<PatrolBehavior>();
+    if (name == "Follow") return std::make_unique<FollowBehavior>();
+    if (name == "Chase")  return std::make_unique<ChaseBehavior>();
+    if (name == "Flee")   return std::make_unique<FleeBehavior>();
+    if (name == "Attack") return std::make_unique<AttackBehavior>(*m_eventBus);
+    if (name == "Dead")   return std::make_unique<DeadBehavior>();
+    return std::make_unique<IdleBehavior>();
+}
+
+static const std::unordered_map<std::string, AIState> BehaviorToState = {
+    {"Idle",   AIState::Idle},
+    {"Patrol", AIState::Patrol},
+    {"Follow", AIState::Follow},
+    {"Chase",  AIState::Chase},
+    {"Flee",   AIState::Flee},
+    {"Attack", AIState::Attack},
+    {"Dead",   AIState::Dead}
+};
+
+AIController* ResourceLoader::ParseAIController(const json& j, EntityID id) {
+    int maxHealth = j.value("maxHealth", 100);
+    int health    = j.value("health", maxHealth);
+
+    AIController* ai = new AIController(maxHealth, health);
+
+    // Stats
+    ai->SetArmor(j.value("armor", 0));
+    ai->SetStamina(j.value("stamina", 0));
+    ai->SetMorale(j.value("morale", 0));
+    ai->SetDamage(j.value("damage", 5));
+    ai->SetSpeed(j.value("speed", 1.0f));
+    ai->SetAttackRange(j.value("attackRange", 30.0f));
+    ai->SetAttackCooldown(j.value("attackCooldown", 1.0f));
+
+    ai->SetAttackType(j.value("attackType", ""));
+    ai->SetAttackEffect(j.value("attackEffect", ""));
+    ai->SetAttackEffectDuration(j.value("attackEffectDuration", 0.0f));
+
+    ai->SetEnabledCritical(j.value("criticalEnabled", false));
+    ai->SetCriticalChance(j.value("criticalChance", 0.0f));
+    ai->SetCriticalBonus(j.value("criticalBonus", 1.0f));
+
+    // Perception
+    ai->SetVisionRange(j.value("vision", 200.0f));
+    ai->SetHearingRange(j.value("hearing", 100.0f));
+    ai->SetFieldOfView(j.value("fov", 120.0f));
+
+    // Flags
+    ai->SetFaction(j.value("faction", 0));
+
+    bool friendly = j.value("friendly", false);
+    if (friendly != ai->IsFriendly())
+        ai->ToggleFriendliness();
+
+    // Aggressive
+    bool aggressive = j.value("aggressive", false);
+    if (aggressive)
+        ai->ChangeState(AIState::Attack);
+
+    // Alive
+    bool alive = j.value("alive", true);
+    if (!alive)
+        ai->ChangeState(AIState::Dead);
+
+    // Movement
+    ai->SetDesiredDistance(j.value("desiredDistance", 0.0f));
+    ai->SetWalkSpeed(j.value("walkSpeed", 1.0f));
+    ai->SetRunSpeed(j.value("runSpeed", 3.0f));
+
+    // Movement mode
+    std::string mode = j.value("movementMode", "Walk");
+    if (mode == "Run") ai->SetMovementMode(MovementMode::Run);
+    else               ai->SetMovementMode(MovementMode::Walk);
+
+    // Patrol route
+    if (j.contains("patrolRoute")) {
+        std::vector<VectorFloat> route;
+        for (auto& p : j["patrolRoute"]) {
+            route.push_back({ p.value("x", 0.0f), p.value("y", 0.0f) });
+        }
+        ai->SetPatrolRoute(route);
+    }
+
+    // Target
+    if (j.contains("target")) {
+        std::string tag = j["target"].get<std::string>();
+        const auto& group = m_em->GetGroup(tag);
+        if (!group.empty()) {
+            ai->SetTarget(*group.begin());
+        }
+    }
+
+    // Behavior
+    std::string behaviorName = j.value("behavior", "Idle");
+    ai->SetBehavior(CreateBehavior(behaviorName));
+    ai->ChangeState(BehaviorToState.at(behaviorName));
+
+    // Attach ECS 
+    ai->AttachComponents(
+        m_transforms->Get(id),
+        m_velocities->Get(id)
+    );
+
+    // Animations
+    if (m_animations->Has(id))
+        ai->SetAnimationComponent(m_animations->Get(id));
+
+    return ai;
 }

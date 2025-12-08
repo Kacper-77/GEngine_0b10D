@@ -6,6 +6,8 @@
 #include "systems/EntityCreationSystem.h"
 #include "core/ComponentStorage.h"
 #include "core/SystemManager.h"
+#include "AI/AISystem.h"
+#include "event/core/EventBus.h"
 
 #include "components/TransformComponent.h"
 #include "components/VelocityComponent.h"
@@ -87,14 +89,18 @@ int main(int argc, char* argv[]) {
     if (!window.Init("Game", 1200, 720, false)) return -1;
     if (!renderer.Init(window.GetSDLWindow())) return -1;
 
-    // Asset Manager + Loader
+    // Asset Manager + Loader + required Systems
     AssetManager assets(&renderer);
+    AISystem ai;
+    EventBus eventBus;
 
     ResourceLoader loader(
         &renderer,
         &creationSystem,
         &assets,
         &entityManager,
+        &eventBus,
+        &ai,
         &transforms,
         &boundaries,
         &sprites,
@@ -108,7 +114,7 @@ int main(int argc, char* argv[]) {
     );
 
     // Load Scene
-    if (!loader.LoadScene("../tests/scene.json")) {
+    if (!loader.LoadScene("../assets/scene.json")) {
         std::cerr << "Failed to load scene\n";
         return -1;
     }
@@ -135,6 +141,7 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<CollisionSystem>(collisionSystem);
     systemManager.RegisterSystem<PhysicsSystem>(physicsSystem);
     systemManager.RegisterSystem<SurfaceBehaviorSystem>(sbh);
+    systemManager.RegisterSystem<AISystem>(ai);
 
     // Texture background;
     // background.LoadFromFile("../assets/background.jpeg", renderer.GetSDLRenderer());
@@ -174,6 +181,7 @@ int main(int argc, char* argv[]) {
         systemManager.UpdateAll(dt);
         animationSystem.Update(dt);
         cameraSystem.ApplyToRenderSystem(renderSystem);
+        ai.Update(100.0f);
 
         renderer.Clear();
         renderSystem.Update(dt);

@@ -2,8 +2,12 @@
 
 #include <string>
 #include <nlohmann/json.hpp>
+
 #include "utils/CollisionLayer.h"
 #include "utils/SurfaceTypes.h"
+
+#include "AI/AIController.h"
+#include "AI/AIBehavior.h"
 
 using json = nlohmann::json;
 
@@ -28,6 +32,8 @@ struct SkeletalAnimationClip;
 struct AnimationLayer;
 struct AnimationComponent;
 class EntityManager;
+class EventBus;
+class AISystem;
 
 class ResourceLoader {
 public:
@@ -35,6 +41,8 @@ public:
                    EntityCreationSystem* ecs,
                    AssetManager* assets,
                    EntityManager* em,
+                   EventBus* eventBus,
+                   AISystem* ai,
                    ComponentStorage<TransformComponent>* transforms,
                    ComponentStorage<BoundryComponent>* boundaries,
                    ComponentStorage<SpriteComponent>* sprites,
@@ -54,6 +62,8 @@ private:
     EntityCreationSystem* m_ecs;
     AssetManager* m_assets;
     EntityManager* m_em;
+    EventBus* m_eventBus;
+    AISystem* m_aiSystem;
 
     ComponentStorage<TransformComponent>* m_transforms;
     ComponentStorage<BoundryComponent>* m_boundaries;
@@ -66,29 +76,34 @@ private:
     ComponentStorage<AccelerationComponent>* m_accelerations;
     ComponentStorage<AnimationComponent>* m_animations;
 
-    nlohmann::json m_prefabs;
+    json m_prefabs;
 
-    void LoadAssets(const nlohmann::json& j);
-    void LoadPrefabs(const nlohmann::json& j);
-    void LoadEntities(const nlohmann::json& j);
+    void LoadAssets(const json& j);
+    void LoadPrefabs(const json& j);
+    void LoadEntities(const json& j);
 
     // Parsers
-    TransformComponent ParseTransform(const nlohmann::json& j);
+    TransformComponent ParseTransform(const json& j);
     BoundryComponent ParseBoundry(const json& j);
-    SpriteComponent ParseSprite(const nlohmann::json& j);
-    PhysicsComponent ParsePhysics(const nlohmann::json& j);
-    ColliderComponent ParseCollider(const nlohmann::json& j);
-    CameraComponent ParseCamera(const nlohmann::json& j);
-    SurfaceComponent ParseSurface(const nlohmann::json& j);
-    VelocityComponent ParseVelocity(const nlohmann::json& j);
-    AccelerationComponent ParseAcceleration(const nlohmann::json& j);
+    SpriteComponent ParseSprite(const json& j);
+    PhysicsComponent ParsePhysics(const json& j);
+    ColliderComponent ParseCollider(const json& j);
+    CameraComponent ParseCamera(const json& j);
+    SurfaceComponent ParseSurface(const json& j);
+    VelocityComponent ParseVelocity(const json& j);
+    AccelerationComponent ParseAcceleration(const json& j);
+    AIController* ParseAIController(const json& j, EntityID id);
 
-    FrameAnimationClip* ParseFrameClip(const nlohmann::json& j);
-    SkeletalAnimationClip* ParseSkeletalClip(const nlohmann::json& j);
-    AnimationLayer ParseAnimationLayer(const nlohmann::json& j);
+    FrameAnimationClip* ParseFrameClip(const json& j);
+    SkeletalAnimationClip* ParseSkeletalClip(const json& j);
+    AnimationLayer ParseAnimationLayer(const json& j);
     AnimationComponent ParseAnimation(const json& j);
 
     // helpers
     CollisionLayer StringToLayer(const std::string& s);
     SurfaceType StringToSurfaceType(const std::string& s);
+    
+    // AI
+    std::unique_ptr<AIBehavior> CreateBehavior(const std::string& name);
+
 };

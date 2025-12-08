@@ -85,6 +85,21 @@
         "Sprite": { "texture": "player", "w": 64, "h": 64 },
         "Velocity": { "dx": 0, "dy": 0 },
         "Collider": { "w": 64, "h": 64, "layer": "Enemy", "mask": "Projectile" }
+      },
+      "AI": {
+        "behavior": "Patrol",
+        "health": 100,
+        "maxHealth": 100,
+        "movementMode": "Run",
+        "walkSpeed": 30,
+        "runSpeed": 80,
+        "vision": 0,
+        "hearing": 0,
+        "patrolRoute": [
+          { "x": 600, "y": 300 },
+          { "x": 700, "y": 300 },
+          { "x": 650, "y": 260 }
+        ]
       }
     },
 

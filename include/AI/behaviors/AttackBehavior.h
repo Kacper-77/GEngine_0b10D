@@ -29,9 +29,10 @@ public:
         // Check state of NPC
         if (component.GetState() != AIState::Attack) return;
 
-        // Cooldown handling
-        m_attackTimer -= deltaTime;
-        if (m_attackTimer > 0.0f) return;
+        // Cooldown tick
+        component.TickAttackTimer(deltaTime);
+        if (!component.CanAttack())
+            return;
 
         // Get component data
         TransformComponent* self = component.GetTransformComponent();
@@ -65,11 +66,10 @@ public:
                 }
             }
             // Reset cooldown
-            m_attackTimer = component.GetAttackCooldown();
+            component.ResetAttackTimer();
         }
     }
 
 private:
     EventBus& m_eventBus;
-    float m_attackTimer = 0.0f;
 };

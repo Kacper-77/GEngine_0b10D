@@ -68,7 +68,6 @@ public:
     bool GetEnabledCritical() const;
     float GetCriticalChance() const;
     float GetCriticalBonus() const;
-    float GetAttackCooldown() const;
 
     // Basic data (setters)
     void SetVisionRange(float range);
@@ -86,7 +85,6 @@ public:
     void SetEnabledCritical(bool isCritical);
     void SetCriticalChance(float chance);
     void SetCriticalBonus(float bonus);
-    void SetAttackCooldown(float cd);
 
     // Position & movement
     void SetPosition(const VectorFloat& pos);
@@ -127,6 +125,23 @@ public:
     void SetAnimationComponent(AnimationComponent* anim);
     AnimationComponent* GetAnimationComponent();
 
+    // Attack cooldown
+    void SetAttackCooldown(float cd);
+    float GetAttackCooldown() const;
+
+    void ResetAttackTimer();
+    void TickAttackTimer(float dt);
+    bool CanAttack() const;
+
+    // Custom cooldown 
+    void SetCustomCooldown(float cd);
+    float GetCustomCooldown() const;
+
+    void ResetCustomTimer();
+    void TickCustomTimer(float dt);
+    bool IsCustomReady() const;
+
+
 private:
     // Stats and attack
     int m_health;
@@ -137,7 +152,6 @@ private:
     int m_damage;
     float m_speed;
     float m_attackRange;
-    float m_attackCooldown;
 
     std::string m_attackType;
     std::string m_attackEffect;
@@ -145,6 +159,12 @@ private:
     bool m_isEnabledCritical;
     float m_criticalChance;
     float m_criticalBonus;
+
+    float m_attackCooldown = 1.0f;
+    float m_attackTimer = 0.0f;   
+    float m_customCooldown = 0.0f;
+    float m_customTimer = 0.0f;
+
 
     // Perception
     float m_visionRange;
