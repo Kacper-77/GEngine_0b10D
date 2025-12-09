@@ -31,7 +31,7 @@ void PhysicsSystem::Update(float deltaTime) {
         }
         phys.impulse = {0, 0};
 
-        // Apply forces (F = m * a → a = F * invMass)
+        // Apply forces (F = m * a -> a = F * invMass)
         if (phys.invMass > 0.0f) {
             phys.velocity.x += phys.force.x * phys.invMass * deltaTime;
             phys.velocity.y += phys.force.y * phys.invMass * deltaTime;

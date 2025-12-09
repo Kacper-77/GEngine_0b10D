@@ -39,6 +39,18 @@
 #include "level_manager/AssetManager.h"
 #include "level_manager/ResourceLoader.h"
 
+void DrawGrid(SDL_Renderer* sdlRenderer, const SDL_Point& camPos, int width, int height, int cellSize = 64) {
+    SDL_SetRenderDrawColor(sdlRenderer, 80, 80, 80, 255);
+
+    for (int x = - (camPos.x % cellSize); x < width; x += cellSize) {
+        SDL_RenderDrawLine(sdlRenderer, x, 0, x, height);
+    }
+
+    for (int y = - (camPos.y % cellSize); y < height; y += cellSize) {
+        SDL_RenderDrawLine(sdlRenderer, 0, y, width, y);
+    }
+}
+
 int main(int argc, char* argv[]) {
     if (IMG_Init(IMG_INIT_PNG) == 0 || SDL_Init(SDL_INIT_VIDEO) < 0) {
         std::cerr << "SDL init failed: " << SDL_GetError() << std::endl;
@@ -126,9 +138,9 @@ int main(int argc, char* argv[]) {
     systemManager.RegisterSystem<MovementSystem>(transforms, velocities, accelerations, physics);
     systemManager.RegisterSystem<CameraSystem>(transforms, cameras);
     systemManager.RegisterSystem<AnimationSystem>(animations, sprites, transforms);
-    systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, &window);
     systemManager.RegisterSystem<CollisionSystem>(entityManager, transforms, colliders);
     systemManager.RegisterSystem<PhysicsSystem>(transforms, accelerations, physics);
+    systemManager.RegisterSystem<BoundrySystem>(transforms, boundaries, physics, &window);
     SpatialGrid<EntityID> spatialGrid;
     systemManager.RegisterSystem<SurfaceBehaviorSystem>(transforms, velocities, surfaces, physics, spatialGrid);
     systemManager.RegisterSystem<AISystem>(ai);
@@ -151,7 +163,9 @@ int main(int argc, char* argv[]) {
                       : *entityManager.GetGroup("player").begin();
 
     auto* cam = systemManager.GetSystem<CameraSystem>();
+    
     cam->SetActiveCamera(player);
+    cam->FocusOn(player);
 
     while (window.IsRunning()) {
         window.PollEvents();
@@ -159,8 +173,8 @@ int main(int argc, char* argv[]) {
 
         // Player movement
         if (auto* velocity = physics.Get(player)) {
-            if (input.IsActionHeld("Left"))  velocity->impulse.x -= 1;
-            if (input.IsActionHeld("Right")) velocity->impulse.x += 1;
+            if (input.IsActionHeld("Left"))  velocity->impulse.x -= 10;
+            if (input.IsActionHeld("Right")) velocity->impulse.x += 10;
             if (input.IsActionHeld("Up")) velocity->impulse.y -= 30;
         }
 
@@ -170,6 +184,10 @@ int main(int argc, char* argv[]) {
 
         renderer.Clear();
         renderSystem.Update(dt);
+
+        SDL_Point camPos = renderSystem.GetCameraPosition();
+        DrawGrid(renderer.GetSDLRenderer(), camPos, 800, 600, 64);
+
         renderer.Present();
 
         SDL_Delay(1000 / 60);

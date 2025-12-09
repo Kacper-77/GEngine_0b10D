@@ -1,9 +1,11 @@
 #include "systems/BoundrySystem.h"
 
 BoundrySystem::BoundrySystem(ComponentStorage<TransformComponent>& transforms,
-              ComponentStorage<BoundryComponent>& boundaries,
-              Window* window)
-    : m_transforms{transforms}, m_boundaries{boundaries}, m_window{window} {}
+                             ComponentStorage<BoundryComponent>& boundaries,
+                             ComponentStorage<PhysicsComponent>& physics,
+                             Window* window)
+    : m_transforms{transforms}, m_boundaries{boundaries}, 
+      m_physics{physics}, m_window{window} {}
 
 // Update state
 void BoundrySystem::Update(float deltaTime) {
@@ -32,6 +34,27 @@ void BoundrySystem::Update(float deltaTime) {
         // Down
         if (boundry.blockBottom && transform->position.y + transform->scale.y > static_cast<float>(screenHeight)) {
             transform->position.y = static_cast<float>(screenHeight) - transform->scale.y;
+        }
+
+        // Physic case
+        auto* phys = m_physics.Get(id);
+        if (phys) {
+            if (boundry.blockLeft && transform->position.x < 0.0f) {
+                phys->velocity.x = 0.0f;
+            }
+
+            if (boundry.blockRight && transform->position.x + transform->scale.x > screenWidth) {
+                phys->velocity.x = 0.0f;
+            }
+
+            if (boundry.blockTop && transform->position.y < 0.0f) {
+                phys->velocity.y = 0.0f;
+            }
+
+            if (boundry.blockBottom && transform->position.y + transform->scale.y > screenHeight) {
+                phys->velocity.y = 0.0f;
+                phys->isGrounded = true;
+            }
         }
     }
 }

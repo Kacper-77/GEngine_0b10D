@@ -1,7 +1,6 @@
 #include "systems/RenderSystem.h"
 #include <iostream>
 
-// Konstruktor
 RenderSystem::RenderSystem(ComponentStorage<TransformComponent>& transforms,
                            ComponentStorage<SpriteComponent>& sprites,
                            IRenderer* renderer) 

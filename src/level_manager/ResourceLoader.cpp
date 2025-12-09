@@ -163,6 +163,9 @@ void ResourceLoader::LoadEntities(const json& j) {
             if (components.contains("Transform") && m_transforms) {
                 m_transforms->Add(id, ParseTransform(components["Transform"]));
             }
+            if (components.contains("Boundry")) {
+                m_boundaries->Add(id, ParseBoundry(components["Boundry"]));
+            }
             if (components.contains("Sprite") && m_sprites) {
                 m_sprites->Add(id, ParseSprite(components["Sprite"]));
             }
@@ -235,8 +238,9 @@ void ResourceLoader::LoadEntities(const json& j) {
         if (comps.contains("Transform") && m_transforms) {
             m_transforms->Add(id, ParseTransform(comps["Transform"]));
         }
-        if (comps.contains("Boundry"))
+        if (comps.contains("Boundry")) {
             m_boundaries->Add(id, ParseBoundry(comps["Boundry"]));
+        }
         if (comps.contains("Sprite") && m_sprites) {
             m_sprites->Add(id, ParseSprite(comps["Sprite"]));
         }

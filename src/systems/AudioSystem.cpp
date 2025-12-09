@@ -98,7 +98,6 @@ void AudioSystem::PlaySpatial(EntityID id, SoundTag tag, const Vector& listenerP
     auto posIt = m_entityPositions.find(id);
     if (posIt == m_entityPositions.end()) return;
 
-    // NEED TO BE DELETED CUZ SDL2 USING ONLY INT
     VectorFloat source = ToFloat(posIt->second);
     VectorFloat listener = ToFloat(listenerPos);
     float dx = source.x - listener.x;
