@@ -642,6 +642,8 @@ AIController* ResourceLoader::ParseAIController(const json& j, EntityID id) {
         const auto& group = m_em->GetGroup(tag);
         if (!group.empty()) {
             ai->SetTarget(*group.begin());
+            auto* target = m_transforms->Get(*group.begin());
+            ai->SetTargetTransform(target);
         }
     }
 
