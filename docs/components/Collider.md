@@ -27,6 +27,7 @@ struct ColliderComponent {
     CollisionLayer layer;  // What this entity is
     CollisionLayer mask;   // What this entity can collide with
 };
+```
 
 Width & Height - Define the size of the AABB. The collider is centered around the entity’s transform position.
 Collision Layer - Represents the category of the entity (e.g., Player, Enemy, Terrain, Projectile).
@@ -42,6 +43,7 @@ This allows rules such as:
 ---
 
 ## Why This Design Is Strong
+
 Fast: bitmask checks are extremely cheap
 
 Flexible: supports complex collision rules
