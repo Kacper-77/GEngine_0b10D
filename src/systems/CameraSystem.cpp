@@ -151,7 +151,7 @@ void CameraSystem::ApplyShake(CameraComponent& cam) {
     cam.position.y += offsetY;
 }
 
-// NEED TO THINK ABOUT IT'S FUTURE
+// UNUSED FOR NOW
 void CameraSystem::ClampToBounds(CameraComponent& cam) {
     cam.position.x = std::clamp(cam.position.x, cam.bounds.x, cam.bounds.x + cam.bounds.w - cam.viewportSize.x);
     cam.position.y = std::clamp(cam.position.y, cam.bounds.y, cam.bounds.y + cam.bounds.h - cam.viewportSize.y);

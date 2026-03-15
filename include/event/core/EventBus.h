@@ -163,6 +163,6 @@ private:
                        EventHandler<const Event&>>>> listeners;
 
     std::queue<std::unique_ptr<Event>> eventQueue;
-    mutable std::shared_mutex mutex_;  // Thread-Safe, shared in future
+    mutable std::shared_mutex mutex_;
     HandlerID nextHandlerID_ = 1;
 };

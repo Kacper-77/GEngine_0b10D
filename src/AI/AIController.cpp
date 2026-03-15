@@ -57,7 +57,6 @@ bool AIController::HealthLow() const {
 
 // Perception
 bool AIController::CanHearEnemy() const {
-    // Check condition
     if (!targetID.has_value() || !m_isAlive) return false;
 
     // Get TransformComponent of current target
@@ -72,7 +71,6 @@ bool AIController::CanHearEnemy() const {
 }
 
 bool AIController::CanSeeEnemy() const {
-    // Check condition
     if (!targetID.has_value() || !m_isAlive) return false;
 
     // Get TransformComponent of current target
@@ -83,7 +81,6 @@ bool AIController::CanSeeEnemy() const {
     VectorFloat targetPos = {target->position};
     VectorFloat toTarget = targetPos - m_position;
 
-    // Check condition v2
     if (toTarget.Length() > m_visionRange) return false;
 
     // Get facing direction
